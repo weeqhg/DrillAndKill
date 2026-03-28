@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI_Localization Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: UI_Localization
+  m_TableCollectionNameGuidString: 77a77745d244d28429f0d7dafb372eea
+  m_Entries:
+  - m_Id: 20403229933568
+    m_Key: continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298964488192
+    m_Key: setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298993848320
+    m_Key: general
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298993848321
+    m_Key: sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042624
+    m_Key: graphic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042625
+    m_Key: language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042626
+    m_Key: sensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042627
+    m_Key: fps_counter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042628
+    m_Key: back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262656
+    m_Key: main_volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262657
+    m_Key: music_volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262658
+    m_Key: sfx_volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569600
+    m_Key: window_mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569601
+    m_Key: resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569602
+    m_Key: full_screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102257755414528
+    m_Key: full_screen_window
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569604
+    m_Key: windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111507286253568
+    m_Key: exit_to_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430694821888
+    m_Key: start_game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430749347840
+    m_Key: author
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430749347841
+    m_Key: exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311735645888512
+    m_Key: main_dev
+    m_Metadata:
+      m_Items: []
+  - m_Id: 312029272334336
+    m_Key: thanks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519828660224
+    m_Key: stats_health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020352
+    m_Key: stats_move_speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020353
+    m_Key: stats_damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020354
+    m_Key: stats_attack_speed
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 4878987808700629257
+  references:
+    version: 2
+    RefIds:
+    - rid: 4878987808700629257
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1774602743538

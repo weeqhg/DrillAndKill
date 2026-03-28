@@ -97,3 +97,8 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Google Auth credentials and secrets
+/[Aa]ssets/Localization/GoogleAuth/*.json
+/[Aa]ssets/Localization/GoogleAuth/*.asset
+!Assets/Localization/GoogleAuth/README.txt
