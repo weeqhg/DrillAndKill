@@ -1,26 +1,34 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace WekenDev.MainMenu.UI
+
+
+public class AuthorUI : UIWindow
 {
-
-    public class AuthorUI : MonoBehaviour
+    [SerializeField] private Button _back;
+    public void Init()
     {
-        [SerializeField] private Button _back;
-        public event Action OnCloseAuthorUI;
-        public void Init()
-        {
-            _back.onClick.AddListener(() =>
-            {
-                OnCloseAuthorUI?.Invoke();
-            });
-        }
+        gameObject.SetActive(false);
 
-        private void OnDestroy()
+        _back.onClick.AddListener(() =>
         {
-            _back.onClick.RemoveAllListeners();
-        }
+            UIManager.Instance.CloseTop();
+        });
     }
 
+    public override void Show()
+    {
+        base.Show();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+    }
+
+    private void OnDestroy()
+    {
+        _back.onClick.RemoveAllListeners();
+    }
 }
+

@@ -1,5 +1,4 @@
 using UnityEngine;
-using WekenDev.InputSystem;
 
 public class DualGun : MonoBehaviour
 {
@@ -17,22 +16,28 @@ public class DualGun : MonoBehaviour
     private Camera _mainCamera;
     private CameraShake cameraShake;
     private AimAnimation aimAnimation;
-    private EntityStats stats;
+    private StatsController stats;
 
     private float _nextFireTime;
     private bool _isLeftTurn = true;
     private InputManager _inputManager;
     private bool _isShooting;
-
-    public void Initialize(CameraShake cameraShake)
+    private float attackRate;
+    private float damage;
+    private float chancheCrit;
+    private float critMultiplayer;
+    public void Initialize(CameraShake cameraShake, StatsController statsController)
     {
-        stats = GetComponentInParent<EntityStats>();
+        stats = statsController;
+        stats.OnStatsChanged += UpdateStats;
+        UpdateStats();
+
         vfx = GetComponentInChildren<WeaponVFX>();
         vfx.Initialize();
         sfx = GetComponentInChildren<PlayerRandomSFX>();
         aimAnimation = GetComponentInChildren<AimAnimation>();
         this.cameraShake = cameraShake;
-        sfx.Initialize();
+        
         _mainCamera = Camera.main;
         _inputManager = InputManager.Instance;
 
@@ -40,12 +45,21 @@ public class DualGun : MonoBehaviour
         _inputManager.Actions.Player.Shoot.canceled += ctx => _isShooting = false;
     }
 
+    private void UpdateStats()
+    {
+        attackRate = stats.GetStat(StatType.AttackRate);
+        damage = stats.GetStat(StatType.Damage);
+        chancheCrit = stats.GetStat(StatType.CritСhance) / 100f;
+        critMultiplayer = stats.GetStat(StatType.CritMultiplayer);
+    }
+
     private void Update()
     {
         if (_isShooting && Time.time >= _nextFireTime)
         {
             Shoot();
-            _nextFireTime = Time.time + stats.AttackSpeed;
+            float cooldown = 1f / attackRate;
+            _nextFireTime = Time.time + cooldown;
         }
     }
 
@@ -99,7 +113,8 @@ public class DualGun : MonoBehaviour
 
             // Нанесение урона
             var damageable = bulletHit.collider.GetComponent<IDamageable>();
-            damageable?.TakeDamage(stats.AttackDamage);
+            float finalDamage = CalculateHitDamage();
+            damageable?.TakeDamage(finalDamage);
         }
         else
         {
@@ -110,25 +125,20 @@ public class DualGun : MonoBehaviour
             }
         }
     }
-
-    // Для отладки
-    private void OnDrawGizmos()
+    private float CalculateHitDamage()
     {
-        // Отрисовка позиции начала луча для прицела
-        if (_mainCamera != null)
-        {
-            Vector3 rayOrigin = _mainCamera.transform.position + _mainCamera.transform.forward * rayStartOffset;
+        bool isCrit = Random.value < chancheCrit;
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(rayOrigin, 0.1f);
+        float finalDamage = damage;
 
-            // Линия от камеры до начала луча
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(_mainCamera.transform.position, rayOrigin);
+        if (isCrit)
+            finalDamage *= critMultiplayer;
 
-            // Направление луча
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(rayOrigin, _mainCamera.transform.forward * range);
-        }
+        return finalDamage;
+    }
+
+    private void OnDestroy()
+    {
+        if (stats != null) stats.OnStatsChanged -= UpdateStats;
     }
 }

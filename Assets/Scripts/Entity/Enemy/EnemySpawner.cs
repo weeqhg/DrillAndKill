@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -38,32 +39,34 @@ public class EnemySpawner : MonoBehaviour
     }
     private void SpawnEnemy(int id = 0)
     {
-        GameObject enemy = Instantiate(enemyPrefabs[id], FindAndSpawn(), Quaternion.identity);
+        if (!TryGetSpawnPosition(out Vector3 spawnPosition)) return;
 
-        EnemyManager enemyManager = enemy.GetComponent<EnemyManager>();
-        if (enemyManager != null)
+        GameObject enemy = Instantiate(enemyPrefabs[id], spawnPosition, Quaternion.identity);
+
+        if (enemy.TryGetComponent<EnemyManager>(out var enemyManager))
         {
             enemyManager.Initialize(_player);
             enemyManager.OnEnemyDied += RemoveEnemy;
             _allEnemyManagers.Add(enemyManager);
         }
-
     }
 
-    private Vector3 FindAndSpawn()
+    private bool TryGetSpawnPosition(out Vector3 spawnPosition)
     {
         for (int i = 0; i < 30; i++)
         {
             Vector3 randomPos = transform.position + Random.insideUnitSphere * radius;
-            randomPos.y += 10f;
 
-            if (Physics.Raycast(randomPos, Vector3.down, out RaycastHit hit, 30f, groundLayer))
+            if (Physics.Raycast(randomPos + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 30f, groundLayer) &&
+                NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
             {
-                return hit.point;
+                spawnPosition = navHit.position;
+                return true;
             }
         }
 
-        return Vector3.zero;
+        spawnPosition = Vector3.zero;
+        return false;
     }
 
     public void RemoveEnemy(EnemyManager enemyManager)

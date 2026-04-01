@@ -4,7 +4,7 @@ public class PlayerManager : MonoBehaviour
 {
     public void Initialize()
     {
-        EntityStats stats = GetComponent<EntityStats>();
+        StatsController statsController = GetComponentInChildren<StatsController>();
         CameraShake cameraShake = GetComponentInChildren<CameraShake>();
         CameraContorller cameraContorller = GetComponentInChildren<CameraContorller>();
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
@@ -13,13 +13,23 @@ public class PlayerManager : MonoBehaviour
         EventSFX eventSFX = GetComponent<EventSFX>();
         Health health = GetComponent<Health>();
         PlayerHUD playerHUD = GetComponentInChildren<PlayerHUD>();
+        LevelManager levelManager = GetComponentInChildren<LevelManager>();
+        PlayerCollector playerCollector = GetComponent<PlayerCollector>();
+        SkillTreeStats skillTreeStats = GetComponentInChildren<SkillTreeStats>();
+        SkillTreeUI skillTreeUI = GetComponentInChildren<SkillTreeUI>();
+        AutoPopup treePopup = GetComponentInChildren<AutoPopup>();
 
+        statsController.Initialize();
+        skillTreeStats.Initialize();
+        treePopup.Initialize();
+        skillTreeUI.Initialize(skillTreeStats);
         playerHUD.Initialize();
         cameraContorller.Initialize();
-        playerMovement.Initialize();
+        playerMovement.Initialize(statsController);
         ikFollower.Initialize();
-        dualGun.Initialize(cameraShake);
-        eventSFX.Initialize();
+        dualGun.Initialize(cameraShake, statsController);
         health?.Initialize();
+        levelManager.Initialize();
+        playerCollector.Initialize();
     }
 }

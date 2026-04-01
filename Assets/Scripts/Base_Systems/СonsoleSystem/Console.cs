@@ -4,9 +4,8 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using WekenDev.InputSystem;
 
-public class Console : MonoBehaviour
+public class Console : UIWindow
 {
     [Header("UI")]
     [SerializeField] private GameObject consolePanel;
@@ -15,60 +14,59 @@ public class Console : MonoBehaviour
 
     private int maxMessages = 10;
 
-    private InputManager _inputManager;
-
     private List<string> _messages = new List<string>();
     private Dictionary<string, Action<string[]>> _commands = new Dictionary<string, System.Action<string[]>>();
-
 
     private List<string> _commandList = new List<string>();
     private List<string> _currentMatches = new List<string>();
     private int _selectedIndex = -1;
     private string _currentInput = "";
-    private bool isGameMenu = false;
-
+    private int _helpPageSize = 10;
+    private List<string> _helpMessages = new List<string>();
     public void Initialize()
     {
         consolePanel.SetActive(false);
+
         RegisterCommands();
-        // Сохраняем список команд для автодополнения
         _commandList = _commands.Keys.ToList();
         _commandList.Sort();
 
-        if (inputField != null)
-        {
-            inputField.onSubmit.AddListener(ExecuteCommand);
-            inputField.onValueChanged.AddListener(OnInputChanged);
-            inputField.onEndEdit.AddListener(OnEndEdit);
-        }
+        inputField.onSubmit.AddListener(ExecuteCommand);
+        inputField.onValueChanged.AddListener(OnInputChanged);
 
-        _inputManager = InputManager.Instance;
-
-        if (consolePanel.activeSelf) _inputManager.ChangeInputType(InputType.Player);
-
-        _inputManager.Actions.Player.ConsoleOpen.performed += OnOpenConsole;
-        _inputManager.Actions.UI.ConsoleClose.performed += OnCloseConsole;
-        _inputManager.Actions.UI.Cancel.performed += OnCloseConsole;
-
-        _inputManager.Actions.UI.Up.performed += OnUpArrowPressed;
-        _inputManager.Actions.UI.Down.performed += OnDownArrowPressed;
-
-        GameEvents.OnGameMenu += value => isGameMenu = value;
-
-        // Подписка на Tab для автодополнения
-        _inputManager.Actions.UI.Tab.performed += OnTabPressed;
+        InputManager.Instance.Actions.UI.Up.performed += OnUpArrowPressed;
+        InputManager.Instance.Actions.UI.Down.performed += OnDownArrowPressed;
+        InputManager.Instance.Actions.UI.Tab.performed += OnTabPressed;
 
         GameEvents.OnConsoleMessage += AddMessage;
-
-        if (consolePanel.activeSelf)
-        {
-            ToggleConsole(true);
-        }
-        else
-        {
-            ToggleConsole(false);
-        }
     }
+
+    #region UIWindow
+
+    public override void Show()
+    {
+        base.Show();
+
+        consolePanel.SetActive(true);
+
+        _currentInput = "";
+        inputField.text = "";
+        inputField.ActivateInputField();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        consolePanel.SetActive(false);
+
+        _currentMatches.Clear();
+        _selectedIndex = -1;
+    }
+
+    #endregion
+
+    #region Input
 
     private void OnTabPressed(InputAction.CallbackContext context)
     {
@@ -100,21 +98,9 @@ public class Console : MonoBehaviour
         _currentInput = value;
         _selectedIndex = -1;
     }
+    #endregion
 
-    private void OnEndEdit(string value)
-    {
-
-    }
-
-    private void OnOpenConsole(InputAction.CallbackContext context)
-    {
-        ToggleConsole(true);
-    }
-
-    private void OnCloseConsole(InputAction.CallbackContext context)
-    {
-        ToggleConsole(false);
-    }
+    #region Logic
 
     private void ShowSuggestions()
     {
@@ -150,24 +136,34 @@ public class Console : MonoBehaviour
         _currentInput = inputField.text;
     }
 
-    private void ToggleConsole(bool enable)
+    private void ExecuteCommand(string input)
     {
-        if (isGameMenu) return;
+        AddMessage($"> {input}");
 
-        if (enable) _inputManager.ChangeInputType(InputType.UI);
-        else _inputManager.ChangeInputType(InputType.Player);
+        string[] parts = input.Split(' ');
+        string command = parts[0].ToLower();
+        string[] args = parts.Length > 1 ? parts[1..] : Array.Empty<string>();
 
-        GameEvents.Console(enable);
-        consolePanel.SetActive(enable);
-
-        if (consolePanel.activeSelf)
+        if (_commands.TryGetValue(command, out var cmd))
         {
-            _currentInput = "";
-            inputField.ActivateInputField();
-            inputField.text = "";
+            cmd.Invoke(args);
         }
+        else
+        {
+            AddMessage($"Unknown command: {command}");
+        }
+
+        inputField.text = "";
+        inputField.ActivateInputField();
+
+        _currentMatches.Clear();
+        _selectedIndex = -1;
+        _currentInput = "";
     }
 
+    #endregion
+
+    #region Commands
     private void RegisterCommands()
     {
         _commands.Add("help", Help);
@@ -182,39 +178,12 @@ public class Console : MonoBehaviour
         _commands.Add("sensitivity", SetSensitivity);
         _commands.Add("volumes", ShowVolumes);
         _commands.Add("scene", LoadSceneCommand);
+        _commands.Add("exp", SetExpCommand);
+        _commands.Add("reset_tree", ResetTreeCommand);
+        _commands.Add("talent_points", SetTalentPointsCommand);
+        _commands.Add("open_tree", OpenTreeCommand);
         _commands.Add("clear", Clear);
     }
-
-    private void ExecuteCommand(string input)
-    {
-        AddMessage($"> {input}");
-
-        string[] parts = input.Split(' ');
-        string command = parts[0].ToLower();
-        string[] args = parts.Length > 1 ? parts[1..] : new string[0];
-
-        if (_commands.ContainsKey(command))
-        {
-            _commands[command].Invoke(args);
-        }
-        else
-        {
-            AddMessage($"Unknown command: {command}. Type 'help' for available commands.");
-        }
-
-        // Сбрасываем состояние автодополнения
-        _currentInput = "";
-        _currentMatches.Clear();
-        _selectedIndex = -1;
-
-        // Очищаем поле и возвращаем фокус
-        inputField.text = "";
-        inputField.ActivateInputField();
-    }
-
-    #region Commands
-    private int _helpPageSize = 10;
-    private List<string> _helpMessages = new List<string>();
     private void Help(string[] args)
     {
         // Инициализируем список сообщений помощи при первом вызове
@@ -234,6 +203,10 @@ public class Console : MonoBehaviour
             "sensitivity <0-100> - Set sensitivity",
             "volumes - Show current volumes",
             "scene <name> - Load scene",
+            "exp <amount> - Give exp",
+            "reset_tree - Reset skill tree progress",
+            "talent_points <amount> - Add talent points",
+            "open_tree - Open skill tree UI",
             "clear - Clear console"
         };
         }
@@ -442,6 +415,60 @@ public class Console : MonoBehaviour
         GameEvents.GameStart(sceneName);
     }
 
+    private void SetExpCommand(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            AddMessage("Usage: addexp <amount>");
+            return;
+        }
+
+        if (int.TryParse(args[0], out int value))
+        {
+            GameEvents.CommandExp(value);
+            AddMessage($"Added {value} experience!");
+        }
+    }
+
+    private void ResetTreeCommand(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            AddMessage("Usage: reset_tree");
+            return;
+        }
+
+        GameEvents.CommandResetTree();
+        AddMessage("Skill tree progress reset!");
+    }
+
+    private void SetTalentPointsCommand(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            AddMessage("Usage: talent_points <amount>");
+            return;
+        }
+
+        if (int.TryParse(args[0], out int value))
+        {
+            GameEvents.CommandTalentPoints(value);
+            AddMessage($"Added {value} talent points!");
+        }
+    }
+
+    private void OpenTreeCommand(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            AddMessage("Usage: open_tree");
+            return;
+        }
+
+        GameEvents.TriggerTree();
+        AddMessage("Opened skill tree UI!");
+    }
+
     private void Clear(string[] args)
     {
         _messages.Clear();
@@ -471,18 +498,11 @@ public class Console : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Отписываемся от всех событий
-        GameEvents.OnGameMenu -= value => isGameMenu = value;
         GameEvents.OnConsoleMessage -= AddMessage;
 
-        if (_inputManager != null)
-        {
-            _inputManager.Actions.Player.ConsoleOpen.performed -= OnOpenConsole;
-            _inputManager.Actions.UI.ConsoleClose.performed -= OnCloseConsole;
-            _inputManager.Actions.UI.Cancel.performed -= OnCloseConsole;
-            _inputManager.Actions.UI.Up.performed -= OnUpArrowPressed;
-            _inputManager.Actions.UI.Down.performed -= OnDownArrowPressed;
-            _inputManager.Actions.UI.Tab.performed -= OnTabPressed;
-        }
+        var input = InputManager.Instance;
+        input.Actions.UI.Up.performed -= OnUpArrowPressed;
+        input.Actions.UI.Down.performed -= OnDownArrowPressed;
+        input.Actions.UI.Tab.performed -= OnTabPressed;
     }
 }

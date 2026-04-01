@@ -1,5 +1,4 @@
 using UnityEngine;
-using WekenDev.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -13,9 +12,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Jump Gravity")]
     [SerializeField] private float jumpRiseGravity = 1.5f;
     [SerializeField] private float jumpFallGravity = 2.5f;
-
+    //Статы
+    private float _moveSpeed;
+    private int _maxJump;
+    private float _jumpHeight;
     // Компоненты
-    private EntityStats _stats;
+    private StatsController _stats;
     private Rigidbody _rb;
     private InputManager _input;
     private Transform _cameraTransform;
@@ -35,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
     public bool IsFlying { get; private set; }
 
     public Rigidbody Rb => _rb;
-    public EntityStats Stats => _stats;
     public Transform CameraTransform => _cameraTransform;
     public Transform GroundCheck => groundCheck;
     public LayerMask GroundLayer => groundLayer;
@@ -43,9 +44,13 @@ public class PlayerMovement : MonoBehaviour
     public float GroundCheckRadius => groundCheckRadius;
     private bool _isShooting = false;
 
-    public void Initialize()
+    public float MoveSpeed => _moveSpeed;
+    public int MaxJump => _maxJump;
+    public float JumpHeight => _jumpHeight;
+
+    public void Initialize(StatsController statsController)
     {
-        _stats = GetComponent<EntityStats>();
+        _stats = statsController;
         _rb = GetComponent<Rigidbody>();
         _cameraTransform = Camera.main?.transform;
         _input = InputManager.Instance;
@@ -58,9 +63,17 @@ public class PlayerMovement : MonoBehaviour
         _fly = new PlayerFly(this);
         _animation = new AnimationController(GetComponent<Animator>());
 
-        _jump.Initialize();
-
         GameEvents.OnCommandPlayerFly += OnChangeFlyState;
+
+        _stats.OnStatsChanged += UpdateStats;
+        UpdateStats();
+    }
+
+    private void UpdateStats()
+    {
+        _moveSpeed = _stats.GetStat(StatType.MoveSpeed);
+        _maxJump = (int)_stats.GetStat(StatType.MaxJump);
+        _jumpHeight = _stats.GetStat(StatType.JumpHeight);
     }
 
     private void Update()
@@ -166,5 +179,6 @@ public class PlayerMovement : MonoBehaviour
     private void OnDestroy()
     {
         GameEvents.OnCommandPlayerFly -= OnChangeFlyState;
+        if (_stats != null) _stats.OnStatsChanged -= UpdateStats;
     }
 }

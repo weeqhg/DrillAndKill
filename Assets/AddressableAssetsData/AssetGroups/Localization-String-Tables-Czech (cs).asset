@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-cs
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9cd7367c80e795d4b94fc5a9d5dd2844
+    m_Address: SkillTree_cs
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-cs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: c62a0d93f1baf24429f8472ccdc8d4d4, type: 2}
   m_SchemaSet:

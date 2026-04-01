@@ -1,15 +1,11 @@
 using UnityEngine;
+using Unity.Cinemachine;
 using UnityEngine.UI;
-using System;
 
-
-public class MainMenuUI : MonoBehaviour
+public class MainMenuUI : UIWindow
 {
     [Header("Version")]
     [SerializeField] private Text version;
-    [Header("CanvasGroup")]
-    [SerializeField] private CanvasGroup _mainMenu;
-    [SerializeField] private CanvasGroup _authorMenu;
 
     [Header("Buttons")]
     [SerializeField] private Button _startGame;
@@ -17,63 +13,63 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _authorGame;
     [SerializeField] private Button _quitGame;
 
-    public event Action OnSettingsActiveUI;
-    public event Action OnStartGame;
-
-    public void Init()
+    private SettingManager _settingManager;
+    private CharacterSelectorUI _selectorUI;
+    private AuthorUI _authorUI;
+    private CinemachineCamera _cinemachineCameraMain;
+    private CinemachineCamera _cinemachineCameraSelector;
+    public override bool CanBeClosed => false;
+    public void Initialize(SettingManager settingManager, CharacterSelector characterSelector, AuthorUI authorUI, CinemachineCamera cinemachineCamera)
     {
-        ShowMainMenu();
+        _settingManager = settingManager;
+        _selectorUI = characterSelector.gameObject.GetComponentInChildren<CharacterSelectorUI>();
+        _authorUI = authorUI;
+        _cinemachineCameraMain = cinemachineCamera;
 
         version.text = "v" + Application.version;
 
-        _startGame.onClick.AddListener(StartGame);
-        _authorGame.onClick.AddListener(ShowAuthor);
-        _settingGame.onClick.AddListener(ShowSetting);
+        _startGame.onClick.AddListener(OpenCharacterSelector);
+        _authorGame.onClick.AddListener(OpenAuthorUI);
+        _settingGame.onClick.AddListener(OpenSettings);
         _quitGame.onClick.AddListener(QuitGame);
+
+        _cinemachineCameraSelector = characterSelector.GetComponentInChildren<CinemachineCamera>();
+    }
+    public override void Show()
+    {
+        base.Show();
+        _cinemachineCameraMain.enabled = true;
+        _cinemachineCameraSelector.enabled = false;
     }
 
-
-    public void ShowMainMenu()
+    public override void Hide()
     {
-        HideAll();
-
-        _mainMenu.alpha = 1f;
-        _mainMenu.interactable = true;
-        _mainMenu.blocksRaycasts = true;
+        base.Hide();
     }
 
-    private void StartGame()
+    private void OpenCharacterSelector()
     {
-        OnStartGame?.Invoke();
-        HideAll();
+        UIManager.Instance.Open(_selectorUI);
+        _cinemachineCameraMain.enabled = false;
+        _cinemachineCameraSelector.enabled = true;
     }
 
-
-    private void ShowAuthor()
+    private void OpenAuthorUI()
     {
-        HideAll();
-
-        _authorMenu.alpha = 1f;
-        _authorMenu.interactable = true;
-        _authorMenu.blocksRaycasts = true;
+        UIManager.Instance.Open(_authorUI);
     }
 
-    private void ShowSetting()
+    private void OpenSettings()
     {
-        HideAll();
-
-        OnSettingsActiveUI?.Invoke();
+        UIManager.Instance.Open(_settingManager);
     }
 
-    private void HideAll()
+    private void OnDestroy()
     {
-        _mainMenu.alpha = 0f;
-        _mainMenu.interactable = false;
-        _mainMenu.blocksRaycasts = false;
-
-        _authorMenu.alpha = 0f;
-        _authorMenu.interactable = false;
-        _authorMenu.blocksRaycasts = false;
+        _startGame.onClick.RemoveAllListeners();
+        _authorGame.onClick.RemoveAllListeners();
+        _settingGame.onClick.RemoveAllListeners();
+        _quitGame.onClick.RemoveAllListeners();
     }
 
     private void QuitGame()
@@ -87,4 +83,3 @@ public class MainMenuUI : MonoBehaviour
 #endif
     }
 }
-

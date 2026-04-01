@@ -43,7 +43,7 @@ public class CameraContorller : MonoBehaviour
 
     private void OnSensitivityChanged(float value)
     {
-        PlayerPrefs.SetFloat("Sensitivity", value);
+        PlayerPrefs.SetFloat(PlayerPrefsKeys.Sensitivity, value);
         gain = value;
         SetSensitivity(gain);
     }
@@ -56,8 +56,7 @@ public class CameraContorller : MonoBehaviour
         {
             if (controller.Name == "Look Orbit X" || controller.Name == "Look Orbit Y")
             {
-                controller.Enabled = !isPaused;  // Камера включена, когда НЕ пауза
-                Debug.Log($"Camera {(isPaused ? "disabled" : "enabled")}");
+                controller.Enabled = !isPaused;
             }
         }
     }

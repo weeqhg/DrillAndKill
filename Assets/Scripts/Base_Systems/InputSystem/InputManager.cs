@@ -1,59 +1,97 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-namespace WekenDev.InputSystem
+public enum InputType
 {
-    public enum InputType
+    Player,
+    UI
+}
+
+public class InputManager : MonoBehaviour
+{
+    public static InputManager Instance;
+    public InputSystem_Actions Actions => _actions;
+    private InputSystem_Actions _actions;
+    private Stack<InputType> inputStack = new Stack<InputType>();
+
+    private void Awake()
     {
-        Player, UI
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        _actions = new InputSystem_Actions();
+        _actions.Enable();
+
+        SetInput(InputType.Player);
     }
-    public class InputManager : MonoBehaviour
+
+    private void SetInput(InputType type)
     {
-        private InputSystem_Actions _actions;
-        public InputSystem_Actions Actions => _actions;
-
-        public static InputManager Instance;
-
-        private void Awake()
+        switch (type)
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            case InputType.Player:
+                _actions.Player.Enable();
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                GameEvents.TogglePause(false);
+                break;
 
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            case InputType.UI:
+                _actions.Player.Disable();
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                GameEvents.TogglePause(true);
+                break;
+        }
+    }
 
-            _actions = new InputSystem_Actions();
-            _actions.Enable();
+    public void PushInput(InputType type)
+    {
+        inputStack.Push(type);
+        SetInput(type);
+    }
+
+    // 🔥 Возвращаемся к предыдущему
+    public void PopInput()
+    {
+        if (inputStack.Count == 0)
+        {
+            SetInput(InputType.Player);
+            return;
         }
 
-        public void ChangeInputType(InputType inputType)
+        // удаляем текущее
+        inputStack.Pop();
+
+        if (inputStack.Count == 0)
         {
-            switch (inputType)
-            {
-                case InputType.Player:
-
-                    Cursor.visible = false;
-                    Cursor.lockState = CursorLockMode.Locked;
-                    _actions.Player.Enable();
-                    _actions.UI.Disable();
-                    Debug.Log("Player_Input");
-                    break;
-                case InputType.UI:
-
-                    Cursor.visible = true;
-                    Cursor.lockState = CursorLockMode.None;
-                    _actions.Player.Disable();
-                    _actions.UI.Enable();
-                    Debug.Log("UI_Input");
-                    break;
-            }
+            SetInput(InputType.Player);
         }
-
-        private void OnDestroy()
+        else
         {
-            if (_actions != null) _actions.Disable();
+            SetInput(inputStack.Peek());
         }
+    }
+
+    // (опционально) полный сброс
+    public void ResetInput()
+    {
+        inputStack.Clear();
+        SetInput(InputType.Player);
+    }
+
+    private void OnDestroy()
+    {
+        if (_actions != null)
+            _actions.Disable();
     }
 }
+
+

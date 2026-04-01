@@ -1,39 +1,25 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public class RangedEnemy : EnemyAI
 {
     [Header("Settings")]
     [SerializeField] private Transform shootPoint;
-    [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 8f;
     private float retreatRange = 30f;
     private float arcHeight = 8f;
     private float explosionRadius = 3f;
-    private EnemyVFX vfx;
-    private PlayerRandomSFX sfx;
-    private Queue<GameObject> _projectilePool = new Queue<GameObject>();
-    private Transform _poolParent;
-
-    public float testValue;
-
+    private PoolManager poolManager;
+    private float accuracy = 0.85f;
     public override void Initialize()
     {
         base.Initialize();
 
-        attackRange = stats.ShootRange;
-        vfx = GetComponent<EnemyVFX>();
-        sfx = GetComponentInChildren<PlayerRandomSFX>();
-        sfx?.Initialize();
-
-        _poolParent = new GameObject("ProjectilePool").transform;
-        _poolParent.SetParent(transform);
+        poolManager = PoolManager.Instance;
     }
 
     protected override void EnemyMove(float distance)
     {
-        if (distance > stats.ShootRange)
+        if (distance > attackShootRange)
         {
             agent.isStopped = false;
             agent.SetDestination(enemyManager.player.position);
@@ -63,11 +49,6 @@ public class RangedEnemy : EnemyAI
     protected override void EnemyAttack()
     {
         if (shootPoint == null || enemyManager.player == null) return;
-        if (projectilePrefab == null)
-        {
-            Debug.LogError("Projectile prefab not assigned!");
-            return;
-        }
 
         Vector3 lookDirection = (enemyManager.player.position - transform.position).normalized;
         lookDirection.y = 0;
@@ -77,102 +58,40 @@ public class RangedEnemy : EnemyAI
 
         Vector3 landingPoint = GetLandingPoint();
 
-        // Берём снаряд из пула
-        GameObject projectile = GetProjectile();
-        projectile.transform.position = shootPoint.position;
-        projectile.SetActive(true);
+        GameObject projectile = poolManager.Get(PoolId.Projectile, shootPoint.position);
 
-        StartCoroutine(MoveProjectile(projectile, landingPoint));
+        projectile.GetComponent<Projectile>()
+    .Init(poolManager, landingPoint, projectileSpeed, arcHeight, damage, explosionRadius);
     }
 
-    private GameObject GetProjectile()
-    {
-        var proj = _projectilePool.Count > 0 ? _projectilePool.Dequeue() : Instantiate(projectilePrefab, _poolParent);
-
-        return proj;
-    }
 
     private Vector3 GetLandingPoint()
     {
         if (enemyManager.player == null) return Vector3.zero;
 
+        Vector3 playerPos = enemyManager.player.position;
         Vector3 playerVel = enemyManager.player.GetComponent<PlayerMovement>()?.Rb.linearVelocity ?? Vector3.zero;
 
-        // Фиксированное время предсказания (подбирается экспериментально)
-        float predictionTime = testValue;
+        Vector3 from = shootPoint.position;
 
-        Vector3 target = enemyManager.player.position + playerVel * predictionTime;
-        target.x += Random.Range(-2.5f, 2.5f);
-        target.z += Random.Range(-2.5f, 2.5f);
+        Vector3 predicted = playerPos;
+        predicted = Vector3.Lerp(playerPos, predicted, accuracy);
 
-        if (Physics.Raycast(target + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f))
-            target = hit.point;
-
-        return target;
-    }
-
-
-    private IEnumerator MoveProjectile(GameObject projectile, Vector3 target)
-    {
-        Vector3 startPos = projectile.transform.position;
-        Vector3 targetPos = target;
-
-        float distance = Vector3.Distance(startPos, targetPos);
-        float duration = distance / projectileSpeed;
-        float elapsed = 0;
-
-        while (elapsed < duration)
+        for (int i = 0; i < 3; i++)
         {
-            if (enemyManager.IsStoped)
-            {
-                yield return null;
-                continue;
-            }
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
+            float distance = Vector3.Distance(from, predicted);
+            float time = distance / projectileSpeed * 1.1f;
 
-            // Движение по дуге
-            Vector3 currentPos = Vector3.Lerp(startPos, targetPos, t);
-
-            // Параболическая высота
-            float arc = arcHeight * Mathf.Sin(Mathf.PI * t);
-            currentPos.y += arc;
-
-            projectile.transform.position = currentPos;
-
-            yield return null;
+            predicted = playerPos + playerVel * time;
         }
 
-        projectile.transform.position = targetPos;
+        predicted.x += Random.Range(-1.5f, 1.5f);
+        predicted.z += Random.Range(-1.5f, 1.5f);
 
-        // Небольшая задержка перед взрывом
-        yield return new WaitForSeconds(0.1f);
+        if (Physics.Raycast(predicted + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f))
+            predicted = hit.point;
 
-        Explode(projectile.transform.position);
-
-        sfx?.PlayRandomSound();
-        vfx?.PlayImpact(projectile.transform.position);
-
-        ReturnProjectile(projectile);
+        return predicted;
     }
 
-    private void ReturnProjectile(GameObject projectile)
-    {
-        projectile.SetActive(false);
-        _projectilePool.Enqueue(projectile);
-    }
-
-    private void Explode(Vector3 position)
-    {
-        Collider[] hitColliders = Physics.OverlapSphere(position, explosionRadius);
-
-        foreach (Collider hit in hitColliders)
-        {
-            if (hit.CompareTag("Player"))
-            {
-                var damageable = hit.GetComponent<IDamageable>();
-                damageable?.TakeDamage(stats.AttackDamage);
-            }
-        }
-    }
 }

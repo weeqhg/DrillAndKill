@@ -1,5 +1,4 @@
 using System;
-using NUnit.Framework;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
@@ -12,9 +11,11 @@ public class EnemyManager : MonoBehaviour
         GameEvents.OnPlayerSpawned += OnPlayerSpawnedHandler;
 
         this.player = player;
+        StatsController statsController = GetComponentInChildren<StatsController>();
         EnemyAI ai = GetComponent<EnemyAI>();
         Health health = GetComponent<Health>();
 
+        statsController.Initialize();
         health.Initialize();
         ai.Initialize();
     }

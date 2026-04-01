@@ -19,4 +19,12 @@ public static class PlayerPrefsKeys
     public const string QualityLevel = "QualityLevel";
     public const string Fullscreen = "Fullscreen";
     public const string Resolution = "Resolution";
+
+    //SkillTree
+    public const string SkillTreePoints = "SkillTree_Points";
+    public const string SkillTreeUnlocked = "SkillTree_Unlocked";
+
+    //Level
+    public const string Level = "Level";
+    public const string Exp = "Exp";
 }

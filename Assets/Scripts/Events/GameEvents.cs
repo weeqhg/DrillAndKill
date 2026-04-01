@@ -10,8 +10,11 @@ public static class GameEvents
     public static event Action<string> OnConsoleMessage;
     public static event Action<float> OnSensitivityChanged;
     public static event Action<bool> OnCommandPlayerFly;
-    public static event Action<bool> OnGameMenu;
-    public static event Action<bool> OnConsole;
+    public static event Action<bool> OnTogglePause;
+    public static event Action<int> OnCommandExp;
+    public static event Action OnCommandResetTree;
+    public static event Action<int> OnCommandTalentPoints;
+    public static event Action OnTriggerTreePanel;
     public static void GameStart(string sceneName)
     {
         OnGameStart?.Invoke(sceneName);
@@ -48,13 +51,25 @@ public static class GameEvents
     {
         OnCommandPlayerFly?.Invoke(value);
     }
-    public static void GameMenu(bool enable)
+    public static void CommandExp(int value)
     {
-        OnGameMenu?.Invoke(enable);
+        OnCommandExp?.Invoke(value);
     }
-    public static void Console(bool enable)
+    public static void CommandResetTree()
     {
-        OnConsole?.Invoke(enable);
+        OnCommandResetTree?.Invoke();
+    }
+    public static void CommandTalentPoints(int amount)
+    {
+        OnCommandTalentPoints?.Invoke(amount);
+    }
+    public static void TogglePause(bool enable)
+    {
+        OnTogglePause?.Invoke(enable);
+    }
+    public static void TriggerTree()
+    {
+        OnTriggerTreePanel?.Invoke();
     }
 
 }

@@ -126,6 +126,10 @@ MonoBehaviour:
     m_Localized: "Rychlost \xFAtoku: {0}"
     m_Metadata:
       m_Items: []
+  - m_Id: 1223347269525504
+    m_Localized: "\xDArove\u0148 {0}"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

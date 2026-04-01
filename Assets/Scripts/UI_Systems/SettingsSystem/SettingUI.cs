@@ -2,95 +2,90 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace WekenDev.Settings
+public class SettingUI : MonoBehaviour
 {
-    public class SettingUI : MonoBehaviour
+    [SerializeField] private CanvasGroup _mainSetting;
+    [SerializeField] private CanvasGroup _generalSetting;
+    [SerializeField] private CanvasGroup _soundSetting;
+    [SerializeField] private CanvasGroup _graphicSetting;
+
+    [SerializeField] private Button _generalButton;
+    [SerializeField] private Button _soundButton;
+    [SerializeField] private Button _graphicButton;
+    [SerializeField] private Button _backButton;
+
+    public void Init()
     {
-        [SerializeField] private CanvasGroup _mainSetting;
-        [SerializeField] private CanvasGroup _generalSetting;
-        [SerializeField] private CanvasGroup _soundSetting;
-        [SerializeField] private CanvasGroup _graphicSetting;
-
-        [SerializeField] private Button _generalButton;
-        [SerializeField] private Button _soundButton;
-        [SerializeField] private Button _graphicButton;
-        [SerializeField] private Button _backButton;
-
-        public event Action OnSettingsDisableUI;
-
-        public void Init()
+        _generalButton.onClick.AddListener(ShowGeneraly);
+        _soundButton.onClick.AddListener(ShowSound);
+        _graphicButton.onClick.AddListener(ShowGraphics);
+        _backButton.onClick.AddListener(() =>
         {
-            _generalButton.onClick.AddListener(ShowGeneraly);
-            _soundButton.onClick.AddListener(ShowSound);
-            _graphicButton.onClick.AddListener(ShowGraphics);
-            _backButton.onClick.AddListener(() =>
-            {
-                OnSettingsDisableUI?.Invoke();
-            });
-        }
+            UIManager.Instance.CloseTop();
+        });
+    }
 
-        public void ShowSetting()
-        {
-            _mainSetting.alpha = 1f;
-            _mainSetting.interactable = true;
-            _mainSetting.blocksRaycasts = true;
-        }
+    public void ShowSetting()
+    {
+        _mainSetting.alpha = 1f;
+        _mainSetting.interactable = true;
+        _mainSetting.blocksRaycasts = true;
+    }
 
-        public void HideSetting()
-        {
-            _mainSetting.alpha = 0f;
-            _mainSetting.interactable = false;
-            _mainSetting.blocksRaycasts = false;
-        }
+    public void HideSetting()
+    {
+        _mainSetting.alpha = 0f;
+        _mainSetting.interactable = false;
+        _mainSetting.blocksRaycasts = false;
+    }
 
-        private void ShowGeneraly()
-        {
-            HideAll();
+    private void ShowGeneraly()
+    {
+        HideAll();
 
-            _generalSetting.alpha = 1f;
-            _generalSetting.interactable = true;
-            _generalSetting.blocksRaycasts = true;
-        }
+        _generalSetting.alpha = 1f;
+        _generalSetting.interactable = true;
+        _generalSetting.blocksRaycasts = true;
+    }
 
-        private void ShowSound()
-        {
-            HideAll();
+    private void ShowSound()
+    {
+        HideAll();
 
-            _soundSetting.alpha = 1f;
-            _soundSetting.interactable = true;
-            _soundSetting.blocksRaycasts = true;
-        }
+        _soundSetting.alpha = 1f;
+        _soundSetting.interactable = true;
+        _soundSetting.blocksRaycasts = true;
+    }
 
-        private void ShowGraphics()
-        {
-            HideAll();
+    private void ShowGraphics()
+    {
+        HideAll();
 
-            _graphicSetting.alpha = 1f;
-            _graphicSetting.interactable = true;
-            _graphicSetting.blocksRaycasts = true;
-        }
+        _graphicSetting.alpha = 1f;
+        _graphicSetting.interactable = true;
+        _graphicSetting.blocksRaycasts = true;
+    }
 
-        private void HideAll()
-        {
-            _generalSetting.alpha = 0f;
-            _generalSetting.interactable = false;
-            _generalSetting.blocksRaycasts = false;
+    private void HideAll()
+    {
+        _generalSetting.alpha = 0f;
+        _generalSetting.interactable = false;
+        _generalSetting.blocksRaycasts = false;
 
-            _soundSetting.alpha = 0f;
-            _soundSetting.interactable = false;
-            _soundSetting.blocksRaycasts = false;
+        _soundSetting.alpha = 0f;
+        _soundSetting.interactable = false;
+        _soundSetting.blocksRaycasts = false;
 
-            _graphicSetting.alpha = 0f;
-            _graphicSetting.interactable = false;
-            _graphicSetting.blocksRaycasts = false;
-        }
+        _graphicSetting.alpha = 0f;
+        _graphicSetting.interactable = false;
+        _graphicSetting.blocksRaycasts = false;
+    }
 
-        private void OnDestroy()
-        {
-            if (_generalButton != null) _generalButton.onClick.RemoveListener(ShowGeneraly);
-            if (_soundButton != null) _soundButton.onClick.RemoveListener(ShowSound);
-            if (_graphicButton != null) _graphicButton.onClick.RemoveListener(ShowGraphics);
-            if (_backButton != null) _backButton.onClick.RemoveListener(HideSetting);
-        }
+    private void OnDestroy()
+    {
+        if (_generalButton != null) _generalButton.onClick.RemoveListener(ShowGeneraly);
+        if (_soundButton != null) _soundButton.onClick.RemoveListener(ShowSound);
+        if (_graphicButton != null) _graphicButton.onClick.RemoveListener(ShowGraphics);
+        if (_backButton != null) _backButton.onClick.RemoveListener(HideSetting);
     }
 }

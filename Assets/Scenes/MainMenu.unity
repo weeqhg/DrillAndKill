@@ -206,8 +206,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.00076839764, y: 0.9935758, z: -0.00675845, w: 0.11296395}
-  m_LocalPosition: {x: 0, y: -51.02, z: 5.73}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -637,10 +637,13 @@ MonoBehaviour:
   playerSpawnerPrefab: {fileID: 0}
   inputManagerPrefab: {fileID: 1009862581978582870, guid: 15e806bd63f4033478cf3ab820cc7f53, type: 3}
   audioManagerPrefab: {fileID: 5059156929089569218, guid: 7eb7b81e6ca7d0a41ab53236994e74be, type: 3}
-  consolePrefab: {fileID: 0}
+  consolePrefab: {fileID: 5822383239672993275, guid: 77dfbfdef6bf9684c8b233f786b722fd, type: 3}
   enemySpawnerPrefab: {fileID: 0}
   pauseManagerPrefab: {fileID: 0}
   gameMenuPrefab: {fileID: 0}
+  poolManagerPrefab: {fileID: 0}
+  gameInputPrefab: {fileID: 9146104376656287144, guid: 0eb5d80daf566124ba677d42f181b401, type: 3}
+  uiManagerPrefab: {fileID: 8882298019490454233, guid: 24489e1235204a641ba1bb610d8c6dd5, type: 3}
 --- !u!1 &1237154542
 GameObject:
   m_ObjectHideFlags: 0

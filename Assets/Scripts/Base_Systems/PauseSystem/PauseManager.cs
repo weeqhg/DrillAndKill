@@ -5,8 +5,13 @@ public class PauseManager : MonoBehaviour
 {
     public void Initialize()
     {
-        GameEvents.OnConsole += TogglePauseHandler;
-        GameEvents.OnGameMenu += TogglePauseHandler;
+        GameEvents.OnTogglePause += TogglePauseHandler;
+
+
+        GameMenu gameMenu = GetComponentInChildren<GameMenu>();
+        gameMenu.Initialize();
+        SettingManager settingManager = GetComponentInChildren<SettingManager>();
+        settingManager.Initialize();
     }
 
     private void TogglePauseHandler(bool enable)
@@ -16,7 +21,6 @@ public class PauseManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameEvents.OnConsole -= TogglePauseHandler;
-        GameEvents.OnGameMenu -= TogglePauseHandler;
+       GameEvents.OnTogglePause -= TogglePauseHandler;
     }
 }

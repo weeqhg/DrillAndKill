@@ -64,6 +64,11 @@ public class AudioManager : MonoBehaviour
         _UIController.PlayAudioUI(type);
     }
 
+    public void PlayAudioSFX(TypeSFX type)
+    {
+        _sxfController.PlayAudioSFX(type);
+    }
+
 
     #region Volume Control
 

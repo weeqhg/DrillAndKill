@@ -3,12 +3,8 @@ using UnityEngine;
 public class PlayerRandomSFX : MonoBehaviour
 {
     [SerializeField] private AudioClip[] sounds;
-    private float pitchVariation = 0.05f;
-    private AudioSource audioSource;
-    public void Initialize()
-    {
-        audioSource = GetComponent<AudioSource>();
-    }
+    [SerializeField] private AudioSource audioSource;
+    private float pitchVariation = 0.3f;
 
     public void PlayRandomSound()
     {

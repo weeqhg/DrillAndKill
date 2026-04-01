@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class PlayerFly : MonoBehaviour
+public class PlayerFly
 {
-    
     private float _flySpeed = 15f;
     private float _flyAccelRate = 10f;
     private Rigidbody _rb;

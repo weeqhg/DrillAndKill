@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: SkillTree Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: SkillTree
+  m_TableCollectionNameGuidString: 9a707840dbbd47a4aa8c7a2506f2bdba
+  m_Entries:
+  - m_Id: 2108548300800
+    m_Key: health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2108590243840
+    m_Key: damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2108590243841
+    m_Key: speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2108590243842
+    m_Key: attack_speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47756801466368
+    m_Key: flat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47756826632192
+    m_Key: increased
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47756826632193
+    m_Key: more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48484152500224
+    m_Key: coast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48936030035968
+    m_Key: skill_point
+    m_Metadata:
+      m_Items: []
+  - m_Id: 377755869896704
+    m_Key: reset_point
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 4878987851846647915
+  references:
+    version: 2
+    RefIds:
+    - rid: 4878987851846647915
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1774796262708

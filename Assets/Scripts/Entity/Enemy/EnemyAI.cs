@@ -7,9 +7,12 @@ public abstract class EnemyAI : MonoBehaviour
     protected EnemyManager enemyManager;
     protected NavMeshAgent agent;
     protected Animator animator;
-    protected EntityStats stats;
+    protected StatsController stats;
     protected float lastAttackTime;
-    protected float attackRange;
+    protected float attackShootRange;
+    protected float attackMeeleRange;
+    protected float attackRate;
+    protected float damage;
     private bool _lastStopState;
 
     public virtual void Initialize()
@@ -17,7 +20,18 @@ public abstract class EnemyAI : MonoBehaviour
         enemyManager = GetComponent<EnemyManager>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        stats = GetComponent<EntityStats>();
+        stats = GetComponentInChildren<StatsController>();
+        stats.OnStatsChanged += UpdateStats;
+
+        UpdateStats();
+    }
+
+    private void UpdateStats()
+    {
+        attackRate = stats.GetStat(StatType.AttackRate);
+        attackShootRange = stats.GetStat(StatType.ShootRange);
+        attackMeeleRange = stats.GetStat(StatType.MeleeRange);
+        damage = stats.GetStat(StatType.Damage);
     }
 
     private void Update()
@@ -42,7 +56,7 @@ public abstract class EnemyAI : MonoBehaviour
         }
 
         if (isStopped) return;
-        
+
         if (enemyManager.player == null) return;
 
         float distance = Vector3.Distance(transform.position, enemyManager.player.position);
@@ -55,9 +69,14 @@ public abstract class EnemyAI : MonoBehaviour
     protected virtual bool CanAttack()
     {
         if (enemyManager.IsStoped) return false;
-
-        return Time.time >= lastAttackTime + stats.AttackSpeed;
+        
+        float cooldown = 1f / attackRate;
+        return Time.time >= lastAttackTime + cooldown;
     }
 
 
+    private void OnDestroy()
+    {
+        stats.OnStatsChanged -= UpdateStats;
+    }
 }

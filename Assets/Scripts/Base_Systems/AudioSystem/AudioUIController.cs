@@ -3,6 +3,7 @@ using UnityEngine;
 public enum TypeUiAudio
 {
     Button,
+    ButtonSelect,
     Slider
 }
 
@@ -13,6 +14,7 @@ namespace WekenDev.AudioManagerGame
     {
         [Header("UI Sound")]
         [SerializeField] private AudioClip[] _buttons;
+        [SerializeField] private AudioClip[] _buttonsSelect;
         [SerializeField] private AudioClip[] _sliders;
         private AudioSource _audio;
         public void Init()
@@ -27,6 +29,9 @@ namespace WekenDev.AudioManagerGame
                 case TypeUiAudio.Button:
                     PlayButton();
                     break;
+                case TypeUiAudio.ButtonSelect:
+                    PlaySelect();
+                    break;
                 case TypeUiAudio.Slider:
                     PlaySlide();
                     break;
@@ -38,6 +43,15 @@ namespace WekenDev.AudioManagerGame
             if (_buttons.Length > 0)
             {
                 AudioClip clip = _buttons[Random.Range(0, _buttons.Length)];
+                _audio.PlayOneShot(clip);
+            }
+        }
+
+        private void PlaySelect()
+        {
+            if (_buttons.Length > 0)
+            {
+                AudioClip clip = _buttonsSelect[Random.Range(0, _buttonsSelect.Length)];
                 _audio.PlayOneShot(clip);
             }
         }

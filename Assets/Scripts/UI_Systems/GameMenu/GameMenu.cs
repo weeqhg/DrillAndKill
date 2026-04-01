@@ -1,112 +1,67 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using WekenDev.InputSystem;
-using WekenDev.Settings;
 
-public class GameMenu : MonoBehaviour
+public class GameMenu : UIWindow
 {
     [SerializeField] private string sceneName = "MainMenu";
     [SerializeField] private SettingManager settingMenuPrefab;
     [SerializeField] private Button continueButton;
     [SerializeField] private Button settingButton;
     [SerializeField] private Button exitMenuButton;
-    private bool isConsole = false;
-    private bool isSetting = false;
-    private CanvasGroup canvasGroupGameMenu;
-    private SettingManager settingManager;
-    private EntityStatsUI statsUI;
+    [SerializeField] private GameObject gameMenuPanel;
+    [SerializeField] private SettingManager settingManager;
+    private StatsControllerUI statsUI;
+
     public void Initialize()
     {
-        statsUI = GetComponentInChildren<EntityStatsUI>();
-        canvasGroupGameMenu = GetComponentInChildren<CanvasGroup>();
-        GameEvents.OnPlayerSpawned += (PlayerManager playerManager) =>
-        {
-            statsUI.UpdateComponent(playerManager);
-        };
-        GameEvents.OnConsole += value => isConsole = value;
-        InputManager.Instance.Actions.Player.Pause.performed += OpenGameMenu;
-        InputManager.Instance.Actions.UI.Cancel.performed += Cancel;
+        statsUI = GetComponentInChildren<StatsControllerUI>();
 
-        continueButton.onClick.AddListener(() =>
-        {
-            ToggleGameMenu(false);
-        });
+        continueButton.onClick.AddListener(() => UIManager.Instance.Close(this));
+        settingButton.onClick.AddListener(OpenSettings);
+        exitMenuButton.onClick.AddListener(Exit);
 
-        settingButton.onClick.AddListener(() =>
-        {
-            HideGameMenu();
-            settingManager.Show();
-            isSetting = true;
-        });
+        GameEvents.OnPlayerSpawned += SetComponent;
 
-        settingManager = Instantiate(settingMenuPrefab, transform);
-        if (settingManager != null)
-        {
-            settingManager.Initialize();
-            settingManager.OnCloseSetting += () =>
-            {
-                isSetting = false;
-                ShowGameMenu();
-            };
-        }
+        settingManager.Initialize();
 
-        exitMenuButton.onClick.AddListener(() =>
-        {
-            GameEvents.GameStart(sceneName);
-        });
-
-
-        HideGameMenu();
-    }
-    private void OpenGameMenu(InputAction.CallbackContext contex)
-    {
-        ToggleGameMenu(true);
-    }
-    private void Cancel(InputAction.CallbackContext contex)
-    {
-        if (isSetting) return;
-
-        ToggleGameMenu(false);
+        gameMenuPanel.SetActive(false);
     }
 
-    private void HideGameMenu()
+    private void OpenSettings()
     {
-        canvasGroupGameMenu.alpha = 0f;
-        canvasGroupGameMenu.interactable = false;
-        canvasGroupGameMenu.blocksRaycasts = false;
+        UIManager.Instance.Open(settingManager);
     }
 
-    private void ShowGameMenu()
+    private void Exit()
     {
-        canvasGroupGameMenu.alpha = 1f;
-        canvasGroupGameMenu.interactable = true;
-        canvasGroupGameMenu.blocksRaycasts = true;
+        UIManager.Instance.Close(this);
+        GameEvents.GameStart(sceneName);
     }
-    private void ToggleGameMenu(bool enable)
+
+    private void SetComponent(PlayerManager playerManager)
     {
-        if (isConsole) return;
+        statsUI.Initialize(playerManager.GetComponentInChildren<StatsController>());
+    }
 
-        if (enable) InputManager.Instance.ChangeInputType(InputType.UI);
-        else InputManager.Instance.ChangeInputType(InputType.Player);
+    public override void Show()
+    {
+        base.Show();
+        gameMenuPanel.SetActive(true);
+        statsUI?.UpdateUI();
+    }
 
-        GameEvents.GameMenu(enable);
-
-        if (enable) ShowGameMenu();
-        else HideGameMenu();
-
-        if (enable) statsUI.UpdateUI();
+    public override void Hide()
+    {
+        base.Hide();
+        gameMenuPanel.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        InputManager.Instance.Actions.Player.Pause.performed -= OpenGameMenu;
-        InputManager.Instance.Actions.UI.Cancel.performed -= Cancel;
-        GameEvents.OnConsole -= value => isConsole = value;
-        GameEvents.OnPlayerSpawned -= (PlayerManager playerManager) =>
-        {
-            statsUI.UpdateComponent(playerManager);
-        };
-        settingManager.OnCloseSetting -= () => isSetting = false;
+        continueButton.onClick.RemoveAllListeners();
+        settingButton.onClick.RemoveAllListeners();
+        exitMenuButton.onClick.RemoveAllListeners();
+
+        GameEvents.OnPlayerSpawned -= SetComponent;
     }
 }

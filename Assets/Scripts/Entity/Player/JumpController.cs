@@ -9,23 +9,17 @@ public class JumpController
     private float _jumpFallGravity;
     private float _bunnyHopWindow = 0.3f;
     private float _bunnyHopSpeedBonus = 6f;
-
-    private int _jumpsRemaining;
     private float _lastLandingTime;
     private bool _isJumping;
     private bool _jumpQueued;
-
+    private int _jumpsRemaining;
     public JumpController(PlayerMovement player, float riseGravity, float fallGravity)
     {
         _player = player;
         _rb = player.Rb;
         _jumpRiseGravity = riseGravity;
         _jumpFallGravity = fallGravity;
-    }
-
-    public void Initialize()
-    {
-        _jumpsRemaining = _player.Stats.MaxJump;
+        _jumpsRemaining = _player.MaxJump;
     }
 
     public void QueueJump() => _jumpQueued = true;
@@ -63,7 +57,7 @@ public class JumpController
         velocity.y = 0;
         _rb.linearVelocity = velocity;
 
-        float jumpForce = Mathf.Sqrt(_player.Stats.JumpHeight * 1000 * -2f * Physics.gravity.y);
+        float jumpForce = Mathf.Sqrt(_player.JumpHeight * 1000 * -2f * Physics.gravity.y);
         _rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
 
         _player.OnJumpPerformed();
@@ -80,7 +74,7 @@ public class JumpController
             }
             _lastLandingTime = Time.time;
         }
-        if (isGrounded) _jumpsRemaining = _player.Stats.MaxJump;
+        if (isGrounded) _jumpsRemaining = _player.MaxJump;
     }
 
     public void HandleGravity(ref Rigidbody rb)

@@ -126,6 +126,10 @@ MonoBehaviour:
     m_Localized: 'Angriffsgeschwindigkeit: {0}'
     m_Metadata:
       m_Items: []
+  - m_Id: 1223347269525504
+    m_Localized: Stufe {0}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

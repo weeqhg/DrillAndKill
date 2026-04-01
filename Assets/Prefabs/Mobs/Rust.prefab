@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2008713612208599494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2177096036202632340}
+  m_Layer: 2
+  m_Name: SpawnPointOrb
+  m_TagString: Untagged
+  m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2177096036202632340
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2008713612208599494}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.846154, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7777089683067407373}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4810977672449357545
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,8 +41,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5047742839205169705}
   - component: {fileID: 1588825295754136607}
-  m_Layer: 0
-  m_Name: AudioSource
+  m_Layer: 2
+  m_Name: AudioSourceSFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,6 +160,104 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &5230641292473846888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7065869876466511659}
+  - component: {fileID: 3514669134472155400}
+  - component: {fileID: 6139151089929558745}
+  - component: {fileID: 7847716761009477156}
+  m_Layer: 2
+  m_Name: StatsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7065869876466511659
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5230641292473846888}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7777089683067407373}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3514669134472155400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5230641292473846888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0703cad490f00fe4f815757f04895807, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatsCounter
+  baseStats: {fileID: 6139151089929558745}
+  skillTreeStats: {fileID: 0}
+  levelStats: {fileID: 7847716761009477156}
+--- !u!114 &6139151089929558745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5230641292473846888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2357b6f9949f3614ab1c4ba38589ff6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  _maxHealth: 10
+  _regenerationHealth: 0
+  _shield: 0
+  _armor: 0
+  _evasion: 0
+  _stealingLife: 0
+  _thorns: 0
+  _damage: 1
+  "_\u0441rit\u0421hance": 0
+  "_\u0441ritMultiplayer": 1
+  _attackRate: 1
+  _moveSpeed: 8
+  _maxJump: 4
+  _jumpHeight: 8
+  _luck: 0
+  _meleeRange: 2
+  _shootRange: 50
+  _pickupRadius: 5
+  _pickingSpeed: 10
+--- !u!114 &7847716761009477156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5230641292473846888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 325dcbd044808d548b3c05fbf7fd88c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelStats
+  sineAmplitude: 20
+  sineFrequency: 0.5
+  healthPerLevel: 12
+  damagePerLevel: 1.5
+  armorPerLevel: 1
+  attackRatePerLevel: 0.02
 --- !u!1001 &7811349113238973414
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -137,6 +266,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8890421595164087009, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8731809467748126874, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.3
@@ -189,41 +326,155 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7062334690443546267, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6923288365256430033, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6802080580729848710, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6252116074218778627, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -5952674754002627914, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -4500577024908136131, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2835020429178255316, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2545058128863461703, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: -2298202865752111716, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1841680040800699666, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -1510084383545068621, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -699558457339342743, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 399826174902452375, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 881288493153887280, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       propertyPath: m_Name
       value: Rust
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1514043362091435081, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1526960090318491019, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1692197839895410875, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3534328646696090900, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597955885862099517, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5094968727429241412, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5534372580140943470, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 11b6a855f6732444f82a4c9ae819a362, type: 2}
+    - target: {fileID: 6989137429950854989, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7036213049465896255, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7676282704839696438, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7820549414023356455, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8046387151870293094, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8442353596220694721, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       propertyPath: m_Name
       value: Rust
+      objectReference: {fileID: 0}
+    - target: {fileID: 8442353596220694721, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 7065869876466511659}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5047742839205169705}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2177096036202632340}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       insertIndex: 1
       addedObject: {fileID: 7108829535686602814}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       insertIndex: 2
-      addedObject: {fileID: 5883953400605910647}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
-      insertIndex: 3
       addedObject: {fileID: 6944563415488276140}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
-      insertIndex: 4
+      insertIndex: 3
       addedObject: {fileID: 6753165700740110084}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 8131158798035438320}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7324cad52b1d42240a32e19ec371c6a1, type: 3}
       insertIndex: 5
       addedObject: {fileID: 2975426002940307113}
@@ -251,26 +502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c469a55254ae1134fb57b4523f009489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyManager
---- !u!114 &5883953400605910647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6964277445413754551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2357b6f9949f3614ab1c4ba38589ff6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  _maxHealth: 100
-  _moveSpeed: 4
-  _attackSpeed: 1
-  _attackDamage: 10
-  _jumpHeight: 8
-  _maxJump: 1
-  _meleeRange: 2
-  _shootRange: 50
 --- !u!114 &6944563415488276140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +527,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88fdc5dc75d4ea34cae9ef3a837a3109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeEnemy
+--- !u!114 &8131158798035438320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6964277445413754551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 872fa26753b3a124b8962be7a1b25696, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExpDropper
+  minExp: 5
+  maxExp: 15
+  orbCount: 3
+  spawnPoint: {fileID: 2177096036202632340}
 --- !u!195 &2975426002940307113
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -353,12 +600,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f98d70dd17046a498bf28c836520b79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEventSFX
-  audioSource: {fileID: 1588825295754136607}
+  audioSourceDefautl: {fileID: 1588825295754136607}
+  audioSourceRandomPitch: {fileID: 0}
   footstepSounds: []
   getHitSounds: []
   dieSounds:
   - {fileID: 8300000, guid: 73a820de19bd35e4c8361e9e027b8678, type: 3}
   jumpSounds: []
+  expSounds: []
   _slideClip: {fileID: 0}
 --- !u!4 &7777089683067407373 stripped
 Transform:

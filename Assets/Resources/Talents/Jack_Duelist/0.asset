@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2816c03c217894944b46abaa39d91042, type: 3}
+  m_Name: 0
+  m_EditorClassIdentifier: Assembly-CSharp::TalentNodeData
+  id: 0
+  icon: {fileID: 729184816, guid: 9e4aa86d583ad1845a3674950c2bcb89, type: 3}
+  nodeName:
+    m_TableReference:
+      m_TableCollectionName: GUID:77a77745d244d28429f0d7dafb372eea
+    m_TableEntryReference:
+      m_KeyId: 311430694821888
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  connections:
+  - AS_1
+  - HP_1
+  - SPD_1
+  statType: 0
+  nodeType: 0
+  statValue: 0
+  modifierType: 0
+  cost: 0
+  references:
+    version: 2
+    RefIds: []
