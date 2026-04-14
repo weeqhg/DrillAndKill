@@ -7,7 +7,6 @@ public class HealthUI : MonoBehaviour
 {
     [SerializeField] private Slider healthSlider;
     [SerializeField] private TextMeshProUGUI healthText;
-
     private float _currentHealth;
     private float _maxHealth;
     private Tween _currentValueTween;

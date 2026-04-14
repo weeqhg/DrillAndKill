@@ -1,13 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.SceneManagement;
 public enum PoolId
 {
     ExpOrb,
+    CoinOrb,
     Projectile,
     TracerPlayer,
     TracerEnemy,
     Hit,
-    ExploseEffect
+    ExploseEffect,
+    Dust_Default,
+    Dust_Land,
+    Hole,
+    Indicator
 }
 public class PoolManager : MonoBehaviour
 {
@@ -24,6 +31,7 @@ public class PoolManager : MonoBehaviour
 
     [SerializeField] private List<Pool> pools = new();
     private Dictionary<PoolId, Queue<GameObject>> poolDictionary = new();
+    private Dictionary<PoolId, List<GameObject>> allPoolObjects = new();
     private Dictionary<PoolId, GameObject> prefabDictionary = new();
 
     private void Awake() => InitializeSingleton();
@@ -36,38 +44,53 @@ public class PoolManager : MonoBehaviour
         }
 
         Instance = this;
+        InitializePools();
+        DontDestroyOnLoad(gameObject);
     }
 
-    public void Initialize()
+    private void OnEnable()
     {
-        InitializePools();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
 
     private void InitializePools()
     {
         foreach (var pool in pools)
         {
-            var queue = new Queue<GameObject>();
+            if (pool.container == null)
+            {
+                GameObject containerObj = new GameObject(pool.id.ToString());
+                containerObj.transform.SetParent(transform);
+                pool.container = containerObj.transform;
+            }
 
-            // Создаём объекты пула
+            var queue = new Queue<GameObject>();
+            var list = new List<GameObject>();
+
             for (int i = 0; i < pool.poolSize; i++)
             {
                 var obj = Instantiate(pool.prefab, pool.container);
                 obj.SetActive(false);
+
                 queue.Enqueue(obj);
+                list.Add(obj);
             }
 
             poolDictionary[pool.id] = queue;
+            allPoolObjects[pool.id] = list;
             prefabDictionary[pool.id] = pool.prefab;
         }
     }
-    public GameObject Get(PoolId id, Vector3 position)
+    public GameObject Get(PoolId id, Vector3 position, float scale = 1f)
     {
         if (!poolDictionary.ContainsKey(id))
-        {
-            Debug.LogError($"Pool '{id}' not found!");
             return null;
-        }
 
         GameObject obj;
 
@@ -78,25 +101,21 @@ public class PoolManager : MonoBehaviour
         else
         {
             GameObject prefab = prefabDictionary[id];
-
-            // Получаем контейнер для данного пула
             Transform container = pools.Find(p => p.id == id).container;
 
             // Инстанцируем в контейнер
             obj = Instantiate(prefab, container);
             obj.SetActive(false);
 
-            // Добавляем в очередь, чтобы пул контролировал все объекты
-            poolDictionary[id].Enqueue(obj);
-
-            // Выдаём объект сразу
-            obj = poolDictionary[id].Dequeue();
+            allPoolObjects[id].Add(obj);
         }
 
         obj.transform.position = position;
+        obj.transform.localScale = Vector3.one * scale;
         obj.SetActive(true);
         return obj;
     }
+
 
     public void Return(PoolId id, GameObject obj)
     {
@@ -110,19 +129,53 @@ public class PoolManager : MonoBehaviour
         poolDictionary[id].Enqueue(obj);
     }
 
-    public void ClearAllPools()
+    public void CallWithAutoReturn(PoolId id, Vector3 pos, float duration, float scale = 1f)
     {
-        foreach (var queue in poolDictionary.Values)
+        GameObject obj = Get(id, pos, scale);
+        StartCoroutine(ReturnToPool(id, obj, duration));
+    }
+
+    private IEnumerator ReturnToPool(PoolId id, GameObject obj, float duration = 1f)
+    {
+        yield return new WaitForSeconds(duration);
+
+        Return(id, obj);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        DeactivateAll();
+    }
+
+    public void DeactivateAll()
+    {
+        foreach (var kvp in allPoolObjects)
         {
-            while (queue.Count > 0)
+            PoolId id = kvp.Key;
+
+            foreach (var obj in kvp.Value)
             {
-                GameObject obj = queue.Dequeue();
+                if (obj == null) continue;
+
+                obj.SetActive(false);
+
+                poolDictionary[id].Enqueue(obj);
+            }
+        }
+    }
+    private void ClearAllPools()
+    {
+        foreach (var kvp in allPoolObjects)
+        {
+            foreach (var obj in kvp.Value)
+            {
                 if (obj != null)
                     Destroy(obj);
             }
         }
 
         poolDictionary.Clear();
+        allPoolObjects.Clear();
         prefabDictionary.Clear();
     }
 

@@ -20,7 +20,6 @@ public class PlayerMovement : MonoBehaviour
     private StatsController _stats;
     private Rigidbody _rb;
     private InputManager _input;
-    private Transform _cameraTransform;
 
     // Подсистемы
     private MovementController _movement;
@@ -37,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     public bool IsFlying { get; private set; }
 
     public Rigidbody Rb => _rb;
-    public Transform CameraTransform => _cameraTransform;
+    public Transform CameraTransform => Camera.main?.transform;
     public Transform GroundCheck => groundCheck;
     public LayerMask GroundLayer => groundLayer;
     public float GroundRayLength => groundRayLength;
@@ -52,7 +51,6 @@ public class PlayerMovement : MonoBehaviour
     {
         _stats = statsController;
         _rb = GetComponent<Rigidbody>();
-        _cameraTransform = Camera.main?.transform;
         _input = InputManager.Instance;
 
         _rb.freezeRotation = true;
@@ -79,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         if (_rb == null) return;
+
         ReadInput();
         CheckGrounded();
         _animation.UpdateAnimator(MoveInput, IsGrounded, IsSliding, IsFlying);
@@ -87,6 +86,12 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         if (_rb == null) return;
+        if (_rb.isKinematic == true) return;
+        if (GamePause.IsGamePaused)
+        {
+            StopPlayer();
+            return;
+        }
 
         if (IsFlying)
         {
@@ -105,9 +110,25 @@ public class PlayerMovement : MonoBehaviour
         _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
 
         _jump.HandleGravity(ref _rb);
+        _jump.HandleAirSounds(IsGrounded);
         _movement.DecayBonusSpeed();
 
         _jump.ClearJumpQueued();
+    }
+
+    private void StopPlayer()
+    {
+        // Полностью остановить Rigidbody
+        _rb.linearVelocity = Vector3.zero;
+        _rb.angularVelocity = Vector3.zero;
+
+        // Обнуляем ввод
+        MoveInput = Vector2.zero;
+        _isShooting = false;
+
+        // Можно остановить внутренние подсистемы, если нужно
+        _slide?.SetSlideInput(false);
+        _fly?.SetVerticalInput(false, false);
     }
 
     private void ReadInput()
@@ -159,10 +180,9 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector3 GetGroundNormal()
     {
-        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundRayLength, groundLayer))
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundRayLength * 5f, groundLayer))
         {
-            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-            return slopeAngle > 5f ? hit.normal : Vector3.up;
+            return hit.normal;
         }
         return Vector3.up;
     }
@@ -180,5 +200,19 @@ public class PlayerMovement : MonoBehaviour
     {
         GameEvents.OnCommandPlayerFly -= OnChangeFlyState;
         if (_stats != null) _stats.OnStatsChanged -= UpdateStats;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck != null)
+        {
+            // Рисуем сферу groundCheckRadius
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+
+            // Рисуем луч groundRayLength
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(groundCheck.position, Vector3.down * groundRayLength);
+        }
     }
 }

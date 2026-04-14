@@ -1,84 +1,105 @@
+using System.Collections;
 using UnityEngine;
 
 public class Bootstrap : MonoBehaviour
 {
-    [SerializeField] private MainMenuManager mainMenuManagerPrefab;
-    [SerializeField] private SceneLoader sceneLoaderPrefab;
-    [SerializeField] private PlayerSpawner playerSpawnerPrefab;
+    [Header("Обязательные системы")]
     [SerializeField] private InputManager inputManagerPrefab;
-    [SerializeField] private AudioManager audioManagerPrefab;
-    [SerializeField] private Console consolePrefab;
-    [SerializeField] private EnemySpawner enemySpawnerPrefab;
-    [SerializeField] private PauseManager pauseManagerPrefab;
-    [SerializeField] private PoolManager poolManagerPrefab;
-    [SerializeField] private GameInput gameInputPrefab;
     [SerializeField] private UIManager uiManagerPrefab;
+    [SerializeField] private PoolManager poolManagerPrefab;
+    [SerializeField] private AudioManager audioManagerPrefab;
+    [SerializeField] private GameManager gameManagerPrefab;
 
-    private MainMenuManager _mainMenuManager;
-    private PlayerSpawner _playerSpawner;
-    private EnemySpawner _enemySpawner;
-    private Console _console;
-    private PauseManager _pauseManager;
+    [Header("В зависимости от сцены")]
+    [SerializeField] private MainMenuManager mainMenuManagerPrefab;
+    [SerializeField] private GameMenu gameMenuPrefab;
+    [SerializeField] private LaunchLevel launchLevelPrefab;
+    [SerializeField] private WorldManager _world;
+
+    [Header("Доп. ситсемы для тестов")]
+    [SerializeField] private Console consolePrefab;
+
     private SceneLoader _sceneLoader;
-    private GameInput _gameInput;
+    private MainMenuManager _mainMenuManager;
+    private Console _console;
+    private GameMenu _gameMenu;
+    private LaunchLevel _launchLevel;
+
 
     private void Start()
     {
-        if (InputManager.Instance == null)
+        StartCoroutine(BootstrapRoutine());
+    }
+
+    private IEnumerator BootstrapRoutine()
+    {
+        if (GameManager.Instance == null && gameManagerPrefab != null)
         {
-            if (inputManagerPrefab != null)
-            {
-                Instantiate(inputManagerPrefab);
-            }
+            Instantiate(gameManagerPrefab);
         }
 
-        if (AudioManager.Instance == null)
-        {
-            if (audioManagerPrefab != null)
-            {
-                Instantiate(audioManagerPrefab);
-            }
-        }
+        _sceneLoader = GameManager.Instance.SceneLoader;
 
-        if (PoolManager.Instance == null)
-        {
-            if (poolManagerPrefab != null)
-            {
-                Instantiate(poolManagerPrefab);
-            }
-        }
+        _sceneLoader?.Show();
+        yield return null;
 
-        if (UIManager.Instance == null)
-        {
-            if (uiManagerPrefab != null)
-            {
-                Instantiate(uiManagerPrefab);
-            }
-        }
+        float progress = 0f;
 
-        if (gameInputPrefab != null) _gameInput = Instantiate(gameInputPrefab);
+        // --- Singleton'ы ---
+        if (InputManager.Instance == null && inputManagerPrefab != null)
+            Instantiate(inputManagerPrefab);
+
+        progress += 0.1f;
+        _sceneLoader?.SetProgress(progress);
+        yield return null;
+
+        if (AudioManager.Instance == null && audioManagerPrefab != null)
+            Instantiate(audioManagerPrefab);
+
+        progress += 0.1f;
+        _sceneLoader?.SetProgress(progress);
+        yield return null;
+
+        if (PoolManager.Instance == null && poolManagerPrefab != null)
+            Instantiate(poolManagerPrefab);
+
+        progress += 0.1f;
+        _sceneLoader?.SetProgress(progress);
+        yield return null;
+
+        if (UIManager.Instance == null && uiManagerPrefab != null)
+            Instantiate(uiManagerPrefab);
+
+        progress += 0.1f;
+        _sceneLoader?.SetProgress(progress);
+        yield return null;
+
+        // --- Остальные системы ---
         if (mainMenuManagerPrefab != null) _mainMenuManager = Instantiate(mainMenuManagerPrefab);
         if (consolePrefab != null) _console = Instantiate(consolePrefab);
-        if (playerSpawnerPrefab != null) _playerSpawner = Instantiate(playerSpawnerPrefab);
-        if (enemySpawnerPrefab != null) _enemySpawner = Instantiate(enemySpawnerPrefab);
-        if (pauseManagerPrefab != null) _pauseManager = Instantiate(pauseManagerPrefab);
-        if (sceneLoaderPrefab != null) _sceneLoader = Instantiate(sceneLoaderPrefab);
+        if (gameMenuPrefab != null) _gameMenu = Instantiate(gameMenuPrefab);
+        if (launchLevelPrefab != null) _launchLevel = Instantiate(launchLevelPrefab);
+
+        progress += 0.3f;
+        _sceneLoader?.SetProgress(progress);
+        yield return null;
 
         Initialized();
+
+        progress = 1f;
+        _sceneLoader?.SetProgress(progress);
+
+        yield return new WaitForSeconds(0.5f); // чуть задержки для UX
+
+        _sceneLoader?.Hide();
     }
 
     private void Initialized()
     {
-        AudioManager.Instance?.Initialize();
-        PoolManager.Instance?.Initialize();
-        UIManager.Instance?.Initialize();
-        
-        _enemySpawner?.Initialize();
         _mainMenuManager?.Initialize();
-        _pauseManager?.Initialize();
-        _playerSpawner?.Initialize();
+        _gameMenu?.Initialize();
         _console?.Initialize();
-        _sceneLoader?.Initialize();
-        _gameInput.Initialize(_console,_pauseManager);
+        _world?.Initialize();
+        _launchLevel?.Initialize();
     }
 }

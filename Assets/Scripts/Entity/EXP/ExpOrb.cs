@@ -106,8 +106,7 @@ public class ExpOrb : MonoBehaviour, ICollectable
     {
         if (other.CompareTag("Player"))
         {
-            Collect();
-            
+            Collect();  
         }
     }
 }

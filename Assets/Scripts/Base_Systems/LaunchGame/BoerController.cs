@@ -1,0 +1,276 @@
+using UnityEngine;
+using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
+using System;
+
+public class BoerController : MonoBehaviour, IInteractable
+{
+    [Header("Settings")]
+    [SerializeField] private LayerMask groundLayer;
+    private bool IsStoped => GamePause.IsGamePaused;
+    private float duration = 2f;
+    private float riseHeight = 30f;
+    private float undergroundOffset = 20f;
+
+    private Vector3 targetPos;
+    private OutLine outLine;
+    private bool isBusy;
+    private Queue<GameObject> pool = new Queue<GameObject>();
+    private int poolSize = 5;
+
+    private Transform player;
+    private CameraShake cameraShake;
+    private bool isAvailable = false;
+    public event Action OnBoerArrived;
+    public event Action OnBoerDeparture;
+    public event Action OnActiveNextLevel;
+    public void Initialize()
+    {
+        GameEvents.OnLaunchBoer += ForceLaunchBoer;
+
+        outLine = GetComponent<OutLine>();
+        outLine.SetActive(false);
+        gameObject.SetActive(false);
+
+        if (GameManager.Instance != null && GameManager.Instance.Player != null)
+        {
+            OnPlayerReady(GameManager.Instance.Player);
+        }
+        GameManager.Instance.OnPlayerSpawned += OnPlayerReady;
+    }
+
+    private void OnPlayerReady(GameObject player)
+    {
+        this.player = player.transform;
+        cameraShake = player.GetComponentInChildren<CameraShake>(true);
+    }
+
+    // 📌 Вызвать для появления
+    public void NextLevelLaunch()
+    {
+        isAvailable = false;
+        isBusy = false;
+        gameObject.SetActive(true);
+
+        StartCoroutine(LaunchCoroutine());
+    }
+
+    private void ForceLaunchBoer()
+    {
+        if (isBusy)
+        {
+            GameEvents.ConsoleMessage("Bore is busy");
+            return;
+        }
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+            StartCoroutine(LaunchCoroutine());
+        }
+        else if (gameObject.activeSelf)
+        {
+            Despawn(() =>
+            {
+                gameObject.SetActive(true);
+                StartCoroutine(LaunchCoroutine());
+            });
+        }
+    }
+
+    private IEnumerator LaunchCoroutine()
+    {
+        AudioManager.Instance.PlayAudiDurationSFX(TypeSFX.Earthquake, 3f, 0f, 1f, true);
+        cameraShake.ShakeHeavy(5f, 3f);
+
+        yield return WaitWithPause(3f);
+
+        Vector3 position = GetSpawnPositionInCone(player, 30f, 50f, 30);
+
+        transform.position = position - Vector3.up * undergroundOffset;
+        transform.rotation = Quaternion.Euler(90, 0, 0);
+
+        CreateHole(position);
+        PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Default, position, 1f, 10f);
+        PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Default, position, 1f, 10f);
+        cameraShake.ShakeLight(5f);
+
+        AudioManager.Instance.PlayAudioSFX(TypeSFX.UpObject);
+
+        Vector3 endPos = position;
+
+        Sequence seq = DOTween.Sequence();
+
+        // Подъём
+        seq.Append(transform.DOMoveY(endPos.y + riseHeight, duration * 0.6f).SetEase(Ease.OutCubic));
+
+        seq.Join(transform.DORotate(new Vector3(-90, 0, 1080), duration * 0.8f, RotateMode.FastBeyond360)
+    .SetEase(Ease.InOutQuad));
+
+        // Падение (резкое)
+        seq.Append(transform.DOMoveY(endPos.y, duration * 0.2f).SetEase(Ease.InCubic));
+
+        seq.Join(transform.DORotate(new Vector3(0, 0, 1080), duration * 0.2f, RotateMode.LocalAxisAdd)
+    .SetEase(Ease.Linear));
+        // Удар
+        seq.Join(transform.DOPunchPosition(Vector3.down * 0.05f, 0.06f, 6, 1.5f));
+
+
+        seq.OnComplete(() =>
+        {
+            AudioManager.Instance.PlayAudioSFX(TypeSFX.LandObject);
+
+            cameraShake.ShakeLight(7f);
+
+            PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Land, transform.position, 1f, 5f);
+
+            isBusy = false;
+
+            OnBoerArrived?.Invoke();
+        });
+    }
+
+    // 📌 Вызвать для исчезновения
+    public void Despawn(Action onComplete = null)
+    {
+        if (isBusy) return;
+        isBusy = true;
+
+        AudioManager.Instance.PlayAudioSFX(TypeSFX.UpObject);
+        AudioManager.Instance.PlayAudiDurationSFX(TypeSFX.Earthquake, 3f, 1f, 0f, true);
+        cameraShake.ShakeHeavy(5f, 3f);
+
+        Vector3 startPos = transform.position;
+        Vector3 endPos = targetPos - Vector3.up * undergroundOffset;
+
+        PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Land, transform.position, 1f, 3f);
+        PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Land, transform.position, 1f, 3f);
+
+        Sequence seq = DOTween.Sequence();
+
+        // Небольшой подъём вверх (быстрый)
+        seq.Append(transform.DOMoveY(startPos.y + riseHeight * 0.5f, duration * 0.2f)
+            .SetEase(Ease.OutQuad));
+
+        // Небольшой поворот (имитация прокручивания)
+        seq.Join(transform.DORotate(new Vector3(0, 0, 1080), duration, RotateMode.LocalAxisAdd)
+    .SetEase(Ease.Linear));
+
+        // Резкое падение вниз
+        seq.Join(transform.DOMoveY(endPos.y, duration * 0.5f)
+        .SetEase(Ease.InBack));
+
+        seq.AppendInterval(1f);
+
+        seq.OnComplete(() =>
+        {
+            gameObject.SetActive(false);
+            isBusy = false;
+            isAvailable = true;
+            onComplete?.Invoke();
+        });
+    }
+
+    public void Interact(PlayerInteractor playerInteractor)
+    {
+        if (isAvailable)
+        {
+            OnActiveNextLevel?.Invoke();
+
+            Despawn(() =>
+            {
+                OnBoerDeparture?.Invoke();
+            });
+            OnLoseFocus();
+        }
+    }
+    public bool IsUsed()
+    {
+        return isBusy || !isAvailable;
+    }
+    public void OnFocus()
+    {
+        if (isBusy) return;
+
+        outLine.SetActive(true);
+    }
+
+    public void OnLoseFocus()
+    {
+        outLine.SetActive(false);
+    }
+
+    private Vector3 GetSpawnPositionInCone(Transform player, float minRadius, float maxRadius, float angleRange = 90f, int attempts = 10)
+    {
+        for (int i = 0; i < attempts; i++)
+        {
+            if (player == null) return Vector3.zero;
+
+            float dist = UnityEngine.Random.Range(minRadius, maxRadius);
+
+            // угол в пределах конуса
+            float angle = UnityEngine.Random.Range(-angleRange / 2f, angleRange / 2f);
+
+            Vector3 dir = Quaternion.Euler(0, angle, 0) * player.forward;
+
+            Vector3 origin = player.position + dir * dist + Vector3.up * 5f;
+
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f, groundLayer))
+            {
+                Vector3 spawnPos = hit.point;
+
+                if (!Physics.CheckSphere(spawnPos, 1.5f, ~groundLayer))
+                {
+                    return spawnPos;
+                }
+            }
+        }
+
+        return player.position;
+    }
+
+    private void CreateHole(Vector3 position)
+    {
+        RaycastHit hit;
+        Vector3 normal = Vector3.up;
+
+        if (Physics.Raycast(position + Vector3.up * 5f, Vector3.down, out hit, 10f))
+            normal = hit.normal;
+
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normal);
+
+        if (pool.Count >= poolSize)
+        {
+            GameObject oldest = pool.Dequeue();
+            PoolManager.Instance.Return(PoolId.Hole, oldest);
+        }
+
+        GameObject obj = PoolManager.Instance.Get(PoolId.Hole, position);
+        obj.transform.rotation = rotation;
+        pool.Enqueue(obj);
+    }
+
+    private IEnumerator WaitWithPause(float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (IsStoped)
+            {
+                yield return null;
+                continue;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnPlayerSpawned -= OnPlayerReady;
+        GameEvents.OnLaunchBoer -= ForceLaunchBoer;
+    }
+}

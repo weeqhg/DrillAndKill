@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
         IKTargetFollower ikFollower = GetComponentInChildren<IKTargetFollower>();
         DualGun dualGun = GetComponentInChildren<DualGun>();
+        Sword sword = GetComponentInChildren<Sword>();
         EventSFX eventSFX = GetComponent<EventSFX>();
         Health health = GetComponent<Health>();
         PlayerHUD playerHUD = GetComponentInChildren<PlayerHUD>();
@@ -18,6 +19,8 @@ public class PlayerManager : MonoBehaviour
         SkillTreeStats skillTreeStats = GetComponentInChildren<SkillTreeStats>();
         SkillTreeUI skillTreeUI = GetComponentInChildren<SkillTreeUI>();
         AutoPopup treePopup = GetComponentInChildren<AutoPopup>();
+        PlayerInteractor playerInteractor = GetComponent<PlayerInteractor>();
+        MoneyManager moneyManager = GetComponentInChildren<MoneyManager>();
 
         statsController.Initialize();
         skillTreeStats.Initialize();
@@ -26,10 +29,16 @@ public class PlayerManager : MonoBehaviour
         playerHUD.Initialize();
         cameraContorller.Initialize();
         playerMovement.Initialize(statsController);
-        ikFollower.Initialize();
-        dualGun.Initialize(cameraShake, statsController);
+        ikFollower?.Initialize();
+        dualGun?.Initialize(cameraShake, statsController);
+        sword?.Initialize(cameraShake, statsController);
         health?.Initialize();
         levelManager.Initialize();
         playerCollector.Initialize();
+        playerInteractor.Initialized();
+        moneyManager.Initialize();
+
+
+        DontDestroyOnLoad(gameObject);
     }
 }

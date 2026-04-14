@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class Health : MonoBehaviour, IDamageable
 {
+    public enum HealthType { Player, Enemy, Neutral }
+    public HealthType healthType;
     public GameObject deathParticles;
     private float maxHealth;
     private float currentHealth;
     private Animator animator;
-    private EventSFX characterEventSFX;
     private StatsController stats;
     private HealthUI healthUI;
-    private ExpDropper expDropper;
+    private bool isImmortality;
 
     public void Initialize()
     {
         animator = GetComponent<Animator>();
-        characterEventSFX = GetComponent<EventSFX>();
-        expDropper = GetComponentInChildren<ExpDropper>();
         stats = GetComponentInChildren<StatsController>();
 
         stats.OnStatsChanged += UpdateStats;
@@ -39,6 +38,15 @@ public class Health : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage)
     {
+        if (isImmortality)
+        {
+            animator?.SetTrigger("Receive");
+            return;
+        }
+
+        if (HealthType.Enemy == healthType) GameEvents.DamageDealt(damage);
+        if (HealthType.Player == healthType) GameEvents.DamageTaken(damage);
+
         currentHealth -= damage;
         healthUI?.UpdateHealth(currentHealth, maxHealth);
 
@@ -48,7 +56,7 @@ public class Health : MonoBehaviour, IDamageable
         }
         else
         {
-            animator.SetTrigger("Receive");
+            animator?.SetTrigger("Receive");
         }
     }
 
@@ -58,15 +66,25 @@ public class Health : MonoBehaviour, IDamageable
         healthUI.UpdateHealth(currentHealth, maxHealth);
     }
 
+    public void ToggleImmortal(bool enbale)
+    {
+        isImmortality = enabled;
+    }
+
+    public void Kill()
+    {
+        Die();
+    }
     private void Die()
     {
-        GetComponent<Collider>().enabled = false;
+        GetComponentInChildren<Collider>().enabled = false;
 
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null) rb.isKinematic = true;
 
-        characterEventSFX?.PlayDieSound();
+        AudioManager.Instance.PlayAudioSFX(TypeSFX.Die);
         Instantiate(deathParticles, transform.position + new Vector3(0, 2f, 0), Quaternion.identity);
+        if (HealthType.Enemy == healthType) GameEvents.EntityDie();
 
         transform.DOScale(0f, 0.2f).OnComplete(() => Destroy(gameObject));
     }
@@ -74,6 +92,5 @@ public class Health : MonoBehaviour, IDamageable
     private void OnDestroy()
     {
         if (stats != null) stats.OnStatsChanged -= UpdateStats;
-        if (expDropper != null) expDropper.DropExp();
     }
 }

@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
 
         totalExp = Mathf.Max(0, totalExp + amount);
         if (amount > 0)
-            eventSFX?.PlayExpPickup();
+            eventSFX?.PlayLootPickup();
         RecalculateLevel();
     }
 
@@ -38,6 +38,10 @@ public class LevelManager : MonoBehaviour
 
         totalExp -= amount;
         RecalculateLevel();
+
+        if (amount > 0)
+            eventSFX?.PlayLootDroop();
+
         return true;
     }
 

@@ -4,6 +4,7 @@ public class JumpController
 {
     private PlayerMovement _player;
     private Rigidbody _rb;
+    private EventSFX _eventSFX;
 
     private float _jumpRiseGravity;
     private float _jumpFallGravity;
@@ -20,6 +21,7 @@ public class JumpController
         _jumpRiseGravity = riseGravity;
         _jumpFallGravity = fallGravity;
         _jumpsRemaining = _player.MaxJump;
+        _eventSFX = player.GetComponent<EventSFX>();
     }
 
     public void QueueJump() => _jumpQueued = true;
@@ -38,7 +40,7 @@ public class JumpController
     private bool CanJump(bool isGrounded)
     {
         if (isGrounded && _jumpsRemaining > 0) return true;
-        if (!isGrounded && _jumpsRemaining >= 1) return true;
+        if (!isGrounded && _jumpsRemaining > 1) return true;
         return false;
     }
 
@@ -93,5 +95,46 @@ public class JumpController
         }
 
         rb.linearVelocity = velocity;
+    }
+
+    private bool _windSoundActive = false;
+
+    public void HandleAirSounds(bool isGrounded)
+    {
+        float verticalSpeed = _rb.linearVelocity.y;
+
+        bool shouldPlayWind = !isGrounded && verticalSpeed < -9f;
+
+        if (shouldPlayWind && !_windSoundActive)
+        {
+            _windSoundActive = true;
+            _eventSFX.ToggleWindSound(true);
+        }
+        else if (!shouldPlayWind && _windSoundActive)
+        {
+            Vector3 velocity = _rb.linearVelocity;
+            Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+
+            _windSoundActive = false;
+            _eventSFX.ToggleWindSound(false);
+
+            Vector3 offset = horizontalVel * 0.2f; // подбирается
+
+            Vector3 spawnPos = GetGroundPoint() + offset;
+
+            PoolManager.Instance.CallWithAutoReturn(PoolId.Dust_Land, spawnPos, 0.5f);
+        }
+    }
+
+    private Vector3 GetGroundPoint()
+    {
+        Vector3 origin = _player.transform.position + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 2f))
+        {
+            return hit.point;
+        }
+
+        return _player.transform.position;
     }
 }

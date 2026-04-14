@@ -127,6 +127,26 @@ MonoBehaviour:
     m_Key: level
     m_Metadata:
       m_Items: []
+  - m_Id: 5034702310588416
+    m_Key: arena
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754240
+    m_Key: shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754241
+    m_Key: secret
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754242
+    m_Key: oasis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6260194563579904
+    m_Key: piramidon
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

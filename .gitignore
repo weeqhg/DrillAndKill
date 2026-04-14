@@ -102,3 +102,7 @@ InitTestScene*.unity*
 /[Aa]ssets/Localization/GoogleAuth/*.json
 /[Aa]ssets/Localization/GoogleAuth/*.asset
 !Assets/Localization/GoogleAuth/README.txt
+
+# HotReload (personal license, ignore from version control)
+/[Pp]ackages/com.singularitygroup.hotreload/
+/[Pp]ackages/com.singularitygroup.hotreload.meta

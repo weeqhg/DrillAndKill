@@ -9,16 +9,9 @@ public class WeaponVFX : MonoBehaviour
 
     private float tracerSpeed = 300f;
 
-    private PoolManager poolManager;
-
-    public void Initialize()
-    {
-        poolManager = PoolManager.Instance;
-    }
-
     public void PlayTracer(Vector3 start, Vector3 end)
     {
-        GameObject tracer = poolManager.Get(tracerId, start);
+        GameObject tracer = PoolManager.Instance.Get(tracerId, start);
 
         StartCoroutine(MoveTracer(tracer, end));
     }
@@ -45,12 +38,12 @@ public class WeaponVFX : MonoBehaviour
 
         yield return new WaitForSeconds(0.05f);
 
-        poolManager.Return(tracerId, tracer);
+        PoolManager.Instance.Return(tracerId, tracer);
     }
 
     public void PlayImpact(Vector3 pos, Vector3 normal)
     {
-        GameObject impact = poolManager.Get(hitId, pos);
+        GameObject impact = PoolManager.Instance.Get(hitId, pos);
         impact.transform.rotation = Quaternion.LookRotation(normal);
         var ps = impact.GetComponent<ParticleSystem>();
         if (ps != null) ps.Play();
@@ -62,7 +55,7 @@ public class WeaponVFX : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        poolManager.Return(hitId, impact);
+        PoolManager.Instance.Return(hitId, impact);
     }
 
     public void PlayMuzzleFlash(int index)

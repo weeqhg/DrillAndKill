@@ -94,7 +94,7 @@ public class SkillTreeUI : UIWindow
         tooltip.SetActive(false);
 
         gameObject.SetActive(false);
-        GameEvents.OnTriggerTreePanel += TogglePanel;
+        GameEvents.OnTriggerSkillTree += TogglePanel;
     }
 
     public void TogglePanel()
@@ -592,7 +592,7 @@ public class SkillTreeUI : UIWindow
             if (resetButton != null) resetButton.onClick.RemoveListener(skillTree.ResetTreeProgress);
         }
 
-        GameEvents.OnTriggerTreePanel -= TogglePanel;
+        GameEvents.OnTriggerSkillTree -= TogglePanel;
         //GameEvents.OnToggleTree -= OpenSkillTree;
     }
 }

@@ -21,6 +21,7 @@ public class Console : UIWindow
     private List<string> _currentMatches = new List<string>();
     private int _selectedIndex = -1;
     private string _currentInput = "";
+    private string _originalInput = "";
     private int _helpPageSize = 10;
     private List<string> _helpMessages = new List<string>();
     public void Initialize()
@@ -34,9 +35,11 @@ public class Console : UIWindow
         inputField.onSubmit.AddListener(ExecuteCommand);
         inputField.onValueChanged.AddListener(OnInputChanged);
 
-        InputManager.Instance.Actions.UI.Up.performed += OnUpArrowPressed;
-        InputManager.Instance.Actions.UI.Down.performed += OnDownArrowPressed;
-        InputManager.Instance.Actions.UI.Tab.performed += OnTabPressed;
+        var input = InputManager.Instance;
+        input.Actions.UI.Console.performed += OnConsole;
+        input.Actions.UI.Up.performed += OnUpArrowPressed;
+        input.Actions.UI.Down.performed += OnDownArrowPressed;
+        input.Actions.UI.Tab.performed += OnTabPressed;
 
         GameEvents.OnConsoleMessage += AddMessage;
     }
@@ -49,9 +52,12 @@ public class Console : UIWindow
 
         consolePanel.SetActive(true);
 
-        _currentInput = "";
-        inputField.text = "";
+        _currentInput = inputField.text;
+        _currentMatches.Clear();
+        _selectedIndex = -1;
+
         inputField.ActivateInputField();
+        inputField.caretPosition = inputField.text.Length; // Курсор в конец
     }
 
     public override void Hide()
@@ -67,6 +73,21 @@ public class Console : UIWindow
     #endregion
 
     #region Input
+    private void OnConsole(InputAction.CallbackContext context)
+    {
+        if (UIManager.Instance.IsOpen<GameMenuUI>())
+        {
+            return;
+        }
+        if (UIManager.Instance.IsOpen<Console>())
+        {
+            UIManager.Instance.Close(this);
+        }
+        else
+        {
+            UIManager.Instance.OpenOverlay(this);
+        }
+    }
 
     private void OnTabPressed(InputAction.CallbackContext context)
     {
@@ -111,13 +132,14 @@ public class Console : UIWindow
         else
         {
             _currentMatches = _commandList
-                .Where(cmd => cmd.StartsWith(_currentInput, System.StringComparison.OrdinalIgnoreCase))
+                .Where(cmd => cmd.StartsWith(_currentInput, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 
         if (_currentMatches.Count == 0) return;
 
         _selectedIndex = 0;
+        _originalInput = _currentInput;
         UpdateSuggestion();
 
         if (_currentMatches.Count > 1)
@@ -131,8 +153,14 @@ public class Console : UIWindow
         if (_currentMatches.Count == 0 || _selectedIndex < 0) return;
 
         string suggestion = _currentMatches[_selectedIndex];
-        inputField.text = suggestion + " ";
+
+        string remaining = suggestion.Substring(_originalInput.Length);
+        inputField.text = _originalInput + remaining;
+
         inputField.caretPosition = inputField.text.Length;
+        inputField.selectionAnchorPosition = inputField.caretPosition;
+        inputField.selectionFocusPosition = inputField.caretPosition;
+
         _currentInput = inputField.text;
     }
 
@@ -168,20 +196,25 @@ public class Console : UIWindow
     {
         _commands.Add("help", Help);
         _commands.Add("fly", SetFly);
+        _commands.Add("immortal", SetImmortal);
         _commands.Add("frezee", SetFrezee);
         _commands.Add("spawn_enemy", SpawnEnemyCommand);
+        _commands.Add("spawn_object", SpawnObjectCommad);
         _commands.Add("kill_all_enemy", KillEnemyCommand);
+        _commands.Add("kill_player", KillPlayerCommand);
         _commands.Add("spawn_player", SpawnPlayerCommand);
         _commands.Add("master_volume", SetMasterVolume);
         _commands.Add("music_volume", SetMusicVolume);
         _commands.Add("sfx_volume", SetSFXVolume);
-        _commands.Add("sensitivity", SetSensitivity);
         _commands.Add("volumes", ShowVolumes);
-        _commands.Add("scene", LoadSceneCommand);
         _commands.Add("exp", SetExpCommand);
+        _commands.Add("coin", SetCoinCommand);
         _commands.Add("reset_tree", ResetTreeCommand);
         _commands.Add("talent_points", SetTalentPointsCommand);
-        _commands.Add("open_tree", OpenTreeCommand);
+        _commands.Add("open_skill", OpenSkillTreeCommand);
+        _commands.Add("open_level", OpenLevelTreeCommand);
+        _commands.Add("boer", ToggleBoerCommand);
+        _commands.Add("difficulty", ToggleDifficultyCommand);
         _commands.Add("clear", Clear);
     }
     private void Help(string[] args)
@@ -193,20 +226,25 @@ public class Console : UIWindow
         {
             "help <page>- Show this help",
             "fly <bool> - Player fly toggle",
+            "immortal <bool> - Player immortal toggle",
             "frezee <bool> - Frezee world toggle",
             "spawn_enemy <id> <count> - Spawn enemies",
             "kill_all_enemy - Kill enemies",
+            "kill_player - kill player",
             "spawn_player <id> - Spawn player",
             "master_volume <0-100> - Set master volume",
             "music_volume <0-100> - Set music volume",
             "sfx_volume <0-100> - Set SFX volume",
             "sensitivity <0-100> - Set sensitivity",
             "volumes - Show current volumes",
-            "scene <name> - Load scene",
             "exp <amount> - Give exp",
+            "coin <amount> - Give coin",
             "reset_tree - Reset skill tree progress",
             "talent_points <amount> - Add talent points",
-            "open_tree - Open skill tree UI",
+            "open_skill - Open skill tree UI",
+            "open_level - Open level tree UI",
+            "boer - Boer launch on world",
+            "difficulty <bool> - Toggle difficulty scaler",
             "clear - Clear console"
         };
         }
@@ -256,6 +294,19 @@ public class Console : UIWindow
         AddMessage($"Flight mode: {(isFlying ? "ON" : "OFF")}");
     }
 
+    private void SetImmortal(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            AddMessage("Usage: immortal <on/off>");
+            return;
+        }
+        bool isImmortal = args[0].ToLower() == "on" || args[0] == "1" || args[0].ToLower() == "true";
+
+        GameEvents.ImmortalPlayer(isImmortal);
+        AddMessage($"Flight mode: {(isImmortal ? "ON" : "OFF")}");
+    }
+
     private void SetFrezee(string[] args)
     {
         if (args.Length == 0)
@@ -293,10 +344,39 @@ public class Console : UIWindow
         GameEvents.CommandEnemySpawn(id, count);
     }
 
+    private void SpawnObjectCommad(string[] args)
+    {
+        int id = 0;
+        int count = 0;
+
+        if (args.Length == 1 && int.TryParse(args[0], out count))
+        {
+            count = Mathf.Clamp(count, 1, 100);
+        }
+        else if (args.Length >= 2 && int.TryParse(args[0], out id) && int.TryParse(args[1], out count))
+        {
+            id = Mathf.Clamp(id, 0, 10);
+            count = Mathf.Clamp(count, 1, 100);
+        }
+        else
+        {
+            AddMessage("Usage: spawn_object <count> or spawn_object <id> <count>");
+            return;
+        }
+
+        GameEvents.CommandObjectSpawn(id, count);
+    }
+
     private void KillEnemyCommand(string[] args)
     {
         GameEvents.CommandKillAllEnemy();
         AddMessage("All enemies destroyed!");
+    }
+
+    private void KillPlayerCommand(string[] args)
+    {
+        GameEvents.CommandKillPlayer();
+        AddMessage("Player kill!");
     }
 
     private void SpawnPlayerCommand(string[] args)
@@ -403,17 +483,6 @@ public class Console : UIWindow
             AddMessage("Invalid number");
         }
     }
-    private void LoadSceneCommand(string[] args)
-    {
-        if (args.Length == 0)
-        {
-            AddMessage("Usage: scene <name>");
-            return;
-        }
-
-        string sceneName = args[0];
-        GameEvents.GameStart(sceneName);
-    }
 
     private void SetExpCommand(string[] args)
     {
@@ -429,15 +498,23 @@ public class Console : UIWindow
             AddMessage($"Added {value} experience!");
         }
     }
-
-    private void ResetTreeCommand(string[] args)
+    private void SetCoinCommand(string[] args)
     {
         if (args.Length == 0)
         {
-            AddMessage("Usage: reset_tree");
+            AddMessage("Usage: coin <amount>");
             return;
         }
 
+        if (int.TryParse(args[0], out int value))
+        {
+            GameEvents.CommandCoin(value);
+            AddMessage($"Added {value} coins!");
+        }
+    }
+
+    private void ResetTreeCommand(string[] args)
+    {
         GameEvents.CommandResetTree();
         AddMessage("Skill tree progress reset!");
     }
@@ -457,16 +534,34 @@ public class Console : UIWindow
         }
     }
 
-    private void OpenTreeCommand(string[] args)
+    private void OpenSkillTreeCommand(string[] args)
+    {
+        GameEvents.TriggerSkillTree();
+        AddMessage("Opened skill tree UI!");
+    }
+
+    private void OpenLevelTreeCommand(string[] args)
+    {
+        GameEvents.TriggerLevelTree();
+        AddMessage("Opened level tree UI!");
+    }
+
+    private void ToggleBoerCommand(string[] args)
+    {
+        GameEvents.BoerLaunch();
+    }
+
+    private void ToggleDifficultyCommand(string[] args)
     {
         if (args.Length == 0)
         {
-            AddMessage("Usage: open_tree");
+            AddMessage("Usage: difficulty <on/off>");
             return;
         }
+        bool isTimerRunning = args[0].ToLower() == "on" || args[0] == "1" || args[0].ToLower() == "true";
 
-        GameEvents.TriggerTree();
-        AddMessage("Opened skill tree UI!");
+        GameEvents.DifficultyScalerCommand(isTimerRunning);
+        AddMessage($"Difficulty mode: {(isTimerRunning ? "ON" : "OFF")}");
     }
 
     private void Clear(string[] args)
@@ -501,6 +596,7 @@ public class Console : UIWindow
         GameEvents.OnConsoleMessage -= AddMessage;
 
         var input = InputManager.Instance;
+        input.Actions.UI.Console.performed -= OnConsole;
         input.Actions.UI.Up.performed -= OnUpArrowPressed;
         input.Actions.UI.Down.performed -= OnDownArrowPressed;
         input.Actions.UI.Tab.performed -= OnTabPressed;

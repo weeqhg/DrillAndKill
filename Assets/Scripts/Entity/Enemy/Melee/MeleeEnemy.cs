@@ -1,0 +1,71 @@
+using UnityEngine;
+using UnityEngine.AI;
+
+public class MeleeEnemy : EnemyAI
+{
+    public override void Initialize()
+    {
+        base.Initialize();
+    }
+
+
+    protected override void EnemyMove()
+    {
+        if (enemyManager.player == null) return;
+        if (enemyManager.IsStoped) return;
+
+        distance = Vector3.Distance(transform.position, enemyManager.player.position);
+
+        // 1️⃣ Двигаемся к игроку или обходим его
+        if (distance > attackMeeleRange)
+        {
+            Vector3 target;
+
+            // 30% вероятности: случайная позиция рядом с игроком (обход/фланг)
+            if (Random.value < 0.3f)
+                target = GetRandomNearbyPosition(3f); // радиус обхода
+            else
+                target = enemyManager.player.position;
+
+            // Привязываем точку к NavMesh, чтобы враг не застрял в стенах
+            if (NavMesh.SamplePosition(target, out NavMeshHit navHit, 1f, NavMesh.AllAreas))
+                target = navHit.position;
+
+            agent.isStopped = false;
+            agent.SetDestination(target);
+            animator?.SetBool("IsMoving", true);
+        }
+        else
+        {
+            // 2️⃣ В пределах досягаемости атаки: идём вокруг игрока и атакуем
+            agent.isStopped = false;
+            animator?.SetBool("IsMoving", true);
+
+            // Двигаемся вокруг игрока случайным образом
+            Vector3 strafePos = GetRandomNearbyPosition(2f); // небольшое движение вокруг игрока
+            if (NavMesh.SamplePosition(strafePos, out NavMeshHit navHit, 1f, NavMesh.AllAreas))
+                agent.SetDestination(navHit.position);
+
+            // 3️⃣ Атака, если готов
+            if (CanAttack())
+            {
+                EnemyAttack();
+            }
+        }
+    }
+
+    protected override void EnemyAttack()
+    {
+        animator?.SetTrigger("Attack");
+    }
+
+    public void OnAttackTrigger()
+    {
+        if (enemyManager == null) return;
+        if (distance <= attackMeeleRange)
+        {
+            var damageable = enemyManager.player?.GetComponent<IDamageable>();
+            damageable?.TakeDamage(damage);
+        }
+    }
+}

@@ -130,6 +130,26 @@ MonoBehaviour:
     m_Localized: Stufe {0}
     m_Metadata:
       m_Items: []
+  - m_Id: 5034702310588416
+    m_Localized: Arena
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754240
+    m_Localized: "Gesch\xE4ft"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754241
+    m_Localized: Geheimes Zimmer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754242
+    m_Localized: Oase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6260194563579904
+    m_Localized: Pyramide des Kopfes
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

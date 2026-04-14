@@ -10,10 +10,9 @@ public class DualGun : MonoBehaviour
     [Header("Settings")]
     private float range = 100f;
     private float rayStartOffset = 5f;
+    [SerializeField] private EventSFX sfx;
 
     private WeaponVFX vfx;
-    private PlayerRandomSFX sfx;
-    private Camera _mainCamera;
     private CameraShake cameraShake;
     private AimAnimation aimAnimation;
     private StatsController stats;
@@ -33,12 +32,10 @@ public class DualGun : MonoBehaviour
         UpdateStats();
 
         vfx = GetComponentInChildren<WeaponVFX>();
-        vfx.Initialize();
-        sfx = GetComponentInChildren<PlayerRandomSFX>();
+
         aimAnimation = GetComponentInChildren<AimAnimation>();
         this.cameraShake = cameraShake;
-        
-        _mainCamera = Camera.main;
+
         _inputManager = InputManager.Instance;
 
         _inputManager.Actions.Player.Shoot.started += ctx => _isShooting = true;
@@ -72,8 +69,8 @@ public class DualGun : MonoBehaviour
         if (_isLeftTurn) vfx.PlayMuzzleFlash(0);
         else vfx.PlayMuzzleFlash(1);
 
-        sfx.PlayRandomSound();
-        cameraShake.Shake(1f);
+        sfx.PlayAttackSound();
+        cameraShake.ShakeLight(1f);
         aimAnimation.PlayScaleAnimation();
 
         _isLeftTurn = !_isLeftTurn;
@@ -81,11 +78,11 @@ public class DualGun : MonoBehaviour
 
     private void FireFromPoint(Transform shootPoint)
     {
-        if (shootPoint == null || _mainCamera == null) return;
+        if (shootPoint == null || Camera.main == null) return;
 
         // Луч начинается не из камеры, а на расстоянии offset от неё
-        Vector3 rayOrigin = _mainCamera.transform.position + _mainCamera.transform.forward * rayStartOffset;
-        Vector3 rayDirection = _mainCamera.transform.forward;
+        Vector3 rayOrigin = Camera.main.transform.position + Camera.main.transform.forward * rayStartOffset;
+        Vector3 rayDirection = Camera.main.transform.forward;
 
         Ray ray = new Ray(rayOrigin, rayDirection);
 
@@ -112,7 +109,7 @@ public class DualGun : MonoBehaviour
             }
 
             // Нанесение урона
-            var damageable = bulletHit.collider.GetComponent<IDamageable>();
+            var damageable = bulletHit.collider.GetComponentInParent<IDamageable>();
             float finalDamage = CalculateHitDamage();
             damageable?.TakeDamage(finalDamage);
         }

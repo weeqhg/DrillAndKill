@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.SceneManagement;
 
 public class IKTargetFollower : MonoBehaviour
 {
@@ -17,13 +18,23 @@ public class IKTargetFollower : MonoBehaviour
 
     [Header("Angle Limit")]
     [SerializeField] private float maxAngle = 60f; // 60 градусов влево и вправо (всего 120)
-
     private Camera playerCamera;
+
     public void Initialize()
     {
-        playerCamera = Camera.main;
         rig.weight = 1f;
+
+        playerCamera = Camera.main;
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        playerCamera = Camera.main;
+    }
+
+
     private void Update()
     {
         if (playerCamera == null || playerBody == null) return;
@@ -188,5 +199,10 @@ public class IKTargetFollower : MonoBehaviour
             Gizmos.DrawSphere(leftHandTarget.position, 0.1f);
             Gizmos.DrawLine(playerBody.position, leftHandTarget.position);
         }
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

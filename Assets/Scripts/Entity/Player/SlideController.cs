@@ -5,7 +5,7 @@ public class SlideController
     private PlayerMovement _player;
     private Rigidbody _rb;
 
-    private float _slideSlopeAngle = 15f;
+    private float _slideSlopeAngle = 1f;
     private float _slideForce = 35f;
     private float _slideDeceleration = 10f;
     private float _slideControl = 0.15f;
@@ -31,19 +31,18 @@ public class SlideController
 
         if (!_isSliding && _slidePressed && isGrounded && horizontalSpeed >= _slideEnterMinSpeed)
         {
-            _isSliding = true;
             _player.SetSliding(true);
-            _eventSFX.PlaySliceSound();
+            _isSliding = true;
         }
         else if (_isSliding && (!_slidePressed || !isGrounded))
         {
-            _eventSFX.StopSlideSound();      
+            _eventSFX.ToggleSliceSound(false);
             _player.SetSliding(false);
             _isSliding = false;
         }
         else if (_isSliding && horizontalSpeed < 1f)
         {
-            _eventSFX.StopSlideSound();
+            _eventSFX.ToggleSliceSound(false);
         }
     }
 
@@ -66,7 +65,9 @@ public class SlideController
         if (onSlope)
         {
             Vector3 slopeDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
-            controlledVelocity += slopeDirection * _slideForce * Time.fixedDeltaTime;
+            float slopeFactor = Mathf.InverseLerp(_slideSlopeAngle, 90f, slopeAngle);
+
+            _rb.AddForce(slopeDirection * _slideForce * slopeFactor, ForceMode.Acceleration);
         }
         else
         {

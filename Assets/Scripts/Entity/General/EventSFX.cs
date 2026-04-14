@@ -1,20 +1,67 @@
 using UnityEngine;
+using UnityEngine.Video;
 
 public class EventSFX : MonoBehaviour
 {
     [SerializeField] private AudioSource audioSourceDefautl;
     [SerializeField] private AudioSource audioSourceRandomPitch;
+    [SerializeField] private AudioSource audioSourceChangeVolume;
     [SerializeField] private AudioClip[] footstepSounds;
     [SerializeField] private AudioClip[] getHitSounds;
     [SerializeField] private AudioClip[] dieSounds;
     [SerializeField] private AudioClip[] jumpSounds;
     [SerializeField] private AudioClip[] expSounds;
     [SerializeField] private AudioClip _slideClip;
-    private float _lastFootstepTime;
+    [SerializeField] private AudioClip _windClip;
+    [SerializeField] private AudioClip[] attackSounds;
+    [SerializeField] private AudioClip _landClip;
+    [SerializeField] private AudioClip _dropClip;
     private float _minIntervalFootsteps = 0f;
-    private float _lastExpPickupTime;
-    private float _minIntervalExpPickup = 0.05f;
+    private float _lastFootstepTime;
+    private float _minIntervalLoot = 0.05f;
+    private float _lastLootTime;
+
+    private float _minIntervalGetHit = 0.05f;
+    private float _lastGetHitTime;
+    private float _minIntervalLand = 1f;
+    private float _lastLadnTime;
     private int expIndexer = 0;
+
+    public void ToggleWindSound(bool enable)
+    {
+        if (_windClip == null || audioSourceChangeVolume == null) return;
+
+        if (enable)
+        {
+            if (!audioSourceChangeVolume.isPlaying || audioSourceChangeVolume.clip != _windClip)
+            {
+                audioSourceChangeVolume.clip = _windClip;
+                audioSourceChangeVolume.volume = 0f;
+                audioSourceChangeVolume.Play();
+            }
+            StopAllCoroutines();
+            StartCoroutine(FadeAudio(audioSourceChangeVolume, 0.5f, 1f));
+        }
+        else
+        {
+            StopAllCoroutines();
+            audioSourceChangeVolume.Stop();
+
+            if (Time.time - _lastLadnTime < _minIntervalLand)
+                return;
+            _lastLadnTime = Time.time;
+
+            PlayRandomPitch(_landClip, 0.3f);
+        }
+    }
+
+    public void PlayAttackSound()
+    {
+        if (attackSounds.Length == 0) return;
+
+        AudioClip clip = GetRandomSound(attackSounds);
+        PlayRandomPitch(clip, 0.3f);
+    }
 
     public void PlayFootstepSound()
     {
@@ -29,8 +76,13 @@ public class EventSFX : MonoBehaviour
 
     public void PlayGetHitSound()
     {
+        if (Time.time - _lastGetHitTime < _minIntervalGetHit)
+            return;
+
+        _lastGetHitTime = Time.time;
+
         AudioClip clip = GetRandomSound(getHitSounds);
-        PlayDefaultSound(clip);
+        PlayRandomPitch(clip, 0.3f);
     }
 
     public void PlayDieSound()
@@ -53,26 +105,52 @@ public class EventSFX : MonoBehaviour
 
     public void PlaySliceSound()
     {
-        if (_slideClip == null) return;
+        ToggleSliceSound(true);
+    }
+    public void ToggleSliceSound(bool enable)
+    {
+        if (_slideClip == null || audioSourceChangeVolume == null) return;
 
-        audioSourceDefautl.clip = _slideClip;
-        audioSourceDefautl.loop = true;
-        audioSourceDefautl.Play();
+        if (enable)
+        {
+            if (!audioSourceChangeVolume.isPlaying || audioSourceChangeVolume.clip != _slideClip)
+            {
+                audioSourceChangeVolume.clip = _slideClip;
+                audioSourceChangeVolume.volume = 0f;
+                audioSourceChangeVolume.Play();
+            }
+            StopAllCoroutines();
+            StartCoroutine(FadeAudio(audioSourceChangeVolume, 1f, 1f));
+        }
+        else
+        {
+            StopAllCoroutines();
+            audioSourceChangeVolume.Stop();
+        }
     }
-    public void StopSlideSound()
+
+    public void PlayLootPickup()
     {
-        audioSourceDefautl.loop = false;
-        audioSourceDefautl.Stop();
-    }
-    public void PlayExpPickup()
-    {
-        if (Time.time - _lastExpPickupTime < _minIntervalExpPickup)
+        if (Time.time - _lastLootTime < _minIntervalLoot)
             return;
 
-        _lastExpPickupTime = Time.time;
+        _lastLootTime = Time.time;
 
         expIndexer = PlayNextSound(expSounds, expIndexer);
     }
+
+
+    public void PlayLootDroop()
+    {
+        if (Time.time - _lastLootTime < _minIntervalLoot)
+            return;
+
+        _lastLootTime = Time.time;
+
+        PlayRandomPitch(_dropClip, 0.6f);
+    }
+
+
 
     private void PlayDefaultSound(AudioClip sounds)
     {
@@ -104,6 +182,23 @@ public class EventSFX : MonoBehaviour
         AudioClip clip = sounds[nextIndex];
         audioSourceDefautl.PlayOneShot(clip);
         return nextIndex;
+    }
+
+    private System.Collections.IEnumerator FadeAudio(AudioSource source, float duration, float targetVolume, bool stopAfterFade = false)
+    {
+        float startVolume = source.volume;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            source.volume = Mathf.Lerp(startVolume, targetVolume, time / duration);
+            yield return null;
+        }
+
+        source.volume = targetVolume;
+
+        if (stopAfterFade) source.Stop();
     }
 
 }

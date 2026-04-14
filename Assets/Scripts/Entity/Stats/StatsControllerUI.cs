@@ -21,22 +21,23 @@ public class StatsControllerUI : UIWindow
     private float attackDamage;
     private float attackRate;
     private float critChance;
+    private bool isInitialized = false;
 
     public void Initialize(StatsController stats)
     {
         statsPopup = GetComponent<AutoPopup>();
 
-        if (statsPopup != null)
+        if (statsPopup != null && isInitialized == false)
         {
             statsPopup.Initialize();
             gameObject.SetActive(false);
+            isInitialized = true;
         }
-
-
 
         this.stats = stats;
 
         stats.OnStatsChanged += UpdateStats;
+
         UpdateStats();
         UpdateUI();
     }
@@ -108,6 +109,6 @@ public class StatsControllerUI : UIWindow
 
     private void OnDestroy()
     {
-        stats.OnStatsChanged -= UpdateStats;
+        if (stats != null) stats.OnStatsChanged -= UpdateStats;
     }
 }

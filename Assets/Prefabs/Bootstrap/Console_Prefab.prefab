@@ -613,6 +613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f94d566fd3307f24cab5e44769bbfd85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Console
+  canvasGroup: {fileID: 0}
   consolePanel: {fileID: 4596053250860658913}
   inputField: {fileID: 2910758127770717802}
   outputText: {fileID: 5542512543225650222}
@@ -637,7 +638,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 999
+  m_SortingOrder: 888
   m_TargetDisplay: 0
 --- !u!114 &604465787759982804
 MonoBehaviour:

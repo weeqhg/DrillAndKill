@@ -1,17 +1,52 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject[] playerPrefab;
     [SerializeField] private float radius = 15f;
     [SerializeField] private LayerMask groundLayer;
-    public bool isSpawnPlayer = true;
+    private GameObject player;
+
+    public event Action<GameObject> OnPlayerSpawn;
+
     public void Initialize()
     {
-        GameEvents.OnCommandPlayerSpawn += SpawnPlayer;
+        GameEvents.OnStartGame += OnStartGameHandler;
+        GameEvents.OnCommandPlayerSpawn += SpawnPlayerCommand;
+        GameEvents.OnCommandKillPlayer += KillPlayer;
+        GameEvents.OnImmortalPlayer += ImmortalPlayer;
+        GameEvents.OnEndGame += KillPlayer;
+    }
 
-        if (isSpawnPlayer) SpawnPlayer(PlayerPrefs.GetInt(PlayerPrefsKeys.SelectedCharacter));
+    private void OnStartGameHandler()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SpawnFisrtStart();
+    }
+
+    public void SpawnFisrtStart()
+    {
+        KillPlayer();
+
+        SpawnPlayer(PlayerPrefs.GetInt(PlayerPrefsKeys.SelectedCharacter));
+
+        OnPlayerSpawn?.Invoke(player);
+    }
+
+    private void SpawnPlayerCommand(int id = 0)
+    {
+        KillPlayer();
+
+        SpawnPlayer(id);
+
+        OnPlayerSpawn?.Invoke(player);
     }
 
     private void SpawnPlayer(int id = 0)
@@ -19,21 +54,15 @@ public class PlayerSpawner : MonoBehaviour
         if (playerPrefab == null || id < 0 || id >= playerPrefab.Length || playerPrefab[id] == null)
         {
             GameEvents.ConsoleMessage($"Invalid player prefab: id={id}");
-            return;
+
         }
 
-        GameObject gameObject = Instantiate(playerPrefab[id], FindAndSpawn(), Quaternion.identity);
+        player = Instantiate(playerPrefab[id], FindAndSpawn(), Quaternion.identity);
 
-        if (gameObject.TryGetComponent<PlayerManager>(out var playerManager))
+        if (player.TryGetComponent<PlayerManager>(out var playerManager))
         {
             playerManager.Initialize();
             GameEvents.ConsoleMessage($"Spawn player with id={id}");
-            GameEvents.PlayerSpawned(playerManager);
-        }
-        else
-        {
-            GameEvents.ConsoleMessage("PlayerManager missing!");
-            Destroy(gameObject);
         }
     }
 
@@ -42,25 +71,45 @@ public class PlayerSpawner : MonoBehaviour
         for (int i = 0; i < 30; i++)
         {
             Vector3 randomPos = transform.position + UnityEngine.Random.insideUnitSphere * radius;
-            randomPos.y += 10f;
+            randomPos.y += 200f;
 
-            if (Physics.Raycast(randomPos, Vector3.down, out RaycastHit hit, 30f, groundLayer))
+            if (Physics.Raycast(randomPos, Vector3.down, out RaycastHit hit, 500f, groundLayer))
             {
-                return hit.point;
+                Vector3 spawnPos = hit.point;
+                return spawnPos;
             }
         }
 
         return Vector3.zero;
     }
 
-    private void OnDestroy()
+
+    //---Команды для игрока---
+
+    private void KillPlayer()
     {
-        GameEvents.OnCommandPlayerSpawn -= SpawnPlayer;
+        if (player == null) return;
+
+        Health health = player.GetComponentInChildren<Health>();
+
+        if (health != null) health.Kill();
+        else Destroy(player);
     }
 
-    private void OnDrawGizmosSelected()
+    private void ImmortalPlayer(bool enable)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, radius);
+        Health health = player.GetComponentInChildren<Health>();
+        if (health != null) health.ToggleImmortal(enable);
+        else GameEvents.ConsoleMessage("Helath not found");
+    }
+
+
+    private void OnDestroy()
+    {
+        GameEvents.OnStartGame -= OnStartGameHandler;
+        GameEvents.OnCommandPlayerSpawn -= SpawnPlayerCommand;
+        GameEvents.OnCommandKillPlayer -= KillPlayer;
+        GameEvents.OnImmortalPlayer -= ImmortalPlayer;
+        GameEvents.OnEndGame -= KillPlayer;
     }
 }

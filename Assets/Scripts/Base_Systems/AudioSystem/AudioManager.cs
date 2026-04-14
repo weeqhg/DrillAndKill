@@ -29,12 +29,13 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
+        Initialize();
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
     }
 
-    public void Initialize()
+    private void Initialize()
     {
         if (_isInitialized) return;
 
@@ -67,6 +68,16 @@ public class AudioManager : MonoBehaviour
     public void PlayAudioSFX(TypeSFX type)
     {
         _sxfController.PlayAudioSFX(type);
+    }
+
+    public void PlayAudiDurationSFX(TypeSFX type, float duration, float startVolume, float targetVolume, bool stopAfterFade)
+    {
+        _sxfController.PlayAudiDurationSFX(type, duration, startVolume, targetVolume, stopAfterFade);
+    }
+
+    public void PlayAudio3DSFX(AudioClip clip, Vector3 pos)
+    {
+        _sxfController.PlaySFX3D(clip, pos);
     }
 
 

@@ -11,7 +11,7 @@ public class LevelStats : MonoBehaviour
     [SerializeField] private float healthPerLevel = 3f;
     [SerializeField] private float damagePerLevel = 1.5f;
     [SerializeField] private float armorPerLevel = 1f;
-    [SerializeField] private float attackRatePerLevel = 0.02f;
+    [SerializeField] private float attackRatePerLevel = 0.1f;
     private int level = 1;
 
     public System.Action OnStatsUpdated;
