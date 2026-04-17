@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_Localization_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 77a77745d244d28429f0d7dafb372eea, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 20403229933568
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298964488192
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298993848320
+    m_Localized: General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298993848321
+    m_Localized: Sounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042624
+    m_Localized: Graphics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042625
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042626
+    m_Localized: Mouse sensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042627
+    m_Localized: FPS counter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45298998042628
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262656
+    m_Localized: Overall volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262657
+    m_Localized: Music volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46238136262658
+    m_Localized: Effects volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569600
+    m_Localized: Window mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569601
+    m_Localized: Screen resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569602
+    m_Localized: Full screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 312029272334336
+    m_Localized: Special thanks!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47260124569604
+    m_Localized: Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102257755414528
+    m_Localized: Full screen window
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111507286253568
+    m_Localized: Exit to menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430694821888
+    m_Localized: Start the game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430749347840
+    m_Localized: Author
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311430749347841
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 311735645888512
+    m_Localized: Main developers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519828660224
+    m_Localized: 'Health: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020352
+    m_Localized: 'Movement speed: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020353
+    m_Localized: 'Damage: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 446519858020354
+    m_Localized: 'Attack Speed: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1223347269525504
+    m_Localized: Lvl {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702310588416
+    m_Localized: Arena
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754240
+    m_Localized: Shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754241
+    m_Localized: Secret room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5034702335754242
+    m_Localized: Oasis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6260194563579904
+    m_Localized: Pyramid of the Head
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
