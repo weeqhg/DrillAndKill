@@ -106,4 +106,4 @@ InitTestScene*.unity*
 # HotReload (personal license, ignore from version control)
 /[Pp]ackages/com.singularitygroup.hotreload/
 /[Pp]ackages/com.singularitygroup.hotreload.meta
-Assets/Plugins/HotReload/
+/[Aa]ssets/Plugins/HotReload/
