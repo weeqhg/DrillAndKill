@@ -4,11 +4,11 @@ public abstract class BaseInteractable : MonoBehaviour, IInteractable
 {
     protected bool isUsed;
     protected OutLine outLine;
-    protected DifficultySnapshot Difficulty { get; private set; }
 
-    public void Initialize(DifficultySnapshot snapshot)
+
+
+    public void Initialize()
     {
-        Difficulty = snapshot;
         outLine = GetComponent<OutLine>();
         outLine.SetActive(false);
         SetupDerived();

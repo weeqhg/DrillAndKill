@@ -4,31 +4,34 @@ using UnityEngine.UI;
 
 public class SliderPointerHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    private Slider _slider;
-    private bool _isDragging = false;
-    private void Awake()
+    private SoundData sliderSound;
+    private Slider slider;
+    private bool isDragging = false;
+
+    private void Start()
     {
-        _slider = GetComponent<Slider>();
-        if (_slider != null)
-            _slider.onValueChanged.AddListener(OnValueChanged);
+        sliderSound = Resources.Load<SoundData>("Audio/UI/SliderSound");
+
+        slider = GetComponent<Slider>();
+        if (slider != null) slider.onValueChanged.AddListener(OnValueChanged);
     }
 
     private void OnValueChanged(float value)
     {
-        // Воспроизводим звук только если пользователь активно взаимодействует со слайдером
-        if (_isDragging)
+        if (isDragging)
         {
-            G.AudioManager?.PlayAudioUI(TypeUiAudio.Slider);
+            G.AudioManager?.Play(sliderSound);
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        _isDragging = true;
-        G.AudioManager?.PlayAudioUI(TypeUiAudio.Slider);
+        isDragging = true;
+        G.AudioManager?.Play(sliderSound);
     }
+
     public void OnPointerUp(PointerEventData eventData)
     {
-        _isDragging = false;
+        isDragging = false;
     }
 }

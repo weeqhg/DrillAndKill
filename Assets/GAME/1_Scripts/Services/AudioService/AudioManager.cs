@@ -1,21 +1,38 @@
 using UnityEngine;
 using UnityEngine.Audio;
-using WekenDev.AudioManagerGame;
+using System.Collections.Generic;
+using System.Collections;
 
+public class SoundHandle
+{
+    public AudioSource Source { get; private set; }
 
+    public SoundHandle(AudioSource source)
+    {
+        Source = source;
+    }
+}
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour, IInitializable
 {
     [Header("Audio Mixer")]
-    [SerializeField] private AudioMixer audioMixer;
+    [SerializeField] private AudioMixer MAIN;
 
-    [Header("Volume Parameters")]
+    private AudioSource sourcePrefab;
+    private SoundData ambientSound;
+
+    private bool isPaused = false;
+    private int poolSize = 10;
+
+    private Queue<AudioSource> pool = new();
+    private List<AudioSource> activeSources = new();
+    private Dictionary<SoundData, float> lastPlayTime = new();
+
     private const string MASTER_VOLUME = "MasterVolume";
     private const string MUSIC_VOLUME = "MusicVolume";
     private const string SFX_VOLUME = "SFXVolume";
-    private AudioMusicController _musicController;
-    private AudioUIController _UIController;
-    private AudioSFXController _sxfController;
+
+
 
     public void Initialize()
     {
@@ -25,48 +42,207 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        _musicController = GetComponentInChildren<AudioMusicController>();
-        _musicController.Init();
-        ChangeMusic(AudioDesign.Calm);
+        sourcePrefab = GetComponentInChildren<AudioSource>();
+        pool.Enqueue(sourcePrefab);
 
-        _UIController = GetComponentInChildren<AudioUIController>();
-        _UIController.Init();
+        for (int i = 0; i < poolSize; i++)
+        {
+            AudioSource src = Instantiate(sourcePrefab, transform);
+            src.gameObject.SetActive(false);
+            pool.Enqueue(src);
+        }
 
-        _sxfController = GetComponentInChildren<AudioSFXController>();
-        _sxfController.Init();
+        ambientSound = Resources.Load<SoundData>("Audio/Ambient/RandomAmbient");
+        Play(ambientSound);
 
+        GamePause.OnPauseGame += SetPause;
         LoadVolumes();
-        
+
         G.AudioManager = this;
         DontDestroyOnLoad(gameObject);
     }
 
-    public void ChangeMusic(AudioDesign audioDesign)
+    // =========================
+    // Методы для работы с внешними вызовами
+    // =========================
+    public SoundHandle Play(SoundData sound, Vector3 position = default(Vector3))
     {
-        _musicController.ChangeAudioDesign(audioDesign);
+        if (sound == null) return null;
+        if (!CanPlay(sound)) return null;
+
+        AudioClip clip = sound.GetRandomClip();
+        if (clip == null) return null;
+
+        AudioSource source = CreateSource(sound);
+
+        source.clip = clip;
+        source.transform.position = position;
+        source.Play();
+
+        if (sound.fadeIn > 0f)
+            StartCoroutine(Fade(source, 0f, sound.volume, sound.fadeIn));
+
+        if (!sound.loop)
+            StartCoroutine(AutoDestroy(source, clip.length));
+
+        return new SoundHandle(source);
     }
-    public void PlayAudioUI(TypeUiAudio type)
+
+    public void Stop(SoundHandle handle, float fadeOut = 0f)
     {
-        if (_UIController == null) return;
+        if (handle == null || handle.Source == null) return;
 
-        _UIController.PlayAudioUI(type);
+        if (fadeOut > 0f)
+            StartCoroutine(FadeAndStop(handle.Source, fadeOut));
+        else
+            DestroySource(handle.Source);
     }
 
-    public void PlayAudioSFX(TypeSFX type)
+    #region CORE
+    private AudioSource GetSource()
     {
-        _sxfController.PlayAudioSFX(type);
+        if (pool.Count > 0)
+        {
+            var src = pool.Dequeue();
+            src.gameObject.SetActive(true);
+            return src;
+        }
+
+        return Instantiate(sourcePrefab, transform);
     }
 
-    public void PlayAudiDurationSFX(TypeSFX type, float duration, float startVolume, float targetVolume, bool stopAfterFade)
+    private void ReturnSource(AudioSource source)
     {
-        _sxfController.PlayAudiDurationSFX(type, duration, startVolume, targetVolume, stopAfterFade);
+        source.Stop();
+        source.gameObject.SetActive(false);
+        pool.Enqueue(source);
     }
 
-    public void PlayAudio3DSFX(AudioClip clip, Vector3 pos)
+    private void SetPause(bool value)
     {
-        _sxfController.PlaySFX3D(clip, pos);
+        isPaused = value;
+
+        foreach (var src in activeSources)
+        {
+            if (value) src.Pause();
+            else src.UnPause();
+        }
     }
 
+    private AudioSource CreateSource(SoundData sound)
+    {
+        AudioSource source = GetSource();
+
+        source.outputAudioMixerGroup = sound.mixerGroup;
+
+        if (sound.is3D)
+        {
+            source.spatialBlend = 1f;
+            source.minDistance = sound.minDistance;
+            source.maxDistance = sound.maxDistance;
+        }
+        else
+        {
+            source.spatialBlend = 0f;
+        }
+
+        if (sound.randomPitch)
+        {
+            source.pitch = 1f + Random.Range(-sound.pitchVariation, sound.pitchVariation);
+        }
+
+        source.loop = sound.loop;
+        source.volume = (sound.fadeIn > 0f) ? 0f : sound.volume;
+
+        activeSources.Add(source);
+        return source;
+    }
+
+    private bool CanPlay(SoundData sound)
+    {
+        if (sound.minInterval <= 0f) return true;
+
+        if (!lastPlayTime.TryGetValue(sound, out float last))
+            last = 0f;
+
+        if (Time.time - last < sound.minInterval)
+            return false;
+
+        lastPlayTime[sound] = Time.time;
+        return true;
+    }
+
+    #endregion
+
+    #region FADE
+
+    private IEnumerator Fade(AudioSource source, float start, float target, float duration)
+    {
+        float time = 0f;
+
+        while (time < duration)
+        {
+            if (isPaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            time += Time.deltaTime;
+            source.volume = Mathf.Lerp(start, target, time / duration);
+            yield return null;
+        }
+
+        source.volume = target;
+    }
+
+    private IEnumerator FadeAndStop(AudioSource source, float duration)
+    {
+        float start = source.volume;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            if (isPaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            time += Time.deltaTime;
+            source.volume = Mathf.Lerp(start, 0f, time / duration);
+            yield return null;
+        }
+
+        DestroySource(source);
+    }
+
+    #endregion
+
+    #region UTILS
+
+    private IEnumerator AutoDestroy(AudioSource source, float lifetime)
+    {
+        float time = 0f;
+
+        while (time < lifetime)
+        {
+            if (!isPaused)
+                time += Time.deltaTime;
+
+            yield return null;
+        }
+
+        DestroySource(source);
+    }
+
+    private void DestroySource(AudioSource source)
+    {
+        activeSources.Remove(source);
+        ReturnSource(source);
+    }
+
+    #endregion
 
     #region Volume Control
 
@@ -76,7 +252,7 @@ public class AudioManager : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         float dB = ConvertToDecibels(volume);
-        audioMixer.SetFloat(MASTER_VOLUME, dB);
+        MAIN.SetFloat(MASTER_VOLUME, dB);
         PlayerPrefs.SetFloat(PlayerPrefsKeys.MasterVolume, volume);
     }
 
@@ -86,7 +262,7 @@ public class AudioManager : MonoBehaviour
     public void SetMusicVolume(float volume)
     {
         float dB = ConvertToDecibels(volume);
-        audioMixer.SetFloat(MUSIC_VOLUME, dB);
+        MAIN.SetFloat(MUSIC_VOLUME, dB);
         PlayerPrefs.SetFloat(PlayerPrefsKeys.MusicVolume, volume);
     }
 
@@ -96,7 +272,7 @@ public class AudioManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         float dB = ConvertToDecibels(volume);
-        audioMixer.SetFloat(SFX_VOLUME, dB);
+        MAIN.SetFloat(SFX_VOLUME, dB);
         PlayerPrefs.SetFloat(PlayerPrefsKeys.SFXVolume, volume);
     }
 
@@ -140,11 +316,13 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     private float ConvertToDecibels(float volume)
     {
-        if (volume <= 0) return -80f;
+        volume = Mathf.Clamp(volume, 0.0001f, 100f);
         return Mathf.Log10(volume / 100f) * 20f;
     }
-
     #endregion
 
+    private void OnDestroy()
+    {
+        GamePause.OnPauseGame -= SetPause;
+    }
 }
-

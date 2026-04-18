@@ -13,9 +13,12 @@ public class Health : MonoBehaviour, IDamageable
     private StatsController stats;
     private HealthUI healthUI;
     private bool isImmortality;
+    private SoundData dieClip;
 
     public void Initialize()
     {
+        dieClip = Resources.Load<SoundData>("Audio/SFX/Die");
+
         animator = GetComponent<Animator>();
         stats = GetComponentInChildren<StatsController>();
 
@@ -44,8 +47,8 @@ public class Health : MonoBehaviour, IDamageable
             return;
         }
 
-        if (HealthType.Enemy == healthType) PlayerService.DamageTaken(damage);
-        if (HealthType.Player == healthType) G.DifficultyManager.RegisterDamageTaken(damage);
+        if (HealthType.Enemy == healthType) PlayerService.DamageDelta(damage);
+        if (HealthType.Player == healthType) PlayerService.DamageTaken(damage);
 
         currentHealth -= damage;
         healthUI?.UpdateHealth(currentHealth, maxHealth);
@@ -82,9 +85,9 @@ public class Health : MonoBehaviour, IDamageable
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null) rb.isKinematic = true;
 
-        G.AudioManager?.PlayAudioSFX(TypeSFX.Die);
+        G.AudioManager?.Play(dieClip);
         Instantiate(deathParticles, transform.position + new Vector3(0, 2f, 0), Quaternion.identity);
-        if (HealthType.Enemy == healthType) G.DifficultyManager.RegisterKill();
+        if (HealthType.Enemy == healthType) PlayerService.Kill();
 
         transform.DOScale(0f, 0.2f).OnComplete(() => Destroy(gameObject));
     }

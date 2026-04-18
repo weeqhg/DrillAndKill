@@ -5,14 +5,25 @@ using UnityEngine.Localization;
 
 public class Thumper : BaseInteractable
 {
+
     [SerializeField] private Transform thumper;
-    [SerializeField]private LocalizedString localizedHint;
+    [SerializeField] private LocalizedString localizedHint;
     private CameraShake cameraShake;
     private bool IsStoped => GamePause.IsGameFrozen || GamePause.IsGamePaused;
     private static bool isBossDefeated = false;
     private Sequence loopSeq;
+    
+    //Sounds
+    private SoundData earthquakeSound;
+    private SoundData landSound;
+    private SoundData upSound;
 
-    protected override void SetupDerived() { }
+    protected override void SetupDerived()
+    {
+        earthquakeSound = Resources.Load<SoundData>("Audio/SFX/Earthquake");
+        landSound = Resources.Load<SoundData>("Audio/SFX/LandObject");
+        upSound = Resources.Load<SoundData>("Audio/SFX/UpObject");
+    }
 
     public override void Interact(PlayerInteractor playerInteractor)
     {
@@ -34,7 +45,7 @@ public class Thumper : BaseInteractable
 
     private IEnumerator SpawnCoroutine()
     {
-        G.AudioManager.PlayAudiDurationSFX(TypeSFX.Earthquake, 9f, 0f, 1f, true);
+        G.AudioManager?.Play(earthquakeSound);
 
         if (isBossDefeated) G.WorldManager?.CallBoerNextWorld();
 
@@ -50,7 +61,7 @@ public class Thumper : BaseInteractable
             G.WorldManager.OnBossDefeated += OnBossDefeated;
         }
 
-        G.AudioManager.PlayAudioSFX(TypeSFX.UpObject);
+        G.AudioManager?.Play(upSound);
     }
 
     private Sequence CreateImpactLoop()
@@ -60,7 +71,7 @@ public class Thumper : BaseInteractable
 
         seq.InsertCallback(0.6f, () =>
         {
-            G.AudioManager.PlayAudioSFX(TypeSFX.LandObject);
+            G.AudioManager?.Play(landSound);
             cameraShake.ShakeLight(3f);
             G.PoolManager.CallWithAutoReturn(PoolId.Dust_Land, thumper.position + Vector3.up * 7f, 1f, 6f);
         });

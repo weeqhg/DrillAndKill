@@ -180,8 +180,6 @@ public class EnemySpawner : MonoBehaviour
                 G.WorldManager?.BossDefeated();
             }
         }
-
-        PlayerService.Kill();
     }
 
     private void KillAllEnemies()

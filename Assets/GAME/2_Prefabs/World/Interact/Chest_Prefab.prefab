@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2594191834206877209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3243168558229863843}
+  m_Layer: 8
+  m_Name: Spawn_Object
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3243168558229863843
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2594191834206877209}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.23, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5053842538541104425}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3290669727289035167
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +157,7 @@ Transform:
   - {fileID: 6396123877232484472}
   - {fileID: 6782695636801754513}
   - {fileID: 6861711827087417807}
+  - {fileID: 3243168558229863843}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3531876621304544067
@@ -143,7 +175,7 @@ MonoBehaviour:
   itemPickupPrefab: {fileID: 5519599521872959438, guid: 2ac3031fbc9a10040ad81103ca936900, type: 3}
   orbCount: 3
   coinCount: 5
-  spawnPoint: {fileID: 5053842538541104425}
+  spawnPoint: {fileID: 3243168558229863843}
 --- !u!114 &3106659452045756517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,7 +191,7 @@ MonoBehaviour:
   closedModel: {fileID: 8010422357182323929}
   openedModel: {fileID: 8921631219463657496}
   baseCost: 25
-  openSound: {fileID: 8300000, guid: c8e5636a610bca043947b228e8351b43, type: 3}
+  openSound: {fileID: 8300000, guid: b290f1c35ce23ac47a1bb31cddc34834, type: 3}
 --- !u!114 &425074548201891820
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -30,6 +30,14 @@ public class PepelatsController : MonoBehaviour, IInteractable
     public event Action OnBoerArrived;
     public event Action OnBoerDeparture;
     public event Action OnActiveNextLevel;
+
+    //Sounds
+    private SoundData earthquakeSound;
+    private SoundData landSound;
+    private SoundData upSound;
+
+
+
     public void Initialize()
     {
         ConsoleEvents.OnCommandLaunchPepelats += ForceLaunchBoer;
@@ -40,6 +48,10 @@ public class PepelatsController : MonoBehaviour, IInteractable
         outLine = GetComponent<OutLine>();
         outLine.SetActive(false);
         gameObject.SetActive(false);
+
+        earthquakeSound = Resources.Load<SoundData>("Audio/SFX/Earthquake");
+        landSound = Resources.Load<SoundData>("Audio/SFX/LandObject");
+        upSound = Resources.Load<SoundData>("Audio/SFX/UpObject");
     }
 
     public string GetHint()
@@ -95,11 +107,12 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
     private IEnumerator LaunchCoroutine()
     {
-        G.AudioManager?.PlayAudiDurationSFX(TypeSFX.Earthquake, 3f, 0f, 1f, true);
+        SoundHandle loopSound = G.AudioManager?.Play(earthquakeSound);
         cameraShake.ShakeHeavy(5f, 3f);
 
         yield return WaitWithPause(3f);
 
+        G.AudioManager?.Stop(loopSound);
         Vector3 position = GetSpawnPositionInCone(30f, 50f, 30);
 
         transform.position = position - Vector3.up * undergroundOffset;
@@ -110,7 +123,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
         G.PoolManager?.CallWithAutoReturn(PoolId.Dust_Default, position, 1f, 10f);
         cameraShake.ShakeLight(5f);
 
-        G.AudioManager?.PlayAudioSFX(TypeSFX.UpObject);
+        G.AudioManager?.Play(upSound);
 
         Vector3 endPos = position;
 
@@ -131,7 +144,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
         seq.OnComplete(() =>
         {
-            G.AudioManager?.PlayAudioSFX(TypeSFX.LandObject);
+            G.AudioManager?.Play(landSound);
 
             cameraShake.ShakeLight(7f);
 
@@ -149,8 +162,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
         if (isBusy) return;
         isBusy = true;
 
-        G.AudioManager?.PlayAudioSFX(TypeSFX.UpObject);
-        G.AudioManager?.PlayAudiDurationSFX(TypeSFX.Earthquake, 3f, 1f, 0f, true);
+        G.AudioManager?.Play(upSound);
         cameraShake.ShakeHeavy(5f, 3f);
 
         Vector3 startPos = transform.position;
@@ -173,10 +185,14 @@ public class PepelatsController : MonoBehaviour, IInteractable
         seq.Join(transform.DOMoveY(endPos.y, duration * 0.5f)
         .SetEase(Ease.InBack));
 
+        SoundHandle loopSound = G.AudioManager?.Play(earthquakeSound);
+
         seq.AppendInterval(1f);
+
 
         seq.OnComplete(() =>
         {
+            G.AudioManager?.Stop(loopSound);
             gameObject.SetActive(false);
             isBusy = false;
             isAvailable = true;

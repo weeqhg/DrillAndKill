@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LootSystem : MonoBehaviour
+public class LootSystem : MonoBehaviour, IInitializable
 {
     [SerializeField] private List<ItemData> allItems;
 

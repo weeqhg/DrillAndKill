@@ -18,7 +18,7 @@ public class SpawnObjectWorld : MonoBehaviour
 
     private List<GameObject> interactiveSpawnedObjects = new();
     private List<GameObject> staticSpawnedObjects = new();
-    private DifficultySnapshot difficulty;
+
 
     [System.Serializable]
     public class SpawnedObject
@@ -35,7 +35,6 @@ public class SpawnObjectWorld : MonoBehaviour
 
     public void Initialize()
     {
-        difficulty = G.DifficultyManager.GetDifficultySnapshot();
         SpawnAllInteractive();
         ConsoleEvents.OnCommandObjectSpawn += SpawnInteractiveHandler;
     }
@@ -179,8 +178,7 @@ public class SpawnObjectWorld : MonoBehaviour
 
         BaseInteractable interactableObj = obj.GetComponent<BaseInteractable>();
 
-        if (interactableObj != null)
-            interactableObj.Initialize(difficulty);
+        if (interactableObj != null) interactableObj.Initialize();
 
         interactiveSpawnedObjects.Add(obj);
     }

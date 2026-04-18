@@ -16,7 +16,7 @@ public enum PoolId
     Hole,
     Indicator
 }
-public class PoolManager : MonoBehaviour
+public class PoolManager : MonoBehaviour, IInitializable
 {
     [System.Serializable]
     public class Pool

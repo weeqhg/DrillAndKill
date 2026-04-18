@@ -11,7 +11,7 @@ public class CameraContorller : MonoBehaviour
     {
         axisController = GetComponent<CinemachineInputAxisController>();
         cinemachineCamera = GetComponent<CinemachineCamera>();
-        gain = PlayerPrefs.GetFloat(PlayerPrefsKeys.Sensitivity);
+        gain = PlayerPrefs.GetFloat(PlayerPrefsKeys.Sensitivity, 13f);
         cinemachineCamera.enabled = true;
         ConsoleEvents.OnSensitivityChanged += OnSensitivityChanged;
         GamePause.OnPauseGame += OnCameraEnabled;

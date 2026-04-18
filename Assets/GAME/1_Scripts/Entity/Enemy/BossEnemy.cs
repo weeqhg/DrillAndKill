@@ -10,6 +10,7 @@ public class BossEnemy : EnemyAI
     private float superAttackCooldown = 20f;
 
     [Header("Settings")]
+    public SoundData landClip;
     [SerializeField] private Transform shootPoint;
     [SerializeField] private float projectileSpeed = 8f;
     [SerializeField] private LayerMask obstacleLayer;
@@ -177,7 +178,7 @@ public class BossEnemy : EnemyAI
         {
             Damage();
             G.PoolManager?.CallWithAutoReturn(PoolId.Dust_Land, new Vector3(body.position.x, body.position.y + 20f, body.position.z), 5f, 10f);
-            G.AudioManager?.PlayAudioSFX(TypeSFX.LandObject);
+            G.AudioManager?.Play(landClip);
             player.CameraShake.ShakeLight(10f);
         });
 
@@ -252,7 +253,7 @@ public class BossEnemy : EnemyAI
         {
             Damage();
             G.PoolManager?.CallWithAutoReturn(PoolId.Dust_Land, new Vector3(body.position.x, body.position.y + 20f, body.position.z), 5f, 10f);
-            G.AudioManager?.PlayAudioSFX(TypeSFX.LandObject);
+            G.AudioManager?.Play(landClip);
             player.CameraShake.ShakeLight(10f);
         });
 

@@ -32,7 +32,7 @@ public class GameDirector : MonoBehaviour
 
     public void Initialize()
     {
-        G.DifficultyManager.OnTimerUpdate += OnTimerUpdateHandler;
+        G.GameFlow.OnTimerUpdate += OnTimerUpdateHandler;
 
         enemySpawner = GetComponentInChildren<EnemySpawner>();
         enemySpawner.Initialize();
@@ -90,7 +90,7 @@ public class GameDirector : MonoBehaviour
         };
 
         // 🔥 множители
-        float difficultyBonus = G.DifficultyManager?.DifficultyMultiplier ?? 1f;
+        float difficultyBonus = G.GameFlow?.DifficultyMultiplier ?? 1f;
         float phaseBonus = GetPhaseBonus();
         float stateBonus = GetDirectorBonus();
 
@@ -102,7 +102,7 @@ public class GameDirector : MonoBehaviour
 
     private float GetPhaseBonus()
     {
-        return GetPhase(G.DifficultyManager?.timeDifficulty ?? 0f) switch
+        return GetPhase(G.GameFlow?.GameTIME ?? 0f) switch
         {
             GamePhase.Early => 1f,
             GamePhase.Mid => 1.3f,
@@ -125,15 +125,15 @@ public class GameDirector : MonoBehaviour
 
     private void OnTimerUpdateHandler(float time)
     {
-        currentDifficulty = CalculateDifficulty(time) * (G.DifficultyManager?.DifficultyMultiplier ?? 1f);
+        currentDifficulty = CalculateDifficulty(time) * (G.GameFlow?.DifficultyMultiplier ?? 1f);
         UpdateDirectorState(time);
 
         spawnTimer += Time.deltaTime;
 
         if (spawnTimer >= nextSpawnTime)
         {
-            SpawnWave(G.DifficultyManager?.timeDifficulty ?? 0f);
-            ScheduleNextSpawn(G.DifficultyManager?.timeDifficulty ?? 0f);
+            SpawnWave(G.GameFlow?.GameTIME ?? 0f);
+            ScheduleNextSpawn(G.GameFlow?.GameTIME ?? 0f);
             spawnTimer = 0f;
         }
     }
@@ -146,7 +146,7 @@ public class GameDirector : MonoBehaviour
 
         if (stateTimer > 0f) return;
 
-        float stress = G.DifficultyManager?.DifficultyMultiplier ?? 1f;
+        float stress = G.GameFlow?.DifficultyMultiplier ?? 1f;
 
         switch (currentState)
         {
@@ -174,10 +174,8 @@ public class GameDirector : MonoBehaviour
     {
         if (isBossActive)
         {
-            // 👉 80% вообще не спавним
             if (Random.value < 0.8f) return;
 
-            // 👉 если спавним — очень слабых
             int count = Mathf.Max(1, CalculateEnemyCount() / 4);
             int level = Mathf.Max(1, CalculateEnemyLevel() - 5);
 
@@ -280,6 +278,6 @@ public class GameDirector : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (G.DifficultyManager != null) G.DifficultyManager.OnTimerUpdate -= OnTimerUpdateHandler;
+        if (G.GameFlow != null) G.GameFlow.OnTimerUpdate -= OnTimerUpdateHandler;
     }
 }

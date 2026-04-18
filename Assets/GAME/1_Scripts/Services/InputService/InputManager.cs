@@ -7,7 +7,7 @@ public enum InputType
     UI
 }
 
-public class InputManager : MonoBehaviour
+public class InputManager : MonoBehaviour, IInitializable
 {
     public InputSystem_Actions Actions => _actions;
     private InputSystem_Actions _actions;

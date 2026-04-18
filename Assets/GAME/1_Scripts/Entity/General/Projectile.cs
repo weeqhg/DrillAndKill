@@ -4,11 +4,14 @@ using System.Collections;
 public class Projectile : MonoBehaviour
 {
     private PoolManager pool;
+    private SoundData exploseSound;
     private float damage;
     private float explosionRadius;
     private bool IsStoped => GamePause.IsGameFrozen || GamePause.IsGamePaused;
     public void Init(PoolManager pool, Vector3 target, float speed, float arcHeight, float damage, float explosionRadius)
     {
+        exploseSound = Resources.Load<SoundData>("Audio/SFX/Explose");
+
         this.pool = pool;
         this.damage = damage;
         this.explosionRadius = explosionRadius;
@@ -47,7 +50,7 @@ public class Projectile : MonoBehaviour
 
         Explode(target);
         PlayImpact(target);
-        G.AudioManager?.PlayAudioSFX(TypeSFX.Explose);
+        G.AudioManager?.Play(exploseSound);
         pool.Return(PoolId.Projectile, gameObject);
     }
 

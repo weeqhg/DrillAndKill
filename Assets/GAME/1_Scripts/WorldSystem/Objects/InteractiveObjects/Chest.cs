@@ -9,14 +9,17 @@ public class Chest : BaseInteractable
 
     [Header("Settings")]
     [SerializeField] private int baseCost = 25;
-    [SerializeField] private AudioClip openSound;
 
+
+    private SoundData openSound;
     private LootDropper lootDropper;
 
     private int currentCost;
 
     protected override void SetupDerived()
     {
+        openSound = Resources.Load<SoundData>("Audio/SFX/Open");
+
         lootDropper = GetComponent<LootDropper>();
 
         closedModel.SetActive(true);
@@ -34,7 +37,7 @@ public class Chest : BaseInteractable
     }
     private void CalculateCost()
     {
-        currentCost = baseCost * Mathf.RoundToInt(1 + G.DifficultyManager.timeDifficulty / 60f);
+        currentCost = baseCost * Mathf.RoundToInt(1 + G.GameFlow.GameTIME / 60f);
     }
 
     public override void Interact(PlayerInteractor playerInteractor)
@@ -75,7 +78,7 @@ public class Chest : BaseInteractable
         closedModel.SetActive(false);
         openedModel.SetActive(true);
 
-        G.AudioManager?.PlayAudio3DSFX(openSound, transform.position);
+        G.AudioManager?.Play(openSound, transform.position);
 
         lootDropper.DropLootItem(item);
     }

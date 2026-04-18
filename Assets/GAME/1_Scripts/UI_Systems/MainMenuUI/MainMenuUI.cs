@@ -79,7 +79,8 @@ public class MainMenuUI : UIWindow, ICloseBlocker
 
     private void OnDestroy()
     {
-        G.InputManager.Actions.UI.ESC.performed -= OnCancel;
+        if (G.InputManager != null) G.InputManager.Actions.UI.ESC.performed -= OnCancel;
+        
         _startGame.onClick.RemoveAllListeners();
         _authorGame.onClick.RemoveAllListeners();
         _settingGame.onClick.RemoveAllListeners();

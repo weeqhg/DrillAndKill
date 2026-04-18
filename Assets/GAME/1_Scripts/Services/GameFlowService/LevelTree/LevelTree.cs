@@ -36,8 +36,6 @@ public class LevelTree : MonoBehaviour
         allNodes.Clear();
         allNodes = GenerateLevelNodes();
         levelTreeUI.Initialize(this);
-
-        G.GameFlow.OnResetProgress += ResetProgress;
     }
 
     public void ShowTree()
@@ -45,7 +43,7 @@ public class LevelTree : MonoBehaviour
         G.UIManager.OpenOverlay(levelTreeUI);
     }
 
-    private void ResetProgress()
+    public void ResetProgress()
     {
         allNodes = GenerateLevelNodes();
         levelTreeUI.ResetTreeLevel();
@@ -218,8 +216,4 @@ public class LevelTree : MonoBehaviour
         return clone;
     }
 
-    private void OnDestroy()
-    {
-        G.GameFlow.OnResetProgress -= ResetProgress;
-    }
 }

@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
   chainRadius: 5
   acceleration: 20
-  groundCheckDistance: 0.05
+  groundCheckDistance: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 8

@@ -5,23 +5,31 @@ using UnityEngine.UI;
 
 public class ButtonPointerHandler : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    private SoundData clickSound;
+    private SoundData selectSound;
     private Image highlightImage;
     private float duration = 0.25f;
     private Ease ease = Ease.OutCubic;
     private Tween _scaleTween;
     private Tween _fillTween;
+
+
+
     private void Start()
     {
         highlightImage = GetComponent<Image>();
+
+        clickSound = Resources.Load<SoundData>("Audio/UI/ClickSound");
+        selectSound = Resources.Load<SoundData>("Audio/UI/SelectSound");
     }
     public void OnPointerDown(PointerEventData eventData)
     {
-        G.AudioManager?.PlayAudioUI(TypeUiAudio.Button);
+        G.AudioManager?.Play(clickSound);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        G.AudioManager?.PlayAudioUI(TypeUiAudio.ButtonSelect);
+        G.AudioManager?.Play(selectSound);
         AnimateFill(1);
         AnimateScale(1.1f);
     }
