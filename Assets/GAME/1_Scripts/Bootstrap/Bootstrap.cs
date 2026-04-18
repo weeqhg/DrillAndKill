@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 public static class G
 {
-    public static GameFlow GameFlow;
-    public static AudioManager AudioManager;
+    public static GameFlow GameFlow; //75%
+    public static AudioManager AudioManager; //100%
     public static PoolManager PoolManager;
     public static InputManager InputManager;
     public static UIManager UIManager;
@@ -51,34 +51,34 @@ public class Bootstrap : MonoBehaviour
     #region Initialize System
     private IEnumerator BootstrapRoutine()
     {
-        G.GameFlow = InitSystem(G.GameFlow, gameFlowPrefab);
+        G.GameFlow = SystemInitializer.CreateSystem(G.GameFlow, gameFlowPrefab);
         G.GameFlow.OnEndScene += Show;
 
         Show();
         yield return null;
 
         // --- Initialize Service ---
-        G.InputManager = InitSystem(G.InputManager, inputManagerPrefab);
+        G.InputManager = SystemInitializer.CreateSystem(G.InputManager, inputManagerPrefab);
 
         StepDone();
         yield return null;
 
-        G.AudioManager = InitSystem(G.AudioManager, audioManagerPrefab);
+        G.AudioManager = SystemInitializer.CreateSystem(G.AudioManager, audioManagerPrefab);
 
         StepDone();
         yield return null;
 
-        G.PoolManager = InitSystem(G.PoolManager, poolManagerPrefab);
+        G.PoolManager = SystemInitializer.CreateSystem(G.PoolManager, poolManagerPrefab);
 
         StepDone();
         yield return null;
 
-        G.UIManager = InitSystem(G.UIManager, uiManagerPrefab);
+        G.UIManager = SystemInitializer.CreateSystem(G.UIManager, uiManagerPrefab);
 
         StepDone();
         yield return null;
 
-        G.LootSystem = InitSystem(G.LootSystem, lootSystemPrefab);
+        G.LootSystem = SystemInitializer.CreateSystem(G.LootSystem, lootSystemPrefab);
 
         StepDone();
         yield return null;
@@ -100,18 +100,6 @@ public class Bootstrap : MonoBehaviour
         StepDone();
         Hide();
         yield return new WaitForSeconds(0.1f);
-    }
-
-    private T InitSystem<T>(T current, T prefab) where T : MonoBehaviour
-    {
-        if (current != null || prefab == null) return current;
-
-        T instance = Instantiate(prefab);
-
-        if (instance is IInitializable init)
-            init.Initialize();
-
-        return instance;
     }
     #endregion
 

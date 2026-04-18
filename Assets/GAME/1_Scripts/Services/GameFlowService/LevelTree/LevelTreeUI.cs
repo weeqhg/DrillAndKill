@@ -58,7 +58,7 @@ public class LevelTreeUI : UIWindow, ICloseBlocker
         levelPopup = GetComponent<AutoPopup>();
         levelPopup.Initialize();
 
-        BuildParents(levelTree.allNodes);
+        BuildParents(levelTree.AllNode);
         CreateTreeUI();
         RefreshTreeVisuals();
 
@@ -72,14 +72,14 @@ public class LevelTreeUI : UIWindow, ICloseBlocker
     public void ResetTreeLevel()
     {
         ClearTreeUI();
-        BuildParents(levelTree.allNodes);
+        BuildParents(levelTree.AllNode);
         CreateTreeUI();
         RefreshTreeVisuals();
     }
 
     private void RefreshTreeVisuals()
     {
-        foreach (var node in levelTree.allNodes)
+        foreach (var node in levelTree.AllNode)
             UpdateNodeState(node);
     }
 
@@ -210,9 +210,9 @@ public class LevelTreeUI : UIWindow, ICloseBlocker
 
     private void CreateTreeUI()
     {
-        layout = GenerateTreeLayout(levelTree.allNodes);
+        layout = GenerateTreeLayout(levelTree.AllNode);
 
-        foreach (var node in levelTree.allNodes)
+        foreach (var node in levelTree.AllNode)
             CreateNodeUI(node);
 
         DrawConnections();
@@ -421,7 +421,7 @@ public class LevelTreeUI : UIWindow, ICloseBlocker
     {
         drawnConnections.Clear();
 
-        foreach (var node in levelTree.allNodes)
+        foreach (var node in levelTree.AllNode)
         {
             foreach (string connId in node.connections)
             {

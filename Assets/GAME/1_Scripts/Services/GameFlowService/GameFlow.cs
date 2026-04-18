@@ -22,9 +22,9 @@ public class GameFlow : MonoBehaviour, IInitializable
     public event Action<float> OnTimerUpdate;
 
     //Компонетны
-    private SceneLoader sceneLoader;
-    private LevelTree levelTree;
-    private DifficultyManager difficulty;
+    private SceneLoader sceneLoader; //100%
+    private LevelTree levelTree; //0%
+    private DifficultyManager difficulty; //100%
 
     private bool isTimerRun = false;
     private bool IsStoped => GamePause.IsGameFrozen || GamePause.IsGamePaused;
@@ -39,16 +39,13 @@ public class GameFlow : MonoBehaviour, IInitializable
             return;
         }
 
-        sceneLoader = GetComponentInChildren<SceneLoader>();
-
-        levelTree = GetComponentInChildren<LevelTree>();
-        levelTree?.Initialize();
-
-        difficulty = GetComponentInChildren<DifficultyManager>();
-        difficulty?.Initialize();
+        sceneLoader = SystemInitializer.InitializeSystem<SceneLoader>(transform);
+        levelTree = SystemInitializer.InitializeSystem<LevelTree>(transform);
+        difficulty = SystemInitializer.InitializeSystem<DifficultyManager>(transform);
 
         ConsoleEvents.OnCommandToggleDifficultyScaler += ConsoleStartRun;
         GamePause.OnPauseGame += ToggleHUD;
+
         ToggleHUD(GamePause.IsGamePaused);
 
         G.GameFlow = this;
@@ -177,7 +174,7 @@ public class GameFlow : MonoBehaviour, IInitializable
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
     }
-    
+
     private void HideHUD()
     {
         canvasGroup.alpha = 0f;

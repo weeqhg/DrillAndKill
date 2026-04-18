@@ -13,7 +13,6 @@ public enum SceneType
 
 public class SceneLoader : MonoBehaviour
 {
-
     [SerializeField] private string[] arenaScenes;
     [SerializeField] private string[] secretScenes;
     [SerializeField] private string shopScene;
@@ -55,7 +54,7 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator LoadSceneWithFade(string sceneName)
     {
-        yield return new WaitForSeconds(1f); // небольшой буфер перед началом загрузки
+        yield return new WaitForSeconds(1f);
 
         SceneManager.LoadScene(sceneName);
     }

@@ -1660,7 +1660,7 @@ Transform:
   m_GameObject: {fileID: 5374975818622555642}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.55061, y: -53.00003, z: -169.882}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1678,21 +1678,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd31a2514266d34db5b2ba18a7f25d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelTree
-  levelCount: 4
-  pathCount: 4
-  crossConnectionChance: 1
-  startNodeData: {fileID: 11400000, guid: cacb7e88951f57d4d9c07f362360498a, type: 2}
-  enemyNodeData: {fileID: 11400000, guid: cacb7e88951f57d4d9c07f362360498a, type: 2}
-  shopNodeData: {fileID: 11400000, guid: cd6f52b40a80ef34d9ef09cd0b094cab, type: 2}
-  secretNodeData: {fileID: 11400000, guid: 24f669a8943c0554e8ecf608110d18a6, type: 2}
-  finalNodeData: {fileID: 11400000, guid: 157afacafebe6ad43a1e0b4818339ff6, type: 2}
-  allNodes: []
   levelTreeUI: {fileID: 1163731052136385822}
-  currentNode:
-    data: {fileID: 0}
-    isUnlocked: 0
-    parents: []
-    connections: []
+  config:
+    levelCount: 4
+    pathCount: 4
+    crossConnectionChance: 0.3
+    arenaChance: 0.6
+    shopChance: 0.25
+    secretChance: 0.15
+    startNodeData: {fileID: 11400000, guid: cacb7e88951f57d4d9c07f362360498a, type: 2}
+    enemyNodeData: {fileID: 11400000, guid: cacb7e88951f57d4d9c07f362360498a, type: 2}
+    shopNodeData: {fileID: 11400000, guid: cd6f52b40a80ef34d9ef09cd0b094cab, type: 2}
+    secretNodeData: {fileID: 11400000, guid: 24f669a8943c0554e8ecf608110d18a6, type: 2}
+    finalNodeData: {fileID: 11400000, guid: 157afacafebe6ad43a1e0b4818339ff6, type: 2}
 --- !u!1 &5448461398028022258
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,10 +1943,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7219881285670978521}
   - {fileID: 9040273097522227144}
   - {fileID: 6604396859641375431}
   - {fileID: 5616818044372715374}
+  - {fileID: 7219881285670978521}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4106655578669467637

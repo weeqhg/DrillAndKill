@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DifficultyManager : MonoBehaviour
+public class DifficultyManager : MonoBehaviour, IInitializable
 {
     public float Multiplier { get; private set; } = 1f;
     public int Level { get; private set; } = 0;
