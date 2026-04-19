@@ -148,9 +148,8 @@ public class EnemySpawner : MonoBehaviour
                 {
                     Vector3 candidatePos = navHit.position;
 
-                    // Проверка коллайдеров, чтобы не спавниться внутри объектов
                     if (Physics.CheckCapsule(candidatePos, candidatePos + Vector3.up * enemyHeight, enemyRadius, ~groundLayer, QueryTriggerInteraction.Ignore))
-                        continue; // место занято
+                        continue;
 
                     // Поднимаем объект на половину высоты (чтобы не проваливался)
                     spawnPosition = candidatePos + Vector3.up * (enemyHeight / 2f);

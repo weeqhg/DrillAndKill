@@ -23,7 +23,7 @@ public class GameFlow : MonoBehaviour, IInitializable
 
     //Компонетны
     private SceneLoader sceneLoader; //100%
-    private LevelTree levelTree; //0%
+    private LevelTree levelTree; //50%
     private DifficultyManager difficulty; //100%
 
     private bool isTimerRun = false;

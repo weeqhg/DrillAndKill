@@ -3,30 +3,32 @@ using UnityEngine;
 
 public class WorldManager : MonoBehaviour
 {
-    private SpawnObjectWorld spawnObjectWorld;
-    private EnemySpawner enemySpawner;
+    public SceneType sceneType = SceneType.Arena;
     private GameDirector gameDirector;
-    private PlayerSpawner playerSpawner;
     private LaunchWorld launchWorld;
     public event Action OnBossDefeated;
+
+
+
     public void Initialize()
     {
-        spawnObjectWorld = gameObject.GetComponentInChildren<SpawnObjectWorld>();
-        spawnObjectWorld?.Initialize();
+        gameDirector = SystemInitializer.InitializeSystem<GameDirector>(transform);
+        launchWorld = SystemInitializer.InitializeSystem<LaunchWorld>(transform);
 
-        gameDirector = gameObject.GetComponentInChildren<GameDirector>();
-        gameDirector?.Initialize();
+        SystemInitializer.InitializeSystem<SpawnObjectWorld>(transform);
+        SystemInitializer.InitializeSystem<PlayerSpawner>(transform);
 
-        playerSpawner = gameObject.GetComponentInChildren<PlayerSpawner>();
-        playerSpawner?.Initialize();
+        StartWorld();
+    }
 
-        launchWorld = gameObject.GetComponentInChildren<LaunchWorld>();
-        launchWorld?.Initialize();
+    public void StartWorld()
+    {
+        launchWorld?.LaunchPlayerInWorld(sceneType);
     }
 
     public void CallBoerNextWorld()
     {
-        launchWorld?.CallBoer();
+        launchWorld?.CallPepelats();
     }
 
     public void CallBossWorld()
@@ -37,7 +39,7 @@ public class WorldManager : MonoBehaviour
     public void BossDefeated()
     {
         gameDirector?.BossEnd();
-        launchWorld?.CallBoer();
+        launchWorld?.CallPepelats();
         OnBossDefeated?.Invoke();
     }
 }

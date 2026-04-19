@@ -5,7 +5,6 @@ using UnityEngine.Localization;
 
 public class Thumper : BaseInteractable
 {
-
     [SerializeField] private Transform thumper;
     [SerializeField] private LocalizedString localizedHint;
     private CameraShake cameraShake;
@@ -17,6 +16,8 @@ public class Thumper : BaseInteractable
     private SoundData earthquakeSound;
     private SoundData landSound;
     private SoundData upSound;
+
+
 
     protected override void SetupDerived()
     {
@@ -100,6 +101,7 @@ public class Thumper : BaseInteractable
             yield return null;
         }
     }
+    
     private void OnDestroy()
     {
         thumper.position = Vector3.zero;

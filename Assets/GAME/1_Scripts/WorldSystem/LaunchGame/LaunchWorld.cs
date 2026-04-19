@@ -1,12 +1,17 @@
 using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
+using Unity.VisualScripting;
 
-public class LaunchWorld : MonoBehaviour
+public class LaunchWorld : MonoBehaviour, IInitializable
 {
+    private readonly Vector3 CameraOffset = new(0f, 50f, -20f);
+    private readonly Vector3 SpawnOffset = new(0f, 0f, 20f);
     private CinemachineCamera cinemachineCamera;
     private PlayerManager player;
     private PepelatsController pepelats;
+    private bool isReturn = true;
+
 
 
     public void Initialize()
@@ -17,92 +22,101 @@ public class LaunchWorld : MonoBehaviour
         cinemachineCamera = GetComponentInChildren<CinemachineCamera>();
 
         pepelats.OnActiveNextLevel += NextLevel;
-        pepelats.OnBoerDeparture += BoerDeparture;
+        pepelats.OnPepelatsDeparture += PepelatsDeparture;
 
         if (PlayerService.Player != null) SetPlayer(PlayerService.Player);
         PlayerService.OnPlayerChanged += SetPlayer;
     }
 
-    private void SetPlayer(PlayerManager player)
+    /////////////////////////////////
+    /// Внешний доступ
+    /////////////////////////////////
+    public void LaunchPlayerInWorld(SceneType sceneType)
     {
         if (player == null) return;
         
-        this.player = player;
-        StartLevel();
-    }
+        EnableCamera();
 
-    public void StartLevel()
-    {
-        if (player == null) return;
-
-        cinemachineCamera.enabled = true;
-        cinemachineCamera.transform.position = player.Transform.position + new Vector3(0f, 50f, -20f);
         player?.HidePlayer();
 
-        pepelats.OnBoerArrived += BoerArrived;
-        pepelats.NextLevelLaunch();
+        pepelats.LaunchPepelats();
+
+        pepelats.OnPepelatsArrived -= PepelatsArrived;
+        pepelats.OnPepelatsArrived += PepelatsArrived;
+
+        if (sceneType == SceneType.Arena || sceneType == SceneType.Secret || sceneType == SceneType.Final)
+        {
+            isReturn = true;
+        }
+        else if (sceneType == SceneType.Shop)
+        {
+            isReturn = false;
+        }
     }
 
-    public void CallBoer()
+    public void CallPepelats()
     {
-        pepelats.ForceLaunchBoer();
+        pepelats.ForceLaunchPepelats();
     }
 
-    private void BoerArrived()
+    /////////////////////////////////
+    /// Core
+    /////////////////////////////////
+    private void SetPlayer(PlayerManager player)
     {
-        pepelats.OnBoerArrived -= BoerArrived;
+        this.player = player;
+    }
 
-        Vector3 rawPos = pepelats.transform.position + new Vector3(0f, 0f, 20f);
+    private void PepelatsArrived()
+    {
+        pepelats.OnPepelatsArrived -= PepelatsArrived;
 
-        Vector3 groundPos = GetGroundPosition(rawPos);
+        Vector3 rawPos = pepelats.transform.position + SpawnOffset;
+        Vector3 groundPos = SystemGet.GetGroundPosition(rawPos, 30f);
 
         player?.TeleportPlayer(groundPos);
         player?.ShowPlayer();
-
 
         cinemachineCamera.enabled = false;
 
         StartCoroutine(Return());
     }
 
-    private Vector3 GetGroundPosition(Vector3 basePos)
-    {
-        Vector3 origin = basePos + Vector3.up * 25f;
-
-        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 50f))
-        {
-            return hit.point;
-        }
-
-        return basePos;
-    }
-
     private IEnumerator Return()
     {
         yield return new WaitForSeconds(2f);
-        pepelats.Despawn();
+        if (isReturn) pepelats.Despawn();
+
+        yield return new WaitForSeconds(2f);
+        pepelats.SetAvailable(true);
     }
 
     private void NextLevel()
     {
-        cinemachineCamera.enabled = true;
-        cinemachineCamera.transform.position = player.Transform.position + new Vector3(0f, 50f, -20f);
+        EnableCamera();
 
-        player.HidePlayer();
+        player?.HidePlayer();
     }
 
-    private void BoerDeparture()
+    private void PepelatsDeparture()
     {
         G.GameFlow?.ShowLevelTree();
     }
 
+    private void EnableCamera()
+    {
+        if (player == null) return;
+
+        cinemachineCamera.enabled = true;
+        cinemachineCamera.transform.position = player.Transform.position + CameraOffset;
+    }
 
     private void OnDestroy()
     {
         PlayerService.OnPlayerChanged -= SetPlayer;
 
-        pepelats.OnBoerArrived -= BoerArrived;
+        pepelats.OnPepelatsArrived -= PepelatsArrived;
         pepelats.OnActiveNextLevel -= NextLevel;
-        pepelats.OnBoerDeparture -= BoerDeparture;
+        pepelats.OnPepelatsDeparture -= PepelatsDeparture;
     }
 }

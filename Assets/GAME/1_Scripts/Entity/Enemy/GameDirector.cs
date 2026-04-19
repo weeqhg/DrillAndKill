@@ -1,34 +1,27 @@
 using UnityEngine;
 
-public class GameDirector : MonoBehaviour
+public class GameDirector : MonoBehaviour, IInitializable
 {
-    private enum GamePhase
-    {
-        Early,
-        Mid,
-        Late,
-        Endgame
-    }
+    private enum GamePhase { Early, Mid, Late, Endgame }
 
     private enum DirectorState
     {
-        BuildUp,   // наращивание
-        Peak,      // пик (жёстко)
+        BuildUp,    // наращивание
+        Peak,       // пик (жёстко)
         Relax,      // отдых
-        BossFight
+        BossFight   //босс
     }
 
-
     private EnemySpawner enemySpawner;
+    private DirectorState currentState;
+
     private float spawnTimer;
     private float nextSpawnTime;
-
-    private DirectorState currentState;
     private float stateTimer;
-
     private float currentDifficulty;
-
     private bool isBossActive;
+
+
 
     public void Initialize()
     {
@@ -40,6 +33,9 @@ public class GameDirector : MonoBehaviour
         ScheduleNextSpawn(0f);
     }
 
+    ////////////////
+    /// Boss
+    ////////////////
     public void SpawnBoss()
     {
         isBossActive = true;
@@ -56,73 +52,13 @@ public class GameDirector : MonoBehaviour
     public void BossEnd()
     {
         isBossActive = false;
-
-        // возвращаемся в нормальную фазу
         currentState = DirectorState.Relax;
         stateTimer = 5f;
     }
 
-    private int CalculateBossLevel()
-    {
-        return Mathf.Clamp(
-            Mathf.RoundToInt(5f + currentDifficulty * 1.2f),
-            1,
-            100
-        );
-    }
-
-    private (int, int) CalculateReward(TypeEnemy type)
-    {
-        int baseExp = type switch
-        {
-            TypeEnemy.Default => 10,
-            TypeEnemy.Elite => 25,
-            TypeEnemy.Boss => 200,
-            _ => 10
-        };
-
-        int baseCoins = type switch
-        {
-            TypeEnemy.Default => 5,
-            TypeEnemy.Elite => 15,
-            TypeEnemy.Boss => 100,
-            _ => 5
-        };
-
-        // 🔥 множители
-        float difficultyBonus = G.GameFlow?.DifficultyMultiplier ?? 1f;
-        float phaseBonus = GetPhaseBonus();
-        float stateBonus = GetDirectorBonus();
-
-        int exp = Mathf.RoundToInt(baseExp * difficultyBonus * phaseBonus);
-        int coins = Mathf.RoundToInt(baseCoins * difficultyBonus * stateBonus);
-
-        return (exp, coins);
-    }
-
-    private float GetPhaseBonus()
-    {
-        return GetPhase(G.GameFlow?.GameTIME ?? 0f) switch
-        {
-            GamePhase.Early => 1f,
-            GamePhase.Mid => 1.3f,
-            GamePhase.Late => 1.6f,
-            GamePhase.Endgame => 2f,
-            _ => 1f
-        };
-    }
-
-    private float GetDirectorBonus()
-    {
-        return currentState switch
-        {
-            DirectorState.Peak => 1.5f,
-            DirectorState.Relax => 0.7f,
-            DirectorState.BossFight => 2f,
-            _ => 1f
-        };
-    }
-
+    ////////////////
+    /// Core
+    ////////////////
     private void OnTimerUpdateHandler(float time)
     {
         currentDifficulty = CalculateDifficulty(time) * (G.GameFlow?.DifficultyMultiplier ?? 1f);
@@ -183,7 +119,6 @@ public class GameDirector : MonoBehaviour
             return;
         }
 
-        // обычная логика
         if (currentState == DirectorState.Relax)
         {
             if (Random.value < 0.7f) return;
@@ -210,43 +145,94 @@ public class GameDirector : MonoBehaviour
         nextSpawnTime = Mathf.Clamp(interval, 0.5f, 5f);
     }
 
+    ////////////////
+    /// Calculate
+    ////////////////
+    private int CalculateBossLevel()
+    {
+        return Mathf.Clamp(Mathf.RoundToInt(5f + currentDifficulty * 1.2f), 1, 100);
+    }
+
+    private (int, int) CalculateReward(TypeEnemy type)
+    {
+        int baseExp = type switch
+        {
+            TypeEnemy.Default => 10,
+            TypeEnemy.Elite => 25,
+            TypeEnemy.Boss => 200,
+            _ => 10
+        };
+
+        int baseCoins = type switch
+        {
+            TypeEnemy.Default => 5,
+            TypeEnemy.Elite => 15,
+            TypeEnemy.Boss => 100,
+            _ => 5
+        };
+
+        float difficultyBonus = G.GameFlow?.DifficultyMultiplier ?? 1f;
+        float phaseBonus = GetPhaseBonus();
+        float stateBonus = GetDirectorBonus();
+
+        int exp = Mathf.RoundToInt(baseExp * difficultyBonus * phaseBonus);
+        int coins = Mathf.RoundToInt(baseCoins * difficultyBonus * stateBonus);
+
+        return (exp, coins);
+    }
+
     private int CalculateEnemyCount()
     {
-        return Mathf.Clamp(
-            Mathf.RoundToInt(2f + currentDifficulty * 1.5f),
-            1,
-            100
-        );
+        return Mathf.Clamp(Mathf.RoundToInt(2f + currentDifficulty * 1.5f), 1, 100);
     }
 
     private int CalculateEnemyLevel()
     {
-        return Mathf.Clamp(
-            Mathf.RoundToInt(1f + currentDifficulty * 0.8f),
-            1,
-            50
-        );
+        return Mathf.Clamp(Mathf.RoundToInt(1f + currentDifficulty * 0.8f), 1, 50);
     }
 
     private float CalculateDifficulty(float time)
     {
         float minutes = time / 60f;
 
-        // 1. Базовый рост (замедляющийся)
         float baseDifficulty = Mathf.Pow(minutes, 1.2f);
 
-        // 2. Волны сложности (пульсация)
         float wave = Mathf.Sin(time * 0.2f) * 2f;
 
-        // 3. Плавное ограничение (soft cap)
         float capped = baseDifficulty / (1f + baseDifficulty * 0.05f);
 
         return 1f + capped + wave;
     }
 
+    ////////////////
+    /// Get
+    ////////////////
+    private float GetPhaseBonus()
+    {
+        return GetPhase(G.GameFlow?.GameTIME ?? 0f) switch
+        {
+            GamePhase.Early => 1f,
+            GamePhase.Mid => 1.3f,
+            GamePhase.Late => 1.6f,
+            GamePhase.Endgame => 2f,
+            _ => 1f
+        };
+    }
+
+    private float GetDirectorBonus()
+    {
+        return currentState switch
+        {
+            DirectorState.Peak => 1.5f,
+            DirectorState.Relax => 0.7f,
+            DirectorState.BossFight => 2f,
+            _ => 1f
+        };
+    }
+
     private GamePhase GetPhase(float time)
     {
-        if (time < 300f) return GamePhase.Early;     // 0–5 мин
+        if (time < 300f) return GamePhase.Early;    // 0–5 мин
         if (time < 1200f) return GamePhase.Mid;     // 5–20 мин
         if (time < 2400f) return GamePhase.Late;    // 20–40 мин
         return GamePhase.Endgame;                   // 40+ мин

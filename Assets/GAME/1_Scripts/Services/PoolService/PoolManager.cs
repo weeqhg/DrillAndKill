@@ -1,14 +1,14 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+
 public enum PoolId
 {
     ExpOrb,
     CoinOrb,
     Projectile,
     TracerPlayer,
-    TracerEnemy,
     Hit,
     ExploseEffect,
     Dust_Default,
@@ -16,21 +16,29 @@ public enum PoolId
     Hole,
     Indicator
 }
+
 public class PoolManager : MonoBehaviour, IInitializable
 {
     [System.Serializable]
-    public class Pool
+    public class PoolConfig
     {
-        public PoolId id;                    // Уникальный идентификатор пула
-        public GameObject prefab;            // Префаб объекта
-        public int poolSize = 10;            // Размер пула
-        public Transform container;          // Контейнер для объектов (опционально)
+        public PoolId id;
+        public GameObject prefab;
+        public int poolSize = 10;
+        public Transform container;
     }
 
-    [SerializeField] private List<Pool> pools = new();
-    private Dictionary<PoolId, Queue<GameObject>> poolDictionary = new();
-    private Dictionary<PoolId, List<GameObject>> allPoolObjects = new();
-    private Dictionary<PoolId, GameObject> prefabDictionary = new();
+    private class PoolRuntime
+    {
+        public GameObject prefab;
+        public Transform container;
+        public Queue<GameObject> available = new();
+        public HashSet<GameObject> inPool = new();
+        public List<GameObject> allObjects = new();
+    }
+
+    [SerializeField] private List<PoolConfig> pools = new();
+    private Dictionary<PoolId, PoolRuntime> runtimePools = new();
 
     public void Initialize()
     {
@@ -56,87 +64,106 @@ public class PoolManager : MonoBehaviour, IInitializable
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-
     private void CreatePools()
     {
-        foreach (var pool in pools)
+        foreach (var config in pools)
         {
-            if (pool.container == null)
+            if (config.prefab == null)
             {
-                GameObject containerObj = new GameObject(pool.id.ToString());
-                containerObj.transform.SetParent(transform);
-                pool.container = containerObj.transform;
+                Debug.LogWarning($"Pool {config.id} has no prefab!");
+                continue;
             }
 
-            var queue = new Queue<GameObject>();
-            var list = new List<GameObject>();
-
-            for (int i = 0; i < pool.poolSize; i++)
+            if (config.container == null)
             {
-                var obj = Instantiate(pool.prefab, pool.container);
-                obj.SetActive(false);
-
-                queue.Enqueue(obj);
-                list.Add(obj);
+                var go = new GameObject(config.id.ToString());
+                go.transform.SetParent(transform);
+                config.container = go.transform;
             }
 
-            poolDictionary[pool.id] = queue;
-            allPoolObjects[pool.id] = list;
-            prefabDictionary[pool.id] = pool.prefab;
+            var runtime = new PoolRuntime
+            {
+                prefab = config.prefab,
+                container = config.container
+            };
+
+            for (int i = 0; i < config.poolSize; i++)
+            {
+                var obj = CreateObject(runtime);
+                ReturnInternal(runtime, obj);
+            }
+
+            runtimePools[config.id] = runtime;
         }
     }
-    public GameObject Get(PoolId id, Vector3 position, float scale = 1f)
+
+    private GameObject CreateObject(PoolRuntime pool)
     {
-        if (!poolDictionary.ContainsKey(id))
-            return null;
+        var obj = Instantiate(pool.prefab, pool.container);
+        obj.SetActive(false);
 
-        GameObject obj;
-
-        if (poolDictionary[id].Count > 0)
-        {
-            obj = poolDictionary[id].Dequeue();
-        }
-        else
-        {
-            GameObject prefab = prefabDictionary[id];
-            Transform container = pools.Find(p => p.id == id).container;
-
-            // Инстанцируем в контейнер
-            obj = Instantiate(prefab, container);
-            obj.SetActive(false);
-
-            allPoolObjects[id].Add(obj);
-        }
-
-        obj.transform.position = position;
-        obj.transform.localScale = Vector3.one * scale;
-        obj.SetActive(true);
+        pool.allObjects.Add(obj);
         return obj;
     }
 
+    public GameObject Get(PoolId id, Vector3 position, float scale = 1f)
+    {
+        if (!runtimePools.TryGetValue(id, out var pool))
+        {
+            Debug.LogError($"Pool {id} not found!");
+            return null;
+        }
+
+        GameObject obj;
+
+        if (pool.available.Count > 0)
+        {
+            obj = pool.available.Dequeue();
+            pool.inPool.Remove(obj);
+        }
+        else
+        {
+            obj = CreateObject(pool);
+        }
+
+        obj.transform.SetPositionAndRotation(position, Quaternion.identity);
+        obj.transform.localScale = Vector3.one * scale;
+        obj.SetActive(true);
+
+        return obj;
+    }
 
     public void Return(PoolId id, GameObject obj)
     {
-        if (!poolDictionary.ContainsKey(id))
+        if (!runtimePools.TryGetValue(id, out var pool))
         {
             Destroy(obj);
             return;
         }
 
+        if (pool.inPool.Contains(obj))
+            return; // защита от двойного возврата
+
+        ReturnInternal(pool, obj);
+    }
+
+    private void ReturnInternal(PoolRuntime pool, GameObject obj)
+    {
         obj.SetActive(false);
-        poolDictionary[id].Enqueue(obj);
+        pool.available.Enqueue(obj);
+        pool.inPool.Add(obj);
     }
 
     public void CallWithAutoReturn(PoolId id, Vector3 pos, float duration, float scale = 1f)
     {
-        GameObject obj = Get(id, pos, scale);
-        StartCoroutine(ReturnToPool(id, obj, duration));
+        var obj = Get(id, pos, scale);
+        if (obj != null)
+            StartCoroutine(ReturnCoroutine(id, obj, duration));
     }
 
-    private IEnumerator ReturnToPool(PoolId id, GameObject obj, float duration = 1f)
+    private IEnumerator ReturnCoroutine(PoolId id, GameObject obj, float duration)
     {
         yield return new WaitForSeconds(duration);
-
         Return(id, obj);
     }
 
@@ -147,38 +174,29 @@ public class PoolManager : MonoBehaviour, IInitializable
 
     public void DeactivateAll()
     {
-        foreach (var kvp in allPoolObjects)
+        foreach (var pool in runtimePools.Values)
         {
-            PoolId id = kvp.Key;
-
-            foreach (var obj in kvp.Value)
+            foreach (var obj in pool.allObjects)
             {
                 if (obj == null) continue;
 
-                obj.SetActive(false);
-
-                poolDictionary[id].Enqueue(obj);
+                if (!pool.inPool.Contains(obj))
+                    ReturnInternal(pool, obj);
             }
         }
     }
-    private void ClearAllPools()
+
+    private void OnDestroy()
     {
-        foreach (var kvp in allPoolObjects)
+        foreach (var pool in runtimePools.Values)
         {
-            foreach (var obj in kvp.Value)
+            foreach (var obj in pool.allObjects)
             {
                 if (obj != null)
                     Destroy(obj);
             }
         }
 
-        poolDictionary.Clear();
-        allPoolObjects.Clear();
-        prefabDictionary.Clear();
-    }
-
-    private void OnDestroy()
-    {
-        ClearAllPools();
+        runtimePools.Clear();
     }
 }

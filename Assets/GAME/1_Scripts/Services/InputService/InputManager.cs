@@ -1,17 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InputType
-{
-    Player,
-    UI
-}
+public enum InputType { Player, UI }
 
 public class InputManager : MonoBehaviour, IInitializable
 {
     public InputSystem_Actions Actions => _actions;
     private InputSystem_Actions _actions;
     private Stack<InputType> inputStack = new Stack<InputType>();
+
+
 
     public void Initialize()
     {
@@ -55,7 +53,6 @@ public class InputManager : MonoBehaviour, IInitializable
         SetInput(type);
     }
 
-    // 🔥 Возвращаемся к предыдущему
     public void PopInput()
     {
         if (inputStack.Count == 0)
@@ -64,7 +61,6 @@ public class InputManager : MonoBehaviour, IInitializable
             return;
         }
 
-        // удаляем текущее
         inputStack.Pop();
 
         if (inputStack.Count == 0)
@@ -77,7 +73,6 @@ public class InputManager : MonoBehaviour, IInitializable
         }
     }
 
-    // (опционально) полный сброс
     public void ResetInput()
     {
         inputStack.Clear();
@@ -89,7 +84,7 @@ public class InputManager : MonoBehaviour, IInitializable
         if (_actions != null)
         {
             _actions.Disable();
-            _actions.Dispose(); // ✅ Освобождаем ресурсы
+            _actions.Dispose();
             _actions = null;
         }
     }

@@ -10,6 +10,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
     [Header("Settings")]
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LocalizedString localizedHint;
+    private bool isAvailable = false;
     private bool IsStoped => GamePause.IsGamePaused;
     private float duration = 2f;
     private float riseHeight = 30f;
@@ -23,12 +24,10 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
     private PlayerManager player;
     private CameraShake cameraShake;
-    private bool isAvailable = false;
     private Vector3 posPlayer => PlayerService.Player != null ? player.Transform.position : Vector3.zero;
 
-
-    public event Action OnBoerArrived;
-    public event Action OnBoerDeparture;
+    public event Action OnPepelatsArrived;
+    public event Action OnPepelatsDeparture;
     public event Action OnActiveNextLevel;
 
     //Sounds
@@ -40,7 +39,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
     public void Initialize()
     {
-        ConsoleEvents.OnCommandLaunchPepelats += ForceLaunchBoer;
+        ConsoleEvents.OnCommandLaunchPepelats += ForceLaunchPepelats;
 
         if (PlayerService.Player != null) SetPlayer(PlayerService.Player);
         PlayerService.OnPlayerChanged += SetPlayer;
@@ -52,6 +51,8 @@ public class PepelatsController : MonoBehaviour, IInteractable
         earthquakeSound = Resources.Load<SoundData>("Audio/SFX/Earthquake");
         landSound = Resources.Load<SoundData>("Audio/SFX/LandObject");
         upSound = Resources.Load<SoundData>("Audio/SFX/UpObject");
+
+        SetAvailable(false);
     }
 
     public string GetHint()
@@ -60,25 +61,28 @@ public class PepelatsController : MonoBehaviour, IInteractable
         else return "";
     }
 
+    public void SetAvailable(bool value)
+    {
+        isAvailable = value;
+    }
+
     private void SetPlayer(PlayerManager player)
     {
-        if (player == null) return;
-
         this.player = player;
         cameraShake = this.player.CameraShake;
     }
 
     // 📌 Вызвать для появления
-    public void NextLevelLaunch()
+    public void LaunchPepelats()
     {
-        isAvailable = false;
         isBusy = false;
         gameObject.SetActive(true);
 
         StartCoroutine(LaunchCoroutine());
     }
 
-    public void ForceLaunchBoer()
+    // 📌 Вызвать для 100% спавна
+    public void ForceLaunchPepelats()
     {
         if (isBusy)
         {
@@ -152,7 +156,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
             isBusy = false;
 
-            OnBoerArrived?.Invoke();
+            OnPepelatsArrived?.Invoke();
         });
     }
 
@@ -195,7 +199,6 @@ public class PepelatsController : MonoBehaviour, IInteractable
             G.AudioManager?.Stop(loopSound);
             gameObject.SetActive(false);
             isBusy = false;
-            isAvailable = true;
             onComplete?.Invoke();
         });
     }
@@ -208,7 +211,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
             Despawn(() =>
             {
-                OnBoerDeparture?.Invoke();
+                OnPepelatsDeparture?.Invoke();
             });
             OnLoseFocus();
         }
@@ -242,14 +245,14 @@ public class PepelatsController : MonoBehaviour, IInteractable
 
             Vector3 origin = posPlayer + dir * dist + Vector3.up * 5f;
 
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f, groundLayer))
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 100f, groundLayer))
             {
                 Vector3 spawnPos = hit.point;
 
-                if (!Physics.CheckSphere(spawnPos, 1.5f, ~groundLayer))
-                {
-                    return spawnPos;
-                }
+                if (Physics.CheckCapsule(spawnPos, spawnPos + Vector3.up * 100f, 5f, ~groundLayer))
+                    continue;
+
+                return spawnPos;
             }
         }
 
@@ -297,6 +300,6 @@ public class PepelatsController : MonoBehaviour, IInteractable
     private void OnDestroy()
     {
         PlayerService.OnPlayerChanged -= SetPlayer;
-        ConsoleEvents.OnCommandLaunchPepelats -= ForceLaunchBoer;
+        ConsoleEvents.OnCommandLaunchPepelats -= ForceLaunchPepelats;
     }
 }

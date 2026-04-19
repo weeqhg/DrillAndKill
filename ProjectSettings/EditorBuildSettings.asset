@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestRoom.unity
     guid: a40b7c0c9f1cde14a94d5fe8d9655147
+  - enabled: 1
+    path: Assets/Scenes/ShopRoom.unity
+    guid: 4440a9593830cda4cbd5a288020df17a
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 931cacecb7f0f5b4e9502874f70791cc, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

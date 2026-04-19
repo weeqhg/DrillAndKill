@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnObjectWorld : MonoBehaviour
+public class SpawnObjectWorld : MonoBehaviour, IInitializable
 {
     [Header("Настройка спавна")]
     [Tooltip("Радиус центральной зоны, где объекты не будут спавниться")]
@@ -9,6 +9,7 @@ public class SpawnObjectWorld : MonoBehaviour
     public Transform containerInteract;
     public Transform containerStatic;
     public float centerSafeZoneRadius = 25f;
+
     [Tooltip("Включить безопасную зону в центре")]
     public bool enableCenterSafeZone = true;
 
@@ -18,7 +19,6 @@ public class SpawnObjectWorld : MonoBehaviour
 
     private List<GameObject> interactiveSpawnedObjects = new();
     private List<GameObject> staticSpawnedObjects = new();
-
 
     [System.Serializable]
     public class SpawnedObject
@@ -33,13 +33,45 @@ public class SpawnObjectWorld : MonoBehaviour
         [Range(0f, 5f)] public float spawnDensity = 0.5f;
     }
 
+
+
     public void Initialize()
     {
         SpawnAllInteractive();
         ConsoleEvents.OnCommandObjectSpawn += SpawnInteractiveHandler;
     }
 
-    public void SpawnAllInteractive()
+    [ContextMenu("Spawn Static Objects")]
+    public void SpawnStaticObjects()
+    {
+        ClearStaticObject();
+
+        foreach (var spawn in staticObjectDatas)
+        {
+            for (int i = 0; i < spawn.count; i++)
+            {
+                TrySpawnObject(spawn, false);
+            }
+        }
+    }
+
+    [ContextMenu("Clear Static Objects")]
+    public void ClearStaticObject()
+    {
+        foreach (var obj in staticSpawnedObjects)
+        {
+            if (obj == null) continue;
+
+            if (Application.isPlaying)
+                Destroy(obj);
+            else
+                DestroyImmediate(obj);
+        }
+
+        staticSpawnedObjects.Clear();
+    }
+
+    private void SpawnAllInteractive()
     {
         ClearInteractiveObject();
 
@@ -75,7 +107,10 @@ public class SpawnObjectWorld : MonoBehaviour
         interactiveSpawnedObjects.Clear();
     }
 
-
+    
+    /////////////////////////////////
+    /// Core
+    /////////////////////////////////
     private void TrySpawnObject(SpawnedObject spawn, bool isInteractive)
     {
         Vector3 size = terrain.terrainData.size;
@@ -117,7 +152,7 @@ public class SpawnObjectWorld : MonoBehaviour
     {
         float sqrRadius = radius * radius;
 
-        // interactive
+        // Interactive
         foreach (var obj in interactiveSpawnedObjects)
         {
             if (obj == null) continue;
@@ -161,7 +196,6 @@ public class SpawnObjectWorld : MonoBehaviour
 
         GameObject obj = Instantiate(spawn.prefab, Vector3.zero, rotation);
 
-        // scale
         float scale = 1f;
         if (spawn.randomScale > 0f)
         {
@@ -169,7 +203,6 @@ public class SpawnObjectWorld : MonoBehaviour
         }
         obj.transform.localScale = Vector3.one * scale;
 
-        // ставим позицию
         obj.transform.position = new Vector3(hit.point.x, hit.point.y, hit.point.z);
 
         obj.transform.position += Vector3.up * spawn.yOffset;
@@ -206,7 +239,6 @@ public class SpawnObjectWorld : MonoBehaviour
 
         GameObject obj = Instantiate(spawn.prefab, Vector3.zero, rotation);
 
-        // scale
         float scale = 1f;
         if (spawn.randomScale > 0f)
         {
@@ -214,13 +246,10 @@ public class SpawnObjectWorld : MonoBehaviour
         }
         obj.transform.localScale = Vector3.one * scale;
 
-        // 🔥 получаем радиус объекта
         float objectRadius = GetObjectRadius(obj);
 
-        // 🔥 ищем НИЖНЮЮ точку земли
         float groundY = GetGroundMinY(hit.point, objectRadius);
 
-        // ставим позицию
         obj.transform.position = new Vector3(hit.point.x, groundY, hit.point.z);
 
         float yOffset = GetObjectBottomOffset(obj);
@@ -245,7 +274,6 @@ public class SpawnObjectWorld : MonoBehaviour
             combinedBounds.Encapsulate(r.bounds);
         }
 
-        // половина высоты объекта
         return combinedBounds.extents.y;
     }
 
@@ -254,7 +282,6 @@ public class SpawnObjectWorld : MonoBehaviour
         int checks = 6;
         float minY = float.MaxValue;
 
-        // центр тоже проверяем
         if (Physics.Raycast(center + Vector3.up * 500f, Vector3.down, out RaycastHit centerHit, 1000f))
         {
             minY = centerHit.point.y;
@@ -336,47 +363,16 @@ public class SpawnObjectWorld : MonoBehaviour
             }
         }
 
-        // 🔥 проверка "плоскости"
         float heightDiff = maxY - minY;
 
-        if (heightDiff > 2f) // настрой под себя
+        if (heightDiff > 2f)
         {
             finalY = 0;
             return false;
         }
 
-        finalY = minY; // ставим в самую низкую точку
+        finalY = minY;
         return true;
-    }
-
-    [ContextMenu("Spawn Objects")]
-    public void SpawnStaticObjects()
-    {
-        ClearStaticObject();
-
-        foreach (var spawn in staticObjectDatas)
-        {
-            for (int i = 0; i < spawn.count; i++)
-            {
-                TrySpawnObject(spawn, false);
-            }
-        }
-    }
-
-    [ContextMenu("Clear All Objects")]
-    public void ClearStaticObject()
-    {
-        foreach (var obj in staticSpawnedObjects)
-        {
-            if (obj == null) continue;
-
-            if (Application.isPlaying)
-                Destroy(obj);
-            else
-                DestroyImmediate(obj);
-        }
-
-        staticSpawnedObjects.Clear();
     }
 
     private void OnDestroy()

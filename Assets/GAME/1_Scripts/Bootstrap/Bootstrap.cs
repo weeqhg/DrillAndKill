@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 public static class G
 {
-    public static GameFlow GameFlow; //75%
-    public static AudioManager AudioManager; //100%
+    public static GameFlow GameFlow;
+    public static AudioManager AudioManager;
     public static PoolManager PoolManager;
     public static InputManager InputManager;
     public static UIManager UIManager;

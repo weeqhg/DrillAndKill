@@ -6,6 +6,8 @@ public class UIManager : MonoBehaviour, IInitializable
 {
     private Stack<IUIWindow> windowStack = new Stack<IUIWindow>();
 
+
+
     public void Initialize()
     {
         if (G.UIManager != null && G.UIManager != this)
@@ -21,7 +23,6 @@ public class UIManager : MonoBehaviour, IInitializable
     // =========================
     // 🔥 OPEN
     // =========================
-
     public void OpenOverlay(IUIWindow window)
     {
         Open(window, false);

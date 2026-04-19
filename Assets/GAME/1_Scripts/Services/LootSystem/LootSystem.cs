@@ -5,6 +5,8 @@ public class LootSystem : MonoBehaviour, IInitializable
 {
     [SerializeField] private List<ItemData> allItems;
 
+
+
     public void Initialize()
     {
         if (G.LootSystem != null && G.LootSystem != this)

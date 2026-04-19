@@ -70,11 +70,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c8fb253c88f68d1469a31a4b6042041d, type: 2}
     - target: {fileID: 919132149155446097, guid: f1809f2d455b82243964bb8f91b7d6d7, type: 3}
       propertyPath: m_Name
-      value: Colon_1
+      value: Colon_Prefab
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f1809f2d455b82243964bb8f91b7d6d7, type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f1809f2d455b82243964bb8f91b7d6d7, type: 3}
       propertyPath: m_StaticEditorFlags
