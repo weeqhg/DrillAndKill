@@ -6,11 +6,17 @@ public class PlayerManager : MonoBehaviour
     private CameraShake cameraShake;
     private IDamageable damageable;
     private StatsController statsController;
+
+    /// <summary>
+    /// Геттеры
+    /// </summary>
     public Transform Transform => transform;
     public CameraShake CameraShake => cameraShake;
     public IDamageable Damageable => damageable;
     public Vector3 Velocity => rb != null ? rb.linearVelocity : Vector3.zero;
     public StatsController StatsController => statsController;
+
+
 
     public void Initialize()
     {
@@ -52,7 +58,7 @@ public class PlayerManager : MonoBehaviour
         moneyManager.Initialize();
 
         G.GameFlow.OnEndGame += KillPlayer;
-        
+
         ConsoleEvents.OnCommandKillPlayer += KillPlayer;
         ConsoleEvents.OnCommandImmortalPlayer += ImmortalPlayer;
 
@@ -60,6 +66,10 @@ public class PlayerManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+
+    /// <summary>
+    /// Внешнее взаимодействие с игроком
+    /// </summary>
     public void HidePlayer()
     {
         gameObject.SetActive(false);
@@ -76,7 +86,6 @@ public class PlayerManager : MonoBehaviour
     }
 
     //---Команды для игрока---
-
     private void KillPlayer()
     {
         Health health = gameObject.GetComponentInChildren<Health>();
@@ -91,8 +100,6 @@ public class PlayerManager : MonoBehaviour
         if (health != null) health.ToggleImmortal(enable);
         else ConsoleEvents.ConsoleMessage("Helath not found");
     }
-
-
 
     private void OnDestroy()
     {

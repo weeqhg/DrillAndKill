@@ -15,11 +15,16 @@ public class SlideController
     private bool _slidePressed;
     private EventSFX _eventSFX;
 
+    private SoundData slideData;
+    private SoundHandle sliderHandle;
+
     public SlideController(PlayerMovement player)
     {
         _player = player;
         _rb = player.Rb;
         _eventSFX = player.GetComponent<EventSFX>();
+
+        slideData = Resources.Load<SoundData>("Audio/SFX/Slide");
     }
 
     public void SetSlideInput(bool pressed) => _slidePressed = pressed;
@@ -32,17 +37,18 @@ public class SlideController
         if (!_isSliding && _slidePressed && isGrounded && horizontalSpeed >= _slideEnterMinSpeed)
         {
             _player.SetSliding(true);
+            sliderHandle = G.AudioManager?.Play(slideData);
             _isSliding = true;
         }
         else if (_isSliding && (!_slidePressed || !isGrounded))
         {
-            _eventSFX.ToggleSliceSound(false);
+            G.AudioManager?.Stop(sliderHandle);
             _player.SetSliding(false);
             _isSliding = false;
         }
         else if (_isSliding && horizontalSpeed < 1f)
         {
-            _eventSFX.ToggleSliceSound(false);
+            G.AudioManager?.Stop(sliderHandle);
         }
     }
 

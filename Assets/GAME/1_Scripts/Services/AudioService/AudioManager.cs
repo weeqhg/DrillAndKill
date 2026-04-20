@@ -70,7 +70,7 @@ public class AudioManager : MonoBehaviour, IInitializable
         if (sound == null) return null;
         if (!CanPlay(sound)) return null;
 
-        AudioClip clip = sound.GetRandomClip();
+        AudioClip clip = sound.GetClip();
         if (clip == null) return null;
 
         AudioSource source = CreateSource(sound);

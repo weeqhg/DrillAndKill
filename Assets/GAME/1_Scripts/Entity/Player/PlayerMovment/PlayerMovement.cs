@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -14,15 +15,22 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpRiseGravity = 1.5f;
     [SerializeField] private float jumpFallGravity = 2.5f;
     [SerializeField] private float _jumpHeight = 8f;
+
+    private const float SlideGroundMultiplier = 3f;
+    private const float GroundNormalMultiplier = 5f;
+
     //Статы
     private float _moveSpeed;
     private int _maxJump;
+
     // Компоненты
     private StatsController _stats;
     private Rigidbody _rb;
+    private Transform _cameraTransform;
 
     // Подсистемы
     private MovementController _movement;
+    public MovementController Movement => _movement;
     private JumpController _jump;
     private SlideController _slide;
     private AnimationController _animation;
@@ -36,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
     public bool IsFlying { get; private set; }
 
     public Rigidbody Rb => _rb;
-    public Transform CameraTransform => Camera.main?.transform;
+    public Transform CameraTransform => _cameraTransform;
     public Transform GroundCheck => groundCheck;
     public LayerMask GroundLayer => groundLayer;
     public float GroundRayLength => groundRayLength;
@@ -47,12 +55,42 @@ public class PlayerMovement : MonoBehaviour
     public int MaxJump => _maxJump;
     public float JumpHeight => _jumpHeight;
 
+
+    public PlayerStateMachine StateMachine { get; private set; }
+
+    public IdleState IdleState { get; private set; }
+    public RunState RunState { get; private set; }
+    public JumpState JumpState { get; private set; }
+    public FallState FallState { get; private set; }
+    public LandState LandState { get; private set; }
+    public SlideState SlideState { get; private set; }
+    public FlyState FlyState { get; private set; }
+
+    public JumpController Jump => _jump;
+    public SlideController Slide => _slide;
+    public PlayerFly Fly => _fly;
+
+
+
+
     public void Initialize(StatsController statsController)
     {
         _stats = statsController;
         _rb = GetComponent<Rigidbody>();
 
         _rb.freezeRotation = true;
+
+        StateMachine = new PlayerStateMachine();
+
+        IdleState = new IdleState(this);
+        RunState = new RunState(this);
+        JumpState = new JumpState(this);
+        LandState = new LandState(this);
+        FallState = new FallState(this);
+        SlideState = new SlideState(this);
+        FlyState = new FlyState(this);
+
+        SetState(IdleState);
 
         _movement = new MovementController(this);
         _jump = new JumpController(this, jumpRiseGravity, jumpFallGravity);
@@ -62,6 +100,8 @@ public class PlayerMovement : MonoBehaviour
 
         ConsoleEvents.OnCommandPlayerFly += OnChangeFlyState;
 
+        _cameraTransform = Camera.main?.transform;
+
         _stats.OnStatsChanged += UpdateStats;
         UpdateStats();
 
@@ -69,6 +109,25 @@ public class PlayerMovement : MonoBehaviour
         input.Actions.Player.Shoot.started += OnShootStarted;
         input.Actions.Player.Shoot.canceled += OnShootCanceled;
         input.Actions.Player.Jump.performed += OnJump;
+
+        _cameraTransform = Camera.main?.transform;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    public void SetState(PlayerState state)
+    {
+        StateMachine.ChangeState(state);
+    }
+
+    public void SetFlying(bool value)
+    {
+        IsFlying = value;
+        _rb.useGravity = !value;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        _cameraTransform = Camera.main?.transform;
     }
 
     private void OnShootStarted(InputAction.CallbackContext ctx)
@@ -83,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        _jump.QueueJump();
+        SetState(JumpState);
     }
 
     private void UpdateStats()
@@ -98,26 +157,52 @@ public class PlayerMovement : MonoBehaviour
 
         ReadInput();
         CheckGrounded();
+        StateMachine.Update();
         _animation.UpdateAnimator(MoveInput, IsGrounded, IsSliding, IsFlying);
     }
 
     private void FixedUpdate()
     {
-        if (_rb == null) return;
-        if (_rb.isKinematic == true) return;
         if (GamePause.IsGamePaused)
         {
             StopPlayer();
             return;
         }
 
-        if (IsFlying)
+        //if (!CanProcessPhysics()) return;
+
+        //if (HandleFlight()) return;
+
+        //HandleGroundMovement();
+
+        StateMachine.FixedUpdate();
+    }
+
+    private bool CanProcessPhysics()
+    {
+        if (_rb == null) return false;
+        if (_rb.isKinematic) return false;
+
+        if (GamePause.IsGamePaused)
         {
-            _fly.HandleFlight();
-            _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
-            return;
+            StopPlayer();
+            return false;
         }
 
+        return true;
+    }
+
+    private bool HandleFlight()
+    {
+        if (!IsFlying) return false;
+
+        _fly.HandleFlight();
+        _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
+        return true;
+    }
+
+    private void HandleGroundMovement()
+    {
         _jump.Update(IsGrounded, _rb.linearVelocity.y);
         _slide.UpdateState(IsGrounded, _rb.linearVelocity);
 
@@ -125,9 +210,10 @@ public class PlayerMovement : MonoBehaviour
             _slide.HandleMovement(MoveInput, IsGrounded);
         else
             _movement.HandleMovement(MoveInput, IsGrounded);
+
         _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
 
-        _jump.HandleGravity(ref _rb);
+        _jump.HandleGravity(_rb);
         _jump.HandleAirSounds(IsGrounded);
         _movement.DecayBonusSpeed();
 
@@ -160,7 +246,7 @@ public class PlayerMovement : MonoBehaviour
         bool isDownPressed = input.Actions.Player.Slide.IsPressed();
 
         _fly.SetVerticalInput(isUpPressed, isDownPressed);
-        _slide.SetSlideInput(input.Actions.Player.Slide.IsPressed());
+        _slide.SetSlideInput(isDownPressed);
     }
 
     private void CheckGrounded()
@@ -172,7 +258,7 @@ public class PlayerMovement : MonoBehaviour
             IsGrounded = Physics.Raycast(
                 groundCheck.position,
                 Vector3.down,
-                groundRayLength * 3f,
+                groundRayLength * SlideGroundMultiplier,
                 groundLayer
             );
         }
@@ -193,7 +279,7 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector3 GetGroundNormal()
     {
-        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundRayLength * 5f, groundLayer))
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundRayLength * GroundNormalMultiplier, groundLayer))
         {
             return hit.normal;
         }
@@ -211,6 +297,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDestroy()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
         if (G.InputManager != null)
         {
             var input = G.InputManager;

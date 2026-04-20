@@ -27,6 +27,7 @@ public class DualGun : MonoBehaviour
     private float critMultiplayer;
 
     private Camera playerCamera;
+    private SoundData shootData;
 
     public void Initialize(CameraShake cameraShake, StatsController statsController)
     {
@@ -35,6 +36,7 @@ public class DualGun : MonoBehaviour
         UpdateStats();
 
         vfx = GetComponentInChildren<WeaponVFX>();
+        shootData = Resources.Load<SoundData>("Audio/SFX/ShootAttack");
 
         aimAnimation = GetComponentInChildren<AimAnimation>();
         this.cameraShake = cameraShake;
@@ -82,7 +84,7 @@ public class DualGun : MonoBehaviour
         if (_isLeftTurn) vfx.PlayMuzzleFlash(0);
         else vfx.PlayMuzzleFlash(1);
 
-        sfx.PlayAttackSound();
+        G.AudioManager?.Play(shootData);
         cameraShake.ShakeLight(1f);
         aimAnimation.PlayScaleAnimation();
 

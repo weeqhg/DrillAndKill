@@ -25,6 +25,7 @@ public class Sword : MonoBehaviour
     private float damage;
     private float chancheCrit;
     private float critMultiplayer;
+    private SoundData swordData;
     public void Initialize(CameraShake cameraShake, StatsController statsController)
     {
         stats = statsController;
@@ -32,6 +33,7 @@ public class Sword : MonoBehaviour
         UpdateStats();
 
         sfx = GetComponent<EventSFX>();
+        swordData = Resources.Load<SoundData>("Audio/SFX/SwordAttack");
 
         aimAnimation = GetComponentInChildren<AimAnimation>();
         this.cameraShake = cameraShake;
@@ -137,7 +139,7 @@ public class Sword : MonoBehaviour
         }
 
         aimAnimation.PlayScaleAnimation();
-        sfx?.PlayAttackSound();
+        G.AudioManager?.Play(swordData);
         cameraShake?.ShakeLight(0.5f);
 
         hasHit = false;

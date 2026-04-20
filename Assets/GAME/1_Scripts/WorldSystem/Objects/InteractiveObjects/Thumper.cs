@@ -22,7 +22,7 @@ public class Thumper : BaseInteractable
     protected override void SetupDerived()
     {
         earthquakeSound = Resources.Load<SoundData>("Audio/SFX/Earthquake");
-        landSound = Resources.Load<SoundData>("Audio/SFX/LandObject");
+        landSound = Resources.Load<SoundData>("Audio/SFX/LandBigObject");
         upSound = Resources.Load<SoundData>("Audio/SFX/UpObject");
     }
 

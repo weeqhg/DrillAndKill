@@ -10,7 +10,8 @@ public class LevelManager : MonoBehaviour
     public event Action<int, int> OnExpChanged;
     private LevelStats levelStats;
     private LevelUI levelUI;
-    private EventSFX eventSFX;
+    private SoundData pickupData;
+    private SoundData dropData;
 
     public void Initialize()
     {
@@ -18,7 +19,8 @@ public class LevelManager : MonoBehaviour
 
         levelStats = GetComponentInChildren<LevelStats>();
         levelUI = GetComponentInChildren<LevelUI>();
-        eventSFX = GetComponentInChildren<EventSFX>();
+        pickupData = Resources.Load<SoundData>("Audio/SFX/PickupItem");
+        dropData = Resources.Load<SoundData>("Audio/SFX/DropItem");
         RecalculateLevel();
     }
 
@@ -27,8 +29,7 @@ public class LevelManager : MonoBehaviour
         if (amount == 0) return;
 
         totalExp = Mathf.Max(0, totalExp + amount);
-        if (amount > 0)
-            eventSFX?.PlayLootPickup();
+        if (amount > 0) G.AudioManager?.Play(pickupData);
         RecalculateLevel();
     }
 
@@ -40,8 +41,7 @@ public class LevelManager : MonoBehaviour
         totalExp -= amount;
         RecalculateLevel();
 
-        if (amount > 0)
-            eventSFX?.PlayLootDroop();
+        if (amount > 0) G.AudioManager?.Play(dropData);
 
         return true;
     }

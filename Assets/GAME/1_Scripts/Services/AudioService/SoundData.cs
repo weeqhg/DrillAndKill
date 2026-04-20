@@ -1,13 +1,19 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
+
 [CreateAssetMenu(menuName = "Audio/Sound Data")]
 public class SoundData : ScriptableObject
 {
+    public enum PlayMode { Random, Sequential }
     [Header("Mixer")]
     public AudioMixerGroup mixerGroup;
     [Header("Clips")]
     public AudioClip[] clips;
+
+    [Header("Playback")]
+    public PlayMode playMode = PlayMode.Random;
+    private int _lastIndex = -1;
 
     [Header("Volume Settings")]
     [Range(0f, 1f)] public float volume = 1f;
@@ -33,12 +39,27 @@ public class SoundData : ScriptableObject
     [Range(0, 256)]
     public int priority = 128;
 
-
-    public AudioClip GetRandomClip()
+    public AudioClip GetClip()
     {
         if (clips == null || clips.Length == 0)
             return null;
 
-        return clips[Random.Range(0, clips.Length)];
+        switch (playMode)
+        {
+            case PlayMode.Random:
+                return clips[Random.Range(0, clips.Length)];
+
+            case PlayMode.Sequential:
+                _lastIndex++;
+                if (_lastIndex >= clips.Length)
+                    _lastIndex = 0;
+
+                return clips[_lastIndex];
+
+            default:
+                return clips[0];
+
+
+        }
     }
 }

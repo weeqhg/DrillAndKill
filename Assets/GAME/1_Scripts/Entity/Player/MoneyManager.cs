@@ -11,13 +11,15 @@ public class MoneyManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private RectTransform moneyUI;
 
-
-    private EventSFX eventSFX;
     private int bigRewardThreshold = 50;
+
+    private SoundData pickupData;
+    private SoundData dropData;
 
     public void Initialize()
     {
-        eventSFX = GetComponentInChildren<EventSFX>();
+        pickupData = Resources.Load<SoundData>("Audio/SFX/PickupItem");
+        dropData = Resources.Load<SoundData>("Audio/SFX/DropItem");
 
         ConsoleEvents.OnCommandCoin += AddCoin;
         ConsoleEvents.OnCommandToggleDifficultyScaler += OnDifficultyScalerCommandHandler;
@@ -46,8 +48,7 @@ public class MoneyManager : MonoBehaviour
 
         money = Math.Max(0, money + amount);
 
-        if (amount > 0)
-            eventSFX?.PlayLootPickup();
+        if (amount > 0) G.AudioManager?.Play(pickupData);
 
         PlayMoneyEffect(amount);
         UpdateMoneyText();
@@ -59,8 +60,7 @@ public class MoneyManager : MonoBehaviour
         if (money < amount) return false;
         money -= amount;
 
-        if (amount > 0)
-            eventSFX?.PlayLootDroop();
+        if (amount > 0) G.AudioManager?.Play(dropData);
 
         UpdateMoneyText();
         return true;

@@ -310,22 +310,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
   _maxHealth: 100
   _regenerationHealth: 0
-  _shield: 0
   _armor: 0
   _evasion: 0
-  _stealingLife: 0
-  _thorns: 0
   _damage: 1
   "_\u0441rit\u0421hance": 0
   "_\u0441ritMultiplayer": 1
   _attackRate: 1
+  _attackRange: 100
   _moveSpeed: 8
   _maxJump: 4
-  _jumpHeight: 8
   _luck: 0
-  _attackRange: 100
   _pickupRadius: 5
-  _pickingSpeed: 10
+  _shield: 0
+  _thorns: 0
+  _stealingLife: 0
 --- !u!114 &2556869962241358986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2064,6 +2062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossEnemy
   body: {fileID: 2097607193664617188}
+  landClip: {fileID: 11400000, guid: a69208f7e0d94df40b1edb10953fb5ba, type: 2}
   shootPoint: {fileID: 5237324332373449914}
   projectileSpeed: 40
   obstacleLayer:

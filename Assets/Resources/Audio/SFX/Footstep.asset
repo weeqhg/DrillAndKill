@@ -10,19 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3909774844674db4681037aa011a88ae, type: 3}
-  m_Name: LandObject
+  m_Name: Footstep
   m_EditorClassIdentifier: Assembly-CSharp::SoundData
   mixerGroup: {fileID: -8923896201924609790, guid: f38f0998bb972ad4790335468e286f27, type: 2}
   clips:
-  - {fileID: 8300000, guid: 9da2dfe3ef5ddb845b1a72a5a76adda8, type: 3}
+  - {fileID: 8300000, guid: 3e5d94c13c6cc0347807b4b1861ed038, type: 3}
+  - {fileID: 8300000, guid: 7e226415158b7de499714840b376f774, type: 3}
+  - {fileID: 8300000, guid: 79c81c4f061376742a863ba9b77f378b, type: 3}
+  - {fileID: 8300000, guid: 82933e99a1981c34793068dd4a9b7635, type: 3}
+  - {fileID: 8300000, guid: 7d6b93d906465a749bd200e774ffc623, type: 3}
+  playMode: 1
   volume: 1
   randomPitch: 1
   pitchVariation: 0.3
   fadeIn: 0
   fadeOut: 0
-  is3D: 1
-  minDistance: 100
-  maxDistance: 10000
+  is3D: 0
+  minDistance: 1
+  maxDistance: 500
   loop: 0
   minInterval: 0.1
   priority: 128

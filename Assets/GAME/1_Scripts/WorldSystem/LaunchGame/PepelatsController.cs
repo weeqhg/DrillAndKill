@@ -49,7 +49,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
         gameObject.SetActive(false);
 
         earthquakeSound = Resources.Load<SoundData>("Audio/SFX/Earthquake");
-        landSound = Resources.Load<SoundData>("Audio/SFX/LandObject");
+        landSound = Resources.Load<SoundData>("Audio/SFX/LandBigObject");
         upSound = Resources.Load<SoundData>("Audio/SFX/UpObject");
 
         SetAvailable(false);
@@ -216,6 +216,7 @@ public class PepelatsController : MonoBehaviour, IInteractable
             OnLoseFocus();
         }
     }
+    
     public bool IsUsed()
     {
         return isBusy || !isAvailable;
