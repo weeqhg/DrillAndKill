@@ -15,8 +15,26 @@ MonoBehaviour:
   m_GroupName: Localization-Assets-Shared
   m_GUID: d6f98ded15fc40847bd97bc39a07f330
   m_SerializeEntries:
+  - m_GUID: 1b133b83fee04944eaf5b93ca6b7f092
+    m_Address: Drill&Kill
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-cs
+    - Locale-de
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f5c1daf15bf755418b189629d491d90
+    m_Address: Assets/Localization/Items/Items Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 77a77745d244d28429f0d7dafb372eea
     m_Address: Assets/Localization/UI_Localization Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 93f621b5b0dc3c44482bd4a1ef1c07c3
+    m_Address: Assets/Localization/Sprites/Sprites Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

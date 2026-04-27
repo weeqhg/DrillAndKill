@@ -49,7 +49,6 @@ MonoBehaviour:
   chainRadius: 2
   acceleration: 20
   groundCheckDistance: 0.2
-  expAmount: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8

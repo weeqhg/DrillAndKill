@@ -22,6 +22,7 @@ public class GameMenuUI : UIWindow
 
     private void OpenSettings()
     {
+        Debug.Log("s");
         G.UIManager.Open(settingManager);
     }
 

@@ -11,7 +11,7 @@ public class MovementController
     private float _groundDeceleration = 100f;
     private float _slopeStickForce = 18f;
     private float _currentBonusSpeed;
-    private float _bonusDecayPercent = 0.8f;
+    private float _bonusDecayPercent = 0.5f;
     private float _maxSlopeAngle = 60f;
 
     public MovementController(PlayerMovement player)
@@ -50,7 +50,8 @@ public class MovementController
 
     public void HandleRotation(bool shouldRotate)
     {
-        if (!shouldRotate || _player.CameraTransform == null) return;
+        if (_player.CameraTransform == null) return;
+        if (!shouldRotate) return;
 
         float yRotation = _player.CameraTransform.eulerAngles.y;
         Quaternion targetRotation = Quaternion.Euler(0f, yRotation, 0f);

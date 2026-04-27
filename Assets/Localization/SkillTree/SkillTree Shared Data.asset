@@ -15,20 +15,68 @@ MonoBehaviour:
   m_TableCollectionName: SkillTree
   m_TableCollectionNameGuidString: 9a707840dbbd47a4aa8c7a2506f2bdba
   m_Entries:
-  - m_Id: 2108548300800
-    m_Key: health
+  - m_Id: 8313598724390912
+    m_Key: stats_max_health
     m_Metadata:
       m_Items: []
-  - m_Id: 2108590243840
-    m_Key: damage
+  - m_Id: 8313598770528256
+    m_Key: stats_regeneration
     m_Metadata:
       m_Items: []
-  - m_Id: 2108590243841
-    m_Key: speed
+  - m_Id: 8313598770528257
+    m_Key: stats_armor
     m_Metadata:
       m_Items: []
-  - m_Id: 2108590243842
-    m_Key: attack_speed
+  - m_Id: 8620539254259712
+    m_Key: stats_evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528259
+    m_Key: stats_damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528260
+    m_Key: stats_critchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528261
+    m_Key: stats_critMultiplayer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8315940026826752
+    m_Key: stats_attack_rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528263
+    m_Key: stats_attack_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528264
+    m_Key: stats_speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528265
+    m_Key: stats_max_jump
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528266
+    m_Key: stats_luck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528267
+    m_Key: stats_pickup_radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528268
+    m_Key: stats_shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316626999296000
+    m_Key: stats_thorns
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316825649922048
+    m_Key: stats_stealing_life
     m_Metadata:
       m_Items: []
   - m_Id: 47756801466368
@@ -53,6 +101,14 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 377755869896704
     m_Key: reset_point
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487936
+    m_Key: glass_cannon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487937
+    m_Key: description_glass_cannon
     m_Metadata:
       m_Items: []
   m_Metadata:

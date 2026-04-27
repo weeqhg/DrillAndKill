@@ -110,26 +110,6 @@ MonoBehaviour:
     m_Localized: Herzlichen Dank!
     m_Metadata:
       m_Items: []
-  - m_Id: 446519828660224
-    m_Localized: 'Gesundheit: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020352
-    m_Localized: 'Bewegungsgeschwindigkeit: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020353
-    m_Localized: 'Schaden: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020354
-    m_Localized: 'Angriffsgeschwindigkeit: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1223347269525504
-    m_Localized: Stufe {0}
-    m_Metadata:
-      m_Items: []
   - m_Id: 5034702310588416
     m_Localized: Arena
     m_Metadata:
@@ -148,6 +128,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6260194563579904
     m_Localized: Pyramide des Kopfes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9168965293424640
+    m_Localized: Stufe {0}
     m_Metadata:
       m_Items: []
   references:

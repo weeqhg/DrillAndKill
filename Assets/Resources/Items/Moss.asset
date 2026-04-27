@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27b3d5739c5b644fae8be3c31f049a3, type: 3}
+  m_Name: Moss
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  _id: 9d73e1ccac72d4a4b95652c0223fc6ca
+  itemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2439352978620416
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2439353003786240
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  icon: {fileID: 915098089, guid: 7ba10c414efe6fe418d28de677f781e4, type: 3}
+  rarity: 2
+  statModule:
+    type: 0
+    value: 0.3
+    modifierType: 0
+  itemEffect: {fileID: 5403175510570505777, guid: c4a67580e736a5e4086a8d4f3af942c1, type: 3}
+  references:
+    version: 2
+    RefIds: []

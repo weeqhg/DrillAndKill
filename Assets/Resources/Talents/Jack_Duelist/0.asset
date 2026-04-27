@@ -13,25 +13,38 @@ MonoBehaviour:
   m_Name: 0
   m_EditorClassIdentifier: Assembly-CSharp::TalentNodeData
   id: 0
-  icon: {fileID: 729184816, guid: 9e4aa86d583ad1845a3674950c2bcb89, type: 3}
+  position: {x: 0, y: -0}
+  connections:
+  - AR_1
+  - Damage_1
+  - CritChance_1
+  - HP_1
+  - Armor_1
+  - MoveSpeed_1
+  - Luck_1
+  icon: {fileID: 0}
   nodeName:
     m_TableReference:
       m_TableCollectionName: GUID:77a77745d244d28429f0d7dafb372eea
     m_TableEntryReference:
-      m_KeyId: 311430694821888
+      m_KeyId: 5034702310588416
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  connections:
-  - AS_1
-  - HP_1
-  - SPD_1
+  description:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   statType: 0
-  nodeType: 0
-  statValue: 0
   modifierType: 0
-  cost: 0
+  statValue: 0
+  itemEffect: {fileID: 0}
   references:
     version: 2
     RefIds: []

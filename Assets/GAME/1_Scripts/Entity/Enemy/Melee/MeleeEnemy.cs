@@ -3,30 +3,34 @@ using UnityEngine.AI;
 
 public class MeleeEnemy : EnemyAI
 {
+    private float nextDecisionTime;
+    private Vector3 currentTarget;
+
     protected override void EnemyMove()
     {
         if (player == null) return;
         if (IsStoped) return;
 
-        distance = Vector3.Distance(transform.position, posPlayer);
-
         // 1️⃣ Двигаемся к игроку или обходим его
         if (distance > attackRange)
         {
-            Vector3 target;
-
             // 30% вероятности: случайная позиция рядом с игроком (обход/фланг)
-            if (Random.value < 0.3f)
-                target = GetRandomNearbyPosition(3f); // радиус обхода
-            else
-                target = posPlayer;
+            if (Time.time > nextDecisionTime)
+            {
+                if (Random.value < 0.3f)
+                    currentTarget = GetRandomNearbyPosition(3f);
+                else
+                    currentTarget = posPlayer;
+
+                nextDecisionTime = Time.time + 1f;
+            }
 
             // Привязываем точку к NavMesh, чтобы враг не застрял в стенах
-            if (NavMesh.SamplePosition(target, out NavMeshHit navHit, 1f, NavMesh.AllAreas))
-                target = navHit.position;
+            if (NavMesh.SamplePosition(currentTarget, out NavMeshHit navHit, 1f, NavMesh.AllAreas))
+                currentTarget = navHit.position;
 
             agent.isStopped = false;
-            agent.SetDestination(target);
+            SetDestinationSmart(currentTarget);
             animator?.SetBool("IsMoving", true);
         }
         else
@@ -38,7 +42,7 @@ public class MeleeEnemy : EnemyAI
             // Двигаемся вокруг игрока случайным образом
             Vector3 strafePos = GetRandomNearbyPosition(2f); // небольшое движение вокруг игрока
             if (NavMesh.SamplePosition(strafePos, out NavMeshHit navHit, 1f, NavMesh.AllAreas))
-                agent.SetDestination(navHit.position);
+                SetDestinationSmart(navHit.position);
 
             // 3️⃣ Атака, если готов
             if (CanAttack())

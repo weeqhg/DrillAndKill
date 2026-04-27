@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Items_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 6f5c1daf15bf755418b189629d491d90, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 9235870367744
+    m_Localized: Elixir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670912
+    m_Localized: Increases maximum health by +{}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670913
+    m_Localized: 'Plantain
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670914
+    m_Localized: Increases regeneration speed by +{}% (+{}% per stack)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865216
+    m_Localized: Sneakers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865217
+    m_Localized: Increases movement speed by +{}% (+{}% per stack)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239512190976
+    m_Localized: Vampire Teeth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239541551104
+    m_Localized: When you kill an enemy, restore +{} health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070359552000
+    m_Localized: Tornado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070397300736
+    m_Localized: While in the air, damage is increased by {}% (+{}% per stack)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869376
+    m_Localized: Energy drinker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869377
+    m_Localized: '
+
+      Increases movement speed by +{}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439352978620416
+    m_Localized: Moss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439353003786240
+    m_Localized: Healing above max health grants a temporary shield, decreasing every
+      {} second by 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440456021852160
+    m_Localized: A Clockwork Orange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440546358771712
+    m_Localized: Increases attack speed by {}
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

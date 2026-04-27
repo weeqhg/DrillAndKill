@@ -15,6 +15,7 @@ MonoBehaviour:
   mixerGroup: {fileID: -8923896201924609790, guid: f38f0998bb972ad4790335468e286f27, type: 2}
   clips:
   - {fileID: 8300000, guid: 678cdbf0da685394f9cc6a607cf169e4, type: 3}
+  playMode: 0
   volume: 1
   randomPitch: 1
   pitchVariation: 0.3
@@ -25,4 +26,5 @@ MonoBehaviour:
   maxDistance: 500
   loop: 0
   minInterval: 0.2
+  ignorePause: 1
   priority: 128

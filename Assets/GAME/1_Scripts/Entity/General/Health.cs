@@ -2,83 +2,41 @@ using DG.Tweening;
 using UnityEngine;
 
 
-public class Health : MonoBehaviour, IDamageable
+public abstract class Health : MonoBehaviour, IDamageable
 {
-    public enum HealthType { Player, Enemy, Neutral }
-    public HealthType healthType;
     public GameObject deathParticles;
-    private float maxHealth;
-    private float currentHealth;
-    private Animator animator;
-    private StatsController stats;
-    private HealthUI healthUI;
-    private bool isImmortality;
+    protected float currentHealth;
+    [SerializeField] protected float maxHealth;
+    protected Animator animator;
+    protected StatsController stats;
     private SoundData dieClip;
+
+
 
     public void Initialize()
     {
         dieClip = Resources.Load<SoundData>("Audio/SFX/Die");
-
         animator = GetComponent<Animator>();
         stats = GetComponentInChildren<StatsController>();
-
         stats.OnStatsChanged += UpdateStats;
-        UpdateStats();
 
-        healthUI = GetComponentInChildren<HealthUI>();
-        healthUI?.Initialize(maxHealth);
-        currentHealth = maxHealth;
+        SetDerrived();
     }
 
-    private void UpdateStats()
-    {
-        maxHealth = stats.GetStat(StatType.MaxHealth);
-        if (currentHealth > maxHealth)
-        {
-            currentHealth = Mathf.Min(currentHealth, maxHealth);
-        }
-        healthUI?.UpdateHealth(currentHealth, maxHealth);
-    }
-    public void TakeDamage(float damage)
-    {
-        if (isImmortality)
-        {
-            animator?.SetTrigger("Receive");
-            return;
-        }
+    public abstract void SetDerrived();
 
-        if (HealthType.Enemy == healthType) PlayerService.DamageDelta(damage);
-        if (HealthType.Player == healthType) PlayerService.DamageTaken(damage);
+    public abstract void UpdateStats();
 
-        currentHealth -= damage;
-        healthUI?.UpdateHealth(currentHealth, maxHealth);
+    public abstract void TakeDamage(float damage);
 
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            animator?.SetTrigger("Receive");
-        }
-    }
-
-    public void Heal(float amount)
-    {
-        currentHealth += amount;
-        healthUI.UpdateHealth(currentHealth, maxHealth);
-    }
-
-    public void ToggleImmortal(bool enbale)
-    {
-        isImmortality = enabled;
-    }
+    public abstract void Heal(float amount);
 
     public void Kill()
     {
         Die();
     }
-    private void Die()
+
+    public virtual void Die()
     {
         GetComponentInChildren<Collider>().enabled = false;
 
@@ -87,11 +45,9 @@ public class Health : MonoBehaviour, IDamageable
 
         G.AudioManager?.Play(dieClip);
         Instantiate(deathParticles, transform.position + new Vector3(0, 2f, 0), Quaternion.identity);
-        if (HealthType.Enemy == healthType) PlayerService.Kill();
 
         transform.DOScale(0f, 0.2f).OnComplete(() => Destroy(gameObject));
     }
-
 
     private void OnDestroy()
     {

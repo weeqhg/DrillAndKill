@@ -8,7 +8,7 @@ public class LevelStats : MonoBehaviour
     [SerializeField] private float sineFrequency = 0.5f;   // Частота волны
 
     [Header("Growth Rates")]
-    [SerializeField] private float healthPerLevel = 3f;
+    [SerializeField] private float healthPerLevel = 1f;
     [SerializeField] private float damagePerLevel = 1.5f;
     [SerializeField] private float armorPerLevel = 1f;
     [SerializeField] private float attackRatePerLevel = 0.1f;
@@ -60,6 +60,7 @@ public class LevelStats : MonoBehaviour
 
         return ApplyCaps(type, result);
     }
+    
     private float GetGrowth(StatType type)
     {
         return type switch
@@ -70,6 +71,7 @@ public class LevelStats : MonoBehaviour
             _ => Mathf.Sqrt(level - 1)
         };
     }
+
     private float ApplyCaps(StatType type, float value)
     {
         return type switch
@@ -98,7 +100,7 @@ public class LevelStats : MonoBehaviour
     {
         return type switch
         {
-            StatType.MaxHealth => 2f,
+            StatType.MaxHealth => 1.3f,
             StatType.Damage => 1.5f,
             StatType.Armor => 1.2f,
             StatType.CritСhance => 1f,

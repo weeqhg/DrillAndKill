@@ -1,45 +1,46 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.Components;
+using UnityEngine.Localization;
+using TMPro;
 
 public class StatsControllerUI : UIWindow
 {
     [Header("UI Elements")]
     [SerializeField] private RectTransform[] rectTransforms;
-
-    [Header("Localize Events")]
-    [SerializeField] private LocalizeStringEvent healthLocalizeEvent;
-    [SerializeField] private LocalizeStringEvent moveSpeedLocalizeEvent;
-    [SerializeField] private LocalizeStringEvent attackDamageLocalizeEvent;
-    [SerializeField] private LocalizeStringEvent attackSpeedLocalizeEvent;
+    [Header("Stat References")]
+    [SerializeField] private StatDisplay[] statDisplays;
     private StatsController stats;
     private AutoPopup statsPopup;
     private bool isOpen = false;
-    private float maxHealth;
-    private float moveSpeed;
-    private float attackDamage;
-    private float attackRate;
-    private float critChance;
-    private bool isInitialized = false;
+    private bool isInit = false;
+
+
+    [System.Serializable]
+    private class StatDisplay
+    {
+        public StatType type;
+        public LocalizedString label;
+        public TextMeshProUGUI valueText;
+        public string prefix = "";
+        public string suffix = "";
+        public string format = "F0"; // Формат вывода
+        public float multiplier = 1f;
+    }
 
     public void Initialize(StatsController stats)
     {
         statsPopup = GetComponent<AutoPopup>();
 
-        if (statsPopup != null && isInitialized == false)
+        if (statsPopup != null && !isInit)
         {
             statsPopup.Initialize();
             gameObject.SetActive(false);
-            isInitialized = true;
+            isInit = true;
         }
 
         this.stats = stats;
 
-        stats.OnStatsChanged += UpdateStats;
-
         UpdateStats();
-        UpdateUI();
     }
 
     private void Update()
@@ -71,6 +72,7 @@ public class StatsControllerUI : UIWindow
         base.Show();
         isOpen = true;
         statsPopup.OpenPanel();
+        UpdateStats();
     }
 
     public override void Hide()
@@ -79,32 +81,18 @@ public class StatsControllerUI : UIWindow
         isOpen = false;
         statsPopup.ClosePanel();
     }
-    private void UpdateStats()
+
+    public void UpdateStats()
     {
-        maxHealth = Mathf.RoundToInt(stats.GetStat(StatType.MaxHealth));
-        moveSpeed = Mathf.RoundToInt(stats.GetStat(StatType.MoveSpeed));
-        attackDamage = Mathf.RoundToInt(stats.GetStat(StatType.Damage));
-        attackRate = (float)Math.Round(1f / stats.GetStat(StatType.AttackRate), 1);
-        critChance = (float)Math.Round(stats.GetStat(StatType.CritСhance) / 100);
-
-        UpdateUI();
-    }
-
-    public void UpdateUI()
-    {
-        if (stats == null) return;
-
-        // Передаем значения в локализацию
-        healthLocalizeEvent.StringReference.Arguments = new object[] { maxHealth };
-        moveSpeedLocalizeEvent.StringReference.Arguments = new object[] { moveSpeed };
-        attackDamageLocalizeEvent.StringReference.Arguments = new object[] { attackDamage };
-        attackSpeedLocalizeEvent.StringReference.Arguments = new object[] { attackRate };
-
-        // Обновляем текст
-        healthLocalizeEvent.RefreshString();
-        moveSpeedLocalizeEvent.RefreshString();
-        attackDamageLocalizeEvent.RefreshString();
-        attackSpeedLocalizeEvent.RefreshString();
+        foreach (var display in statDisplays)
+        {
+            float value = stats.GetStat(display.type) * display.multiplier;
+            string formattedValue = value.ToString(display.format);
+            string localizedLabel = display.label.GetLocalizedString();
+            string prefix = display.prefix;
+            string suffix = display.suffix;
+            display.valueText.text = $"<b>{localizedLabel}</b> {prefix}{formattedValue}{suffix}";
+        }
     }
 
     private void OnDestroy()

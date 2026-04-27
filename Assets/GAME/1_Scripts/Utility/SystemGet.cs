@@ -3,7 +3,7 @@ using UnityEngine;
 public static class SystemGet
 {
     private static readonly LayerMask groundLayer = LayerMask.GetMask("Ground");
-    public static Vector3 GetGroundPosition(Vector3 basePos, float radius)
+    public static Vector3 GetGroundPosition(Vector3 basePos, float radius = 1f)
     {
         for (int i = 0; i < 30; i++)
         {

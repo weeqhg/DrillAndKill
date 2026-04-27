@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db626ad063b13545924a9839ac5fa83, type: 3}
+  m_Name: Sprites
+  m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.AssetTableCollection
+  m_SharedTableData: {fileID: 11400000, guid: 93f621b5b0dc3c44482bd4a1ef1c07c3, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: 8cecefc5867207347a0768f3d2e78b65, type: 2}
+  - {fileID: 11400000, guid: 9131538f117cf524b926fdcc37960d36, type: 2}
+  - {fileID: 11400000, guid: a893cb6e2279bc245b1bc05f2f16dc6a, type: 2}
+  - {fileID: 11400000, guid: 8c151acbf96bca641a92c2d4e37012e2, type: 2}
+  m_Extensions: []
+  m_Group: Asset Table
+  references:
+    version: 2
+    RefIds: []

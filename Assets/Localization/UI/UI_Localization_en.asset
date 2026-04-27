@@ -110,26 +110,6 @@ MonoBehaviour:
     m_Localized: Main developers
     m_Metadata:
       m_Items: []
-  - m_Id: 446519828660224
-    m_Localized: 'Health: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020352
-    m_Localized: 'Movement speed: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020353
-    m_Localized: 'Damage: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020354
-    m_Localized: 'Attack Speed: {0}'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1223347269525504
-    m_Localized: Lvl {0}
-    m_Metadata:
-      m_Items: []
   - m_Id: 5034702310588416
     m_Localized: Arena
     m_Metadata:
@@ -148,6 +128,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6260194563579904
     m_Localized: Pyramid of the Head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9168965293424640
+    m_Localized: Lvl {0}
     m_Metadata:
       m_Items: []
   references:

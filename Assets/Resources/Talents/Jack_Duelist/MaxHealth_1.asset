@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2816c03c217894944b46abaa39d91042, type: 3}
+  m_Name: MaxHealth_1
+  m_EditorClassIdentifier: Assembly-CSharp::TalentNodeData
+  id: HP_1
+  position: {x: -125, y: 100}
+  connections:
+  - HP_2
+  icon: {fileID: 119592730, guid: 98de29dea08305140884b122a76a2cb2, type: 3}
+  nodeName:
+    m_TableReference:
+      m_TableCollectionName: GUID:9a707840dbbd47a4aa8c7a2506f2bdba
+    m_TableEntryReference:
+      m_KeyId: 8313598724390912
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  statType: 1
+  modifierType: 0
+  statValue: 10
+  itemEffect: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

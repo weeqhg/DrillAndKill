@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ItemSlotUI : MonoBehaviour
@@ -9,9 +10,9 @@ public class ItemSlotUI : MonoBehaviour
 
     private int count;
 
-    public void Initialize(Sprite sprite)
+    public void Initialize(ItemData item)
     {
-        icon.sprite = sprite;
+        icon.sprite = item.icon;
     }
 
     public void SetCount(int value)
@@ -19,4 +20,5 @@ public class ItemSlotUI : MonoBehaviour
         count = value;
         countText.text = count > 1 ? count.ToString() : "";
     }
+
 }

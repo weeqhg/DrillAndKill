@@ -32,11 +32,12 @@ public class SpawnObjectWorld : MonoBehaviour, IInitializable
         [Range(0f, 100f)] public float randomScale = 0f;
         [Range(0f, 5f)] public float spawnDensity = 0.5f;
     }
-
+    private LayerMask groundLayer;
 
 
     public void Initialize()
     {
+        groundLayer = LayerMask.GetMask("Ground");
         SpawnAllInteractive();
         ConsoleEvents.OnCommandObjectSpawn += SpawnInteractiveHandler;
     }
@@ -107,7 +108,7 @@ public class SpawnObjectWorld : MonoBehaviour, IInitializable
         interactiveSpawnedObjects.Clear();
     }
 
-    
+
     /////////////////////////////////
     /// Core
     /////////////////////////////////
@@ -177,8 +178,10 @@ public class SpawnObjectWorld : MonoBehaviour, IInitializable
     {
         Ray ray = new Ray(position + Vector3.up * 500f, Vector3.down);
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f))
+        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayer))
             return;
+
+        Vector3 posSpawn = SystemGet.GetGroundPosition(hit.point);
 
         float randomY = Random.Range(0f, 360f);
 

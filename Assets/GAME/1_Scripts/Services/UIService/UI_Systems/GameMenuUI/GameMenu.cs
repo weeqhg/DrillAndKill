@@ -5,11 +5,16 @@ public class GameMenu : MonoBehaviour
 {
     private GameMenuUI gameMenuUI;
     private StatsControllerUI statsUI;
+    private ItemInformationUI itemUI;
+
+
+
     public void Initialize()
     {
         G.InputManager.Actions.UI.ESC.performed += OnCancel;
 
         statsUI = GetComponentInChildren<StatsControllerUI>(true);
+        itemUI = GetComponentInChildren<ItemInformationUI>(true);
         gameMenuUI = GetComponentInChildren<GameMenuUI>(true);
         gameMenuUI.Initialize();
 
@@ -20,6 +25,7 @@ public class GameMenu : MonoBehaviour
     private void SetPlayer(PlayerManager player)
     {
         if (PlayerService.Player != null) statsUI.Initialize(player.StatsController);
+        if (PlayerService.Player != null) itemUI.Initialize(player.ItemsUI);
     }
 
     private void OnCancel(InputAction.CallbackContext ctx)
@@ -36,7 +42,7 @@ public class GameMenu : MonoBehaviour
         }
         else
         {
-            statsUI?.UpdateUI();
+            statsUI?.UpdateStats();
             G.UIManager.Open(gameMenuUI);
         }
     }

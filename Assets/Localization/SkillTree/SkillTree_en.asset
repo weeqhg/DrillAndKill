@@ -18,19 +18,7 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 2108548300800
-    m_Localized: Health
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243840
-    m_Localized: Damage
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243841
-    m_Localized: Speed
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243842
+  - m_Id: 8315940026826752
     m_Localized: Attack speed
     m_Metadata:
       m_Items: []
@@ -56,6 +44,74 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 377755869896704
     m_Localized: Reset points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598724390912
+    m_Localized: Max.Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528256
+    m_Localized: Regeneration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528257
+    m_Localized: Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528259
+    m_Localized: Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528260
+    m_Localized: Critical Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528261
+    m_Localized: Crit Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316626999296000
+    m_Localized: Thorns
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528263
+    m_Localized: Attack range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528264
+    m_Localized: Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528265
+    m_Localized: Max jumps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528266
+    m_Localized: Luck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528267
+    m_Localized: Pickup radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528268
+    m_Localized: Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316825649922048
+    m_Localized: Stealing life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487936
+    m_Localized: Glass cannon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487937
+    m_Localized: x2 damage -50% max health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8620539254259712
+    m_Localized: Evasion
     m_Metadata:
       m_Items: []
   references:

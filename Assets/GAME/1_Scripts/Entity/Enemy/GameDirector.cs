@@ -126,6 +126,7 @@ public class GameDirector : MonoBehaviour, IInitializable
 
         int normalCount = CalculateEnemyCount();
         int normalLevel = CalculateEnemyLevel();
+        
         TypeEnemy type = GetEnemyType(time);
 
         if (currentState == DirectorState.Peak)

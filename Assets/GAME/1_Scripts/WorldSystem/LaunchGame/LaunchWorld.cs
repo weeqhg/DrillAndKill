@@ -34,7 +34,7 @@ public class LaunchWorld : MonoBehaviour, IInitializable
     public void LaunchPlayerInWorld(SceneType sceneType)
     {
         if (player == null) return;
-        
+
         EnableCamera();
 
         player?.HidePlayer();
@@ -56,6 +56,7 @@ public class LaunchWorld : MonoBehaviour, IInitializable
 
     public void CallPepelats()
     {
+        pepelats.SetAvailable(true);
         pepelats.ForceLaunchPepelats();
     }
 
@@ -115,8 +116,11 @@ public class LaunchWorld : MonoBehaviour, IInitializable
     {
         PlayerService.OnPlayerChanged -= SetPlayer;
 
-        pepelats.OnPepelatsArrived -= PepelatsArrived;
-        pepelats.OnActiveNextLevel -= NextLevel;
-        pepelats.OnPepelatsDeparture -= PepelatsDeparture;
+        if (pepelats != null)
+        {
+            pepelats.OnPepelatsArrived -= PepelatsArrived;
+            pepelats.OnActiveNextLevel -= NextLevel;
+            pepelats.OnPepelatsDeparture -= PepelatsDeparture;
+        }
     }
 }

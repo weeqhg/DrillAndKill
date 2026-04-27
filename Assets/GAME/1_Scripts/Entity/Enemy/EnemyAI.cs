@@ -13,12 +13,22 @@ public abstract class EnemyAI : MonoBehaviour
     protected float attackRange;
     protected float attackRate;
     protected float damage;
+    protected float moveSpeed;
     private float lastAttackTime;
     private bool lastStopState;
     protected Vector3 posPlayer => PlayerService.Player != null ? player.Transform.position : Vector3.zero;
+    private float farDistance = 200f;
+    private float nextPathUpdate;
+    private float pathUpdateRate = 0.2f;
+    private float disableDistance = 1000f;
+    private float fullDisableDistance = 150f;
+    private SkinnedMeshRenderer[] renderers;
+    private int updateFrameOffset;
 
     public void Initialize()
     {
+        updateFrameOffset = Random.Range(0, 10);
+        renderers = GetComponentsInChildren<SkinnedMeshRenderer>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         stats = GetComponentInChildren<StatsController>();
@@ -37,43 +47,101 @@ public abstract class EnemyAI : MonoBehaviour
 
     private void UpdateStats()
     {
-        attackRate = stats.GetStat(StatType.AttackRate);
+        attackRate = 1f / stats.GetStat(StatType.AttackRate);
         attackRange = stats.GetStat(StatType.AttackRange);
         damage = stats.GetStat(StatType.Damage);
+        moveSpeed = stats.GetStat(StatType.MoveSpeed);
+        agent.speed = moveSpeed;
     }
 
     private void Update()
     {
+        if (Time.frameCount % 10 != updateFrameOffset) return;
+
         // Проверяем, изменилось ли состояние
         if (IsStoped != lastStopState)
         {
             if (IsStoped)
             {
-                agent.isStopped = true;
+                if (agent.enabled) agent.isStopped = true;
                 animator.enabled = false;
             }
             else
             {
-                agent.isStopped = false;
+                if (agent.enabled) agent.isStopped = false;
                 animator.enabled = true;
             }
 
             lastStopState = IsStoped;
         }
 
+        if (IsStoped) return;
+
         distance = Vector3.Distance(transform.position, posPlayer);
 
+        UpdateSpeedByDistance();
+
         EnemyMove();
+
+        UpdateLOD();
+    }
+
+    private void UpdateLOD()
+    {
+        if (player == null) return;
+
+        float dist = Vector3.Distance(transform.position, posPlayer);
+
+        // 🔴 Очень далеко — выключаем всё
+        if (dist > fullDisableDistance)
+        {
+            animator.enabled = false;
+
+            foreach (var r in renderers)
+                r.enabled = false;
+
+            return;
+        }
+
+        // 🟡 Средняя дистанция — отключаем анимации
+        if (dist > disableDistance)
+        {
+            animator.enabled = false;
+
+            foreach (var r in renderers)
+                r.enabled = true;
+
+            return;
+        }
+
+        animator.enabled = true;
+
+        foreach (var r in renderers)
+            r.enabled = true;
+    }
+
+    private void UpdateSpeedByDistance()
+    {
+        bool isFar = distance > farDistance;
+
+        if (isFar && player != null)
+        {
+            Vector3 behindPos = posPlayer - player.Transform.forward * 200f;
+
+            if (NavMesh.SamplePosition(behindPos, out NavMeshHit hit, 20f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+        }
     }
 
     protected abstract void EnemyMove();
     protected abstract void EnemyAttack();
-
     protected virtual bool CanAttack()
     {
         if (IsStoped) return false;
 
-        float cooldown = 1f / attackRate;
+        float cooldown = attackRate;
 
         if (Time.time >= lastAttackTime + cooldown)
         {
@@ -84,7 +152,13 @@ public abstract class EnemyAI : MonoBehaviour
         return false;
     }
 
+    protected void SetDestinationSmart(Vector3 target)
+    {
+        if (Time.time < nextPathUpdate) return;
 
+        agent.SetDestination(target);
+        nextPathUpdate = Time.time + pathUpdateRate;
+    }
 
     protected Vector3 GetFlankPosition(float minDistance = 2f, float maxDistance = 5f)
     {

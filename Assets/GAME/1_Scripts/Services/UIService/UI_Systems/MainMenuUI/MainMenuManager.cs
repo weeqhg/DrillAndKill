@@ -13,6 +13,9 @@ public class MainMenuManager : MonoBehaviour
     private AuthorUI _authorUI;
     private MainMenuUI _mainMenuUI;
 
+    [SerializeField] private SoundData musicMainMenu;
+    private SoundHandle soundHandle;
+
     public void Initialize()
     {
         _settingManager = Instantiate(_settingManagerPrefab);
@@ -28,11 +31,14 @@ public class MainMenuManager : MonoBehaviour
         _mainMenuUI = GetComponentInChildren<MainMenuUI>();
         _mainMenuUI.Initialize(_settingManager, _characterSelector, _authorUI, cinemachineCamera);
 
+        soundHandle = G.AudioManager.Play(musicMainMenu);
+
         G.UIManager.Open(_mainMenuUI);
     }
 
     private void StartGame()
     {
+        G.AudioManager?.Stop(soundHandle);
         G.GameFlow?.StartGamePlay();
         G.UIManager.CloseAll();
     }

@@ -9,7 +9,7 @@ public abstract class BaseInteractable : MonoBehaviour, IInteractable
 
     public void Initialize()
     {
-        outLine = GetComponent<OutLine>();
+        outLine = GetComponentInChildren<OutLine>();
         outLine.SetActive(false);
         SetupDerived();
     }

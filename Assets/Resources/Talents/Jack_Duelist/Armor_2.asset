@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2816c03c217894944b46abaa39d91042, type: 3}
+  m_Name: Armor_2
+  m_EditorClassIdentifier: Assembly-CSharp::TalentNodeData
+  id: Armor_2
+  position: {x: -250, y: 25}
+  connections:
+  - Regeneration_1
+  icon: {fileID: 1486272268, guid: b257015436399834cbd56b644a2c76ba, type: 3}
+  nodeName:
+    m_TableReference:
+      m_TableCollectionName: GUID:9a707840dbbd47a4aa8c7a2506f2bdba
+    m_TableEntryReference:
+      m_KeyId: 8313598770528257
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  statType: 3
+  modifierType: 0
+  statValue: 5
+  itemEffect: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

@@ -41,8 +41,9 @@ public class AudioManager : MonoBehaviour, IInitializable
             Destroy(gameObject);
             return;
         }
-
         sourcePrefab = GetComponentInChildren<AudioSource>();
+        sourcePrefab.gameObject.SetActive(true);
+
         pool.Enqueue(sourcePrefab);
 
         for (int i = 0; i < poolSize; i++)
@@ -53,7 +54,8 @@ public class AudioManager : MonoBehaviour, IInitializable
         }
 
         ambientSound = Resources.Load<SoundData>("Audio/Ambient/RandomAmbient");
-        Play(ambientSound);
+        if (ambientSound != null)
+            Play(ambientSound);
 
         GamePause.OnPauseGame += SetPause;
         LoadVolumes();
@@ -83,7 +85,7 @@ public class AudioManager : MonoBehaviour, IInitializable
             StartCoroutine(Fade(source, 0f, sound.volume, sound.fadeIn));
 
         if (!sound.loop)
-            StartCoroutine(AutoDestroy(source, clip.length));
+            StartCoroutine(AutoDestroy(source));
 
         return new SoundHandle(source);
     }
@@ -114,7 +116,13 @@ public class AudioManager : MonoBehaviour, IInitializable
     private void ReturnSource(AudioSource source)
     {
         source.Stop();
+        source.clip = null;
+        source.loop = false;
+        source.volume = 1f;
+        source.pitch = 1f;
+
         source.gameObject.SetActive(false);
+
         pool.Enqueue(source);
     }
 
@@ -124,6 +132,8 @@ public class AudioManager : MonoBehaviour, IInitializable
 
         foreach (var src in activeSources)
         {
+            if (src.ignoreListenerPause) continue;
+            
             if (value) src.Pause();
             else src.UnPause();
         }
@@ -134,6 +144,8 @@ public class AudioManager : MonoBehaviour, IInitializable
         AudioSource source = GetSource();
 
         source.outputAudioMixerGroup = sound.mixerGroup;
+
+        source.ignoreListenerPause = sound.ignorePause;
 
         if (sound.is3D)
         {
@@ -221,23 +233,21 @@ public class AudioManager : MonoBehaviour, IInitializable
 
     #region UTILS
 
-    private IEnumerator AutoDestroy(AudioSource source, float lifetime)
+    private IEnumerator AutoDestroy(AudioSource source)
     {
-        float time = 0f;
+        // ждём пока звук реально играет
+        yield return new WaitUntil(() => source != null && source.isPlaying);
 
-        while (time < lifetime)
-        {
-            if (!isPaused)
-                time += Time.deltaTime;
-
-            yield return null;
-        }
+        // ждём пока закончится
+        yield return new WaitWhile(() => source != null && source.isPlaying);
 
         DestroySource(source);
     }
 
     private void DestroySource(AudioSource source)
     {
+        if (source == null) return;
+
         activeSources.Remove(source);
         ReturnSource(source);
     }

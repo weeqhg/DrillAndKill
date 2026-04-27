@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 937c2328677b8ec479b6f07bdc4893f9, type: 3}
+  m_Name: JackGraph
+  m_EditorClassIdentifier: Assembly-CSharp::SkillTreeGraph
+  treeName: JackTree
+  icon: {fileID: -1561546819, guid: 5fd96d2ac4215374abe0290cc9f604ca, type: 3}
+  newNodeFolder: Assets/Resources/Talents
+  defaultNodeSize: {x: 100, y: 100}
+  gridSnapSize: 25
+  nodes:
+  - {fileID: 11400000, guid: 884d5b08ab9db9343a28b81bbba7cb70, type: 2}
+  - {fileID: 11400000, guid: 09494c1d196da8d408c88618b6ab0681, type: 2}
+  - {fileID: 11400000, guid: 6d5589e9f8fecce41bcd56836ead0d92, type: 2}
+  - {fileID: 11400000, guid: 70b748d44463e124186c096b7b24eb24, type: 2}
+  - {fileID: 11400000, guid: bfff07f226b6f424fb4902fd55804a04, type: 2}
+  - {fileID: 11400000, guid: f81c03e6e87da00478dd1098fd574153, type: 2}
+  - {fileID: 11400000, guid: 16a160690066c9c43993e06f79cbe80d, type: 2}
+  - {fileID: 11400000, guid: 0b4d1f69f8af54c4e8b7cafac84666d8, type: 2}
+  - {fileID: 11400000, guid: 9421292e9738f8340a3d6d3bb569f313, type: 2}
+  - {fileID: 11400000, guid: c002113dc3cf627439881106dea2c3ec, type: 2}
+  - {fileID: 11400000, guid: 14f9d1870e80c454083c86d0bb5fea2e, type: 2}
+  - {fileID: 11400000, guid: 35e3cf1f1fbcc8740915ef737fe61639, type: 2}
+  - {fileID: 11400000, guid: 1e32e014c07eec74f9ab4b563e2a27ee, type: 2}
+  - {fileID: 11400000, guid: 45fea97a345c7894eac2b8f0435fe2e8, type: 2}
+  - {fileID: 11400000, guid: b1b416b4eb2e42346acb3768e168c7c7, type: 2}
+  - {fileID: 11400000, guid: 19440faec383cc64a8b47690a11624f9, type: 2}
+  - {fileID: 11400000, guid: 7d2f405e07a91034cab83cb4af57f588, type: 2}
+  - {fileID: 11400000, guid: bb2e6f79a2f0ede49b42e5522e11b6c9, type: 2}
+  - {fileID: 11400000, guid: bb9d1000b3a741a43aecf3335e1b79b4, type: 2}
+  - {fileID: 11400000, guid: 765e6c98c9a16314ebe32693b5ae2ea2, type: 2}
+  - {fileID: 11400000, guid: 54f6c533feec5694486dbadc7ac718be, type: 2}
+  - {fileID: 11400000, guid: adb230a3a07c7d841b014466886c2f54, type: 2}
+  - {fileID: 11400000, guid: 534dd0807e9a42942a403ab0b29ea98d, type: 2}
+  - {fileID: 11400000, guid: c33e28c8ffbcfa8428ef75b47a8effc4, type: 2}
+  - {fileID: 11400000, guid: 2aa97cf9461b0ca47b282e084a534c57, type: 2}
+  - {fileID: 11400000, guid: ce98cf4c1293c7148ae1f6b9b934d3f5, type: 2}
+  - {fileID: 11400000, guid: cbc8b0f1a5501b647bf95547aca935b9, type: 2}

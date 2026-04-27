@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
 [Serializable]
 public class TalentNode
 {
@@ -14,42 +13,40 @@ public class TalentNode
 
 public class SkillTreeStats : MonoBehaviour
 {
-
     [Header("Loading Settings")]
     [Tooltip("Путь в папке Resources (без расширения)")]
     public string talentNodesResourcesPath = "Talents/Jack_Duelist";
     public string keyTree = "JackSkillTreeUnlock";
-
     [Header("Tree Settings")]
     public Sprite iconCharacter;
     public List<TalentNode> allNodes = new();
     private TalentPointsCounter talentPoints;
     private int cost = 1;
-
-    public event Action<TalentNode> OnNodeUnlocked;
-
     private Dictionary<StatType, List<StatModifier>> modifiers = new();
+
     public event Action OnStatBonusTree;
     public event Action OnResetTree;
+    public event Action<TalentNode> OnNodeUnlocked;
+
 
 
     public void Initialize()
     {
         talentPoints = GetComponentInChildren<TalentPointsCounter>();
-
         talentPoints.Initialize();
+
         LoadNodesFromResources();
 
-        if (allNodes.Count > 0)
-            allNodes[0].isUnlocked = true;
+        if (allNodes.Count > 0) allNodes[0].isUnlocked = true;
 
         LoadProgress();
+
         RebuildModifiers();
+
+        RebuildParents(allNodes);
 
         ConsoleEvents.OnCommandResetSkillTree += ResetTreeProgress;
     }
-
-
 
     public void ResetTreeProgress()
     {
@@ -60,26 +57,64 @@ public class SkillTreeStats : MonoBehaviour
             if (node.isUnlocked && node != allNodes[0])
             {
                 refundedPoints += cost; // стоимость каждой ноды (cost)
-                node.isUnlocked = false;
+                node.isUnlocked = false;
             }
         }
-
-        // Корневая нода оставляем открытой
-        if (allNodes.Count > 0)
+        // Корневая нода оставляем открытой
+        if (allNodes.Count > 0)
             allNodes[0].isUnlocked = true;
 
+        int value = refundedPoints / 2;
+        
         // Возврат очков
-        talentPoints.AddPoints(refundedPoints);
+        talentPoints.AddPoints(value);
 
-        // Сбрасываем модификаторы
-        RebuildModifiers();
+        // Сбрасываем модификаторы
+        RebuildModifiers();
 
-        // Сохраняем прогресс
-        PlayerPrefs.DeleteKey(keyTree);
+        RebuildParents(allNodes);
+
+        // Сохраняем прогресс
+        PlayerPrefs.DeleteKey(keyTree);
         PlayerPrefs.Save();
 
         OnResetTree?.Invoke();
         OnStatBonusTree?.Invoke();
+    }
+
+    private void RebuildParents(List<TalentNode> nodes)
+    {
+        if (nodes == null)
+            return;
+
+        Dictionary<string, TalentNode> nodeLookup = new Dictionary<string, TalentNode>();
+
+        foreach (TalentNode node in nodes)
+        {
+            if (node == null || node.data == null || string.IsNullOrWhiteSpace(node.data.id))
+                continue;
+
+            if (node.parents == null)
+                node.parents = new List<string>();
+
+            node.parents.Clear();
+            nodeLookup[node.data.id] = node;
+        }
+
+        foreach (TalentNode node in nodes)
+        {
+            if (node == null || node.data == null || node.data.connections == null)
+                continue;
+
+            foreach (string connectionId in node.data.connections)
+            {
+                if (string.IsNullOrWhiteSpace(connectionId))
+                    continue;
+
+                if (nodeLookup.TryGetValue(connectionId, out TalentNode child))
+                    child.parents.Add(node.data.id);
+            }
+        }
     }
 
     private void LoadNodesFromResources()
@@ -90,6 +125,7 @@ public class SkillTreeStats : MonoBehaviour
 
         foreach (var data in loaded)
         {
+
             TalentNode node = new TalentNode
             {
                 data = data,
@@ -101,14 +137,12 @@ public class SkillTreeStats : MonoBehaviour
         }
     }
 
-    // =========================
-    // STATS
-    // =========================
-
-    public float Apply(StatType type, float baseValue)
+    // =========================
+    // STATS
+    // =========================
+    public float Apply(StatType type, float baseValue)
     {
-        if (!modifiers.TryGetValue(type, out var list))
-            return baseValue;
+        if (!modifiers.TryGetValue(type, out var list)) return baseValue;
 
         float flat = 0f;
         float increased = 0f;
@@ -124,7 +158,7 @@ public class SkillTreeStats : MonoBehaviour
             }
         }
 
-        return (baseValue + flat) * (1 + increased) * more;
+        return (baseValue + flat) * (1 + increased / 100) * more;
     }
 
     private void RebuildModifiers()
@@ -137,11 +171,12 @@ public class SkillTreeStats : MonoBehaviour
 
     private void ApplyBonus(TalentNode node)
     {
-        if (node.data.keystoneEffect != null)
-            node.data.keystoneEffect?.Apply(this);
+        if (node.data.itemEffect != null)
+            node.data.itemEffect?.OnApply(gameObject);
         else
             AddModifier(node.data.statType, node.data.statValue, node.data.modifierType);
     }
+
     public void AddModifier(StatType type, float value, ModifierType modType)
     {
         if (!modifiers.TryGetValue(type, out var list))
@@ -149,15 +184,13 @@ public class SkillTreeStats : MonoBehaviour
             list = new List<StatModifier>();
             modifiers[type] = list;
         }
-
         list.Add(new StatModifier(value, modType));
     }
 
-    // =========================
-    // UNLOCK
-    // =========================
-
-    public bool UnlockNode(TalentNode node)
+    // =========================
+    // UNLOCK
+    // =========================
+    public bool UnlockNode(TalentNode node)
     {
         if (!CanUnlock(node) || talentPoints.Points < cost)
             return false;
@@ -176,27 +209,26 @@ public class SkillTreeStats : MonoBehaviour
 
     public bool CanUnlock(TalentNode node)
     {
-        if (node.isUnlocked)
-            return false;
+        if (node.isUnlocked) return false;
+        if (node == allNodes[0]) return true;
 
-        if (node == allNodes[0])
-            return true;
+        if (node.parents == null || node.parents.Count == 0) return false;
 
-        if (node.parents == null || node.parents.Count == 0)
-            return false;
-
-        return node.parents
-            .Select(GetNode)
-            .Any(parent => parent != null && parent.isUnlocked);
+        foreach (var parentId in node.parents)
+        {
+            var parent = GetNode(parentId);
+            if (parent != null && parent.isUnlocked)
+                return true;
+        }
+        return false;
     }
 
     public TalentNode GetNode(string id) => allNodes.Find(n => n.data.id == id);
 
-    // =========================
-    // SAVE / LOAD
-    // =========================
-
-    private void SaveProgress()
+    // =========================
+    // SAVE / LOAD
+    // =========================
+    private void SaveProgress()
     {
         var unlockedIds = allNodes.Where(n => n.isUnlocked).Select(n => n.data.id).ToArray();
         PlayerPrefs.SetString(keyTree, string.Join(",", unlockedIds));
@@ -206,6 +238,7 @@ public class SkillTreeStats : MonoBehaviour
     private void LoadProgress()
     {
         string saved = PlayerPrefs.GetString(keyTree, "");
+
         if (!string.IsNullOrEmpty(saved))
         {
             var ids = saved.Split(',');

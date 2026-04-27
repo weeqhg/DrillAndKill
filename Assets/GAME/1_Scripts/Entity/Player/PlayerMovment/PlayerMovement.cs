@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,10 +15,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Jump Gravity")]
     [SerializeField] private float jumpRiseGravity = 1.5f;
     [SerializeField] private float jumpFallGravity = 2.5f;
-    [SerializeField] private float _jumpHeight = 8f;
+    [SerializeField] private float jumpHeight = 8f;
 
     private const float SlideGroundMultiplier = 3f;
     private const float GroundNormalMultiplier = 5f;
+    private const float JumpBufferTime = 0.15f;
+    private float _lastJumpPressedTime;
 
     //Статы
     private float _moveSpeed;
@@ -27,10 +30,10 @@ public class PlayerMovement : MonoBehaviour
     private StatsController _stats;
     private Rigidbody _rb;
     private Transform _cameraTransform;
+    private InputManager _inputManager;
 
-    // Подсистемы
+    //-------Cnotrollers--------
     private MovementController _movement;
-    public MovementController Movement => _movement;
     private JumpController _jump;
     private SlideController _slide;
     private AnimationController _animation;
@@ -38,26 +41,26 @@ public class PlayerMovement : MonoBehaviour
 
     // Общие данные
     public Vector2 MoveInput { get; private set; }
-    public bool IsGrounded { get; private set; }
-    public bool IsSliding { get; private set; }
-    public bool IsJumping { get; set; }
-    public bool IsFlying { get; private set; }
-
+    public bool IsGrounded { get; private set; } = false;
+    public bool IsFlying { get; private set; } = false;
+    public bool IsSliding => IsDownPressed && IsGrounded;
+    public bool IsJump => CanUseJump();
+    public bool IsDownPressed { get; private set; } = false;
+    public bool IsUpPressed { get; private set; } = false;
+    public bool IsShoot { get; private set; } = false;
+    public float MoveSpeed => _moveSpeed;
+    public float JumpHeight => jumpHeight;
+    public int MaxJump => _maxJump;
     public Rigidbody Rb => _rb;
     public Transform CameraTransform => _cameraTransform;
-    public Transform GroundCheck => groundCheck;
-    public LayerMask GroundLayer => groundLayer;
-    public float GroundRayLength => groundRayLength;
-    public float GroundCheckRadius => groundCheckRadius;
-    private bool _isShooting = false;
+    public MovementController Movement => _movement;
+    public JumpController Jump => _jump;
+    public SlideController Slide => _slide;
+    public AnimationController Animation => _animation;
+    public PlayerFly Fly => _fly;
 
-    public float MoveSpeed => _moveSpeed;
-    public int MaxJump => _maxJump;
-    public float JumpHeight => _jumpHeight;
-
-
+    //-------State Machine--------
     public PlayerStateMachine StateMachine { get; private set; }
-
     public IdleState IdleState { get; private set; }
     public RunState RunState { get; private set; }
     public JumpState JumpState { get; private set; }
@@ -66,20 +69,24 @@ public class PlayerMovement : MonoBehaviour
     public SlideState SlideState { get; private set; }
     public FlyState FlyState { get; private set; }
 
-    public JumpController Jump => _jump;
-    public SlideController Slide => _slide;
-    public PlayerFly Fly => _fly;
 
 
-
-
+    #region Initialize
     public void Initialize(StatsController statsController)
     {
-        _stats = statsController;
         _rb = GetComponent<Rigidbody>();
-
         _rb.freezeRotation = true;
+        _stats = statsController;
 
+        SetupStateMachine();
+        SetupContorllers();
+        SetupInput();
+        SetupEvents();
+        UpdateStats();
+    }
+
+    private void SetupStateMachine()
+    {
         StateMachine = new PlayerStateMachine();
 
         IdleState = new IdleState(this);
@@ -91,38 +98,50 @@ public class PlayerMovement : MonoBehaviour
         FlyState = new FlyState(this);
 
         SetState(IdleState);
+    }
 
+    private void SetupContorllers()
+    {
+        _cameraTransform = Camera.main?.transform;
         _movement = new MovementController(this);
         _jump = new JumpController(this, jumpRiseGravity, jumpFallGravity);
         _slide = new SlideController(this);
         _fly = new PlayerFly(this);
         _animation = new AnimationController(GetComponent<Animator>());
-
-        ConsoleEvents.OnCommandPlayerFly += OnChangeFlyState;
-
-        _cameraTransform = Camera.main?.transform;
-
-        _stats.OnStatsChanged += UpdateStats;
-        UpdateStats();
-
-        var input = G.InputManager;
-        input.Actions.Player.Shoot.started += OnShootStarted;
-        input.Actions.Player.Shoot.canceled += OnShootCanceled;
-        input.Actions.Player.Jump.performed += OnJump;
-
-        _cameraTransform = Camera.main?.transform;
-        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void SetupInput()
+    {
+        _inputManager = G.InputManager;
+        _inputManager.Actions.Player.Shoot.started += OnShootStarted;
+        _inputManager.Actions.Player.Shoot.canceled += OnShootCanceled;
+        _inputManager.Actions.Player.Jump.performed += OnJump;
+    }
+
+    private void SetupEvents()
+    {
+        ConsoleEvents.OnCommandPlayerFly += SetFlying;
+        _stats.OnStatsChanged += UpdateStats;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    #endregion
+
+    /// <summary>
+    /// State Machine
+    /// </summary>
     public void SetState(PlayerState state)
     {
         StateMachine.ChangeState(state);
     }
 
-    public void SetFlying(bool value)
+    #region Input Events
+    private void ReadInput()
     {
-        IsFlying = value;
-        _rb.useGravity = !value;
+        if (_inputManager == null) return;
+
+        MoveInput = _inputManager.Actions.Player.Move.ReadValue<Vector2>();
+        IsUpPressed = _inputManager.Actions.Player.Jump.IsPressed();
+        IsDownPressed = _inputManager.Actions.Player.Slide.IsPressed();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -132,33 +151,32 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnShootStarted(InputAction.CallbackContext ctx)
     {
-        _isShooting = true;
+        IsShoot = true;
     }
 
     private void OnShootCanceled(InputAction.CallbackContext ctx)
     {
-        _isShooting = false;
+        IsShoot = false;
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        SetState(JumpState);
+        _lastJumpPressedTime = Time.time;
     }
+    #endregion
 
-    private void UpdateStats()
-    {
-        _moveSpeed = _stats.GetStat(StatType.MoveSpeed);
-        _maxJump = (int)_stats.GetStat(StatType.MaxJump);
-    }
-
+    /// <summary>
+    /// Core
+    /// </summary>
     private void Update()
     {
         if (_rb == null) return;
 
         ReadInput();
         CheckGrounded();
+
         StateMachine.Update();
-        _animation.UpdateAnimator(MoveInput, IsGrounded, IsSliding, IsFlying);
+        _animation.UpdateAnimator(MoveInput, IsGrounded, IsFlying);
     }
 
     private void FixedUpdate()
@@ -169,84 +187,34 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        //if (!CanProcessPhysics()) return;
-
-        //if (HandleFlight()) return;
-
-        //HandleGroundMovement();
-
-        StateMachine.FixedUpdate();
+        if (StateMachine != null) StateMachine.FixedUpdate();
     }
 
-    private bool CanProcessPhysics()
+    private void SetFlying(bool value)
     {
-        if (_rb == null) return false;
-        if (_rb.isKinematic) return false;
-
-        if (GamePause.IsGamePaused)
-        {
-            StopPlayer();
-            return false;
-        }
-
-        return true;
+        IsFlying = value;
+        _rb.useGravity = !value;
     }
 
-    private bool HandleFlight()
+    private void UpdateStats()
     {
-        if (!IsFlying) return false;
-
-        _fly.HandleFlight();
-        _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
-        return true;
-    }
-
-    private void HandleGroundMovement()
-    {
-        _jump.Update(IsGrounded, _rb.linearVelocity.y);
-        _slide.UpdateState(IsGrounded, _rb.linearVelocity);
-
-        if (IsSliding)
-            _slide.HandleMovement(MoveInput, IsGrounded);
-        else
-            _movement.HandleMovement(MoveInput, IsGrounded);
-
-        _movement.HandleRotation(MoveInput.sqrMagnitude > 0.01f || _isShooting);
-
-        _jump.HandleGravity(_rb);
-        _jump.HandleAirSounds(IsGrounded);
-        _movement.DecayBonusSpeed();
-
-        _jump.ClearJumpQueued();
+        _moveSpeed = _stats.GetStat(StatType.MoveSpeed);
+        _maxJump = (int)_stats.GetStat(StatType.MaxJump);
     }
 
     private void StopPlayer()
     {
-        // Полностью остановить Rigidbody
+        if (_rb == null) return;
+
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
-
-        // Обнуляем ввод
         MoveInput = Vector2.zero;
-        _isShooting = false;
-
-        // Можно остановить внутренние подсистемы, если нужно
-        _slide?.SetSlideInput(false);
-        _fly?.SetVerticalInput(false, false);
+        IsShoot = false;
     }
 
-    private void ReadInput()
+    private bool CanUseJump()
     {
-        var input = G.InputManager;
-        if (input == null) return;
-
-        MoveInput = input.Actions.Player.Move.ReadValue<Vector2>();
-
-        bool isUpPressed = input.Actions.Player.Jump.IsPressed();
-        bool isDownPressed = input.Actions.Player.Slide.IsPressed();
-
-        _fly.SetVerticalInput(isUpPressed, isDownPressed);
-        _slide.SetSlideInput(isDownPressed);
+        return Time.time - _lastJumpPressedTime <= JumpBufferTime;
     }
 
     private void CheckGrounded()
@@ -272,11 +240,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void SetSliding(bool sliding)
-    {
-        IsSliding = sliding;
-    }
-
     public Vector3 GetGroundNormal()
     {
         if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundRayLength * GroundNormalMultiplier, groundLayer))
@@ -287,27 +250,19 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public void AddBonusSpeed(float amount) => _movement.AddBonusSpeed(amount);
-    public void OnJumpPerformed() => _animation.TriggerJump();
-
-    private void OnChangeFlyState(bool value)
-    {
-        IsFlying = value;
-        _rb.useGravity = !value;
-    }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        if (G.InputManager != null)
+        if (_inputManager != null)
         {
-            var input = G.InputManager;
-            input.Actions.Player.Shoot.started -= OnShootStarted;
-            input.Actions.Player.Shoot.canceled -= OnShootCanceled;
-            input.Actions.Player.Jump.performed -= OnJump;
+            _inputManager.Actions.Player.Shoot.started -= OnShootStarted;
+            _inputManager.Actions.Player.Shoot.canceled -= OnShootCanceled;
+            _inputManager.Actions.Player.Jump.performed -= OnJump;
         }
 
-        ConsoleEvents.OnCommandPlayerFly -= OnChangeFlyState;
+        ConsoleEvents.OnCommandPlayerFly -= SetFlying;
         if (_stats != null) _stats.OnStatsChanged -= UpdateStats;
     }
 

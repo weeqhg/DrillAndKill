@@ -1,50 +1,60 @@
+using System;
+using System.Linq.Expressions;
 using UnityEngine;
 
 public class JumpController
 {
-    private PlayerMovement _player;
-    private Rigidbody _rb;
-    private float _jumpRiseGravity;
-    private float _jumpFallGravity;
-    private float _bunnyHopWindow = 0.3f;
-    private float _bunnyHopSpeedBonus = 6f;
-    private float _lastLandingTime;
-    private bool _isJumping;
-    private bool _jumpQueued;
-    private int _jumpsRemaining;
-    private bool _windSoundActive = false;
     private SoundData windData;
     private SoundData landData;
     private SoundHandle wind;
 
+    private readonly PlayerMovement _player;
+    private readonly Rigidbody _rb;
+
+    private readonly float _jumpRiseGravity;
+    private readonly float _jumpFallGravity;
+
+    private float _lastLandingTime;
+    private int _jumpsRemaining;
+    private bool _jumpQueued;
+
+    // Bunny hop
+    private const float BunnyHopWindow = 0.1f;
+    private const float BunnyHopSpeedBonus = 6f;
+
+
+
     public JumpController(PlayerMovement player, float riseGravity, float fallGravity)
     {
-        _player = player;
-        _rb = player.Rb;
-        _jumpRiseGravity = riseGravity;
-        _jumpFallGravity = fallGravity;
-        _jumpsRemaining = _player.MaxJump;
-
         windData = Resources.Load<SoundData>("Audio/SFX/Wind");
         landData = Resources.Load<SoundData>("Audio/SFX/LandSmallObject");
+
+        _player = player;
+        _rb = player.Rb;
+
+        _jumpRiseGravity = riseGravity;
+        _jumpFallGravity = fallGravity;
+
+        _jumpsRemaining = _player.MaxJump;
     }
+
     public void QueueJump() => _jumpQueued = true;
     public void ClearJumpQueued() => _jumpQueued = false;
 
-    public void Update(bool isGrounded, float verticalVelocity)
+    public void HandleJump()
     {
-        UpdateLandingState(isGrounded, verticalVelocity);
+        UpdateLandingState(_player.IsGrounded);
 
-        if (_jumpQueued && CanJump(isGrounded))
+        if (_jumpQueued && CanJump())
         {
             PerformJump();
         }
     }
 
-    private bool CanJump(bool isGrounded)
+    private bool CanJump()
     {
-        if (isGrounded && _jumpsRemaining > 0) return true;
-        if (!isGrounded && _jumpsRemaining > 1) return true;
+        if (_player.IsGrounded && _jumpsRemaining > 0) return true;
+        if (!_player.IsGrounded && _jumpsRemaining >= 1) return true;
         return false;
     }
 
@@ -52,93 +62,92 @@ public class JumpController
     {
         _jumpsRemaining--;
 
-        if (Time.time - _lastLandingTime <= _bunnyHopWindow)
-            _player.AddBonusSpeed(_bunnyHopSpeedBonus);
+        _player.Animation.TriggerJump();
 
-        _player.SetSliding(false);
-        _player.IsJumping = true;
-        _isJumping = true;
+        //ApplyBunnyHop();
 
-        Vector3 velocity = _rb.linearVelocity;
-        velocity.y = 0;
-        _rb.linearVelocity = velocity;
+        ResetVerticalVelocity();
 
         float jumpForce = Mathf.Sqrt(_player.JumpHeight * 1000 * -2f * Physics.gravity.y);
         _rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-
-        _player.OnJumpPerformed();
     }
 
-    private void UpdateLandingState(bool isGrounded, float verticalVelocity)
+    private void ApplyBunnyHop()
     {
-        if (isGrounded && verticalVelocity <= 0)
+        float timeSinceLand = Time.time - _lastLandingTime;
+
+        if (timeSinceLand > BunnyHopWindow) return;
+
+        float speed = _rb.linearVelocity.magnitude;
+        float maxSpeed = 12f;
+
+        float factor = Mathf.Clamp01(1f - (speed / maxSpeed));
+        Debug.Log(factor);
+        _player.AddBonusSpeed(BunnyHopSpeedBonus * factor);
+    }
+
+    private void ResetVerticalVelocity()
+    {
+        Vector3 velocity = _rb.linearVelocity;
+        velocity.y = 0;
+        _rb.linearVelocity = velocity;
+    }
+
+    private void UpdateLandingState(bool isGrounded)
+    {
+        if (isGrounded)
         {
-            if (_isJumping)
-            {
-                _isJumping = false;
-                _player.IsJumping = false;
-            }
             _lastLandingTime = Time.time;
+            _jumpsRemaining = _player.MaxJump;
         }
-        if (isGrounded) _jumpsRemaining = _player.MaxJump;
     }
 
-    public void HandleGravity(Rigidbody rb)
+    public void HandleGravity()
     {
-        if (!_isJumping) return;
-
-        Vector3 velocity = rb.linearVelocity;
+        Vector3 velocity = _rb.linearVelocity;
 
         if (velocity.y > 0)
         {
             velocity.y += Physics.gravity.y * (_jumpRiseGravity - 1f) * Time.fixedDeltaTime;
         }
-        else if (velocity.y < 0)
+        else
         {
             velocity.y += Physics.gravity.y * (_jumpFallGravity - 1f) * Time.fixedDeltaTime;
         }
 
-        rb.linearVelocity = velocity;
+        _rb.linearVelocity = velocity;
     }
 
-
-    public void HandleAirSounds(bool isGrounded)
+    public void FallImpact(bool isGrounded)
     {
         float verticalSpeed = _rb.linearVelocity.y;
-
         bool shouldPlayWind = !isGrounded && verticalSpeed < -9f;
 
-        if (shouldPlayWind && !_windSoundActive)
+        if (shouldPlayWind && wind == null)
         {
-            _windSoundActive = true;
             wind = G.AudioManager?.Play(windData);
         }
-        else if (!shouldPlayWind && _windSoundActive)
-        {
-            Vector3 velocity = _rb.linearVelocity;
-            Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+    }
 
-            _windSoundActive = false;
-            G.AudioManager?.Stop(wind);
-            G.AudioManager?.Play(landData);
-
-            Vector3 offset = horizontalVel * 0.2f; // подбирается
-
-            Vector3 spawnPos = GetGroundPoint() + offset;
-
-            G.PoolManager?.CallWithAutoReturn(PoolId.Dust_Land, spawnPos, 0.5f);
-        }
+    public void LandImpact()
+    {
+        Vector3 velocity = _rb.linearVelocity;
+        Vector3 horizontalVel = new Vector3(velocity.x, 0, velocity.z);
+        G.AudioManager?.Stop(wind);
+        wind = null;
+        G.AudioManager?.Play(landData);
+        Vector3 offset = horizontalVel * 0.15f;
+        Vector3 spawnPos = GetGroundPoint() + offset;
+        G.PoolManager?.CallWithAutoReturn(PoolId.Dust_Land, spawnPos, 0.5f);
     }
 
     private Vector3 GetGroundPoint()
     {
         Vector3 origin = _player.transform.position + Vector3.up * 0.5f;
-
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 2f))
         {
             return hit.point;
         }
-
         return _player.transform.position;
     }
 }

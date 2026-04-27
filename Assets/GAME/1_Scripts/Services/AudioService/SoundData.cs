@@ -34,6 +34,7 @@ public class SoundData : ScriptableObject
     [Header("Settings")]
     public bool loop = false;
     public float minInterval = 0f;
+    public bool ignorePause = false;
 
     [Header("Priority")]
     [Range(0, 256)]

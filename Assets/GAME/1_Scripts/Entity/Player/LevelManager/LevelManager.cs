@@ -12,6 +12,9 @@ public class LevelManager : MonoBehaviour
     private LevelUI levelUI;
     private SoundData pickupData;
     private SoundData dropData;
+    public int Exp => totalExp;
+
+
 
     public void Initialize()
     {

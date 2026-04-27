@@ -10,7 +10,6 @@ public class Sword : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private Animator animator;
     [SerializeField] private TrailRenderer swordTrail;
-    private EventSFX sfx;
     private float attackRadius = 0f;
     private bool hasHit;
 
@@ -26,13 +25,16 @@ public class Sword : MonoBehaviour
     private float chancheCrit;
     private float critMultiplayer;
     private SoundData swordData;
+    private float damageMultiplier = 1f;
+
+
+
     public void Initialize(CameraShake cameraShake, StatsController statsController)
     {
         stats = statsController;
         stats.OnStatsChanged += UpdateStats;
         UpdateStats();
 
-        sfx = GetComponent<EventSFX>();
         swordData = Resources.Load<SoundData>("Audio/SFX/SwordAttack");
 
         aimAnimation = GetComponentInChildren<AimAnimation>();
@@ -45,18 +47,28 @@ public class Sword : MonoBehaviour
 
     private void UpdateStats()
     {
-        attackRate = stats.GetStat(StatType.AttackRate);
+        attackRate = 1f / stats.GetStat(StatType.AttackRate);
         damage = stats.GetStat(StatType.Damage);
         chancheCrit = stats.GetStat(StatType.CritСhance) / 100f;
-        critMultiplayer = stats.GetStat(StatType.CritMultiplayer);
+        critMultiplayer = 1 + stats.GetStat(StatType.CritMultiplayer) / 100;
         attackRadius = stats.GetStat(StatType.AttackRange);
+    }
+
+    public void IncreaseDamage(float value)
+    {
+        damageMultiplier = 1 + value / 100f;
+    }
+
+    public void ResetDamage()
+    {
+        damageMultiplier = 1f;
     }
 
     private void Update()
     {
         if (isAttackingInput && Time.time >= _nextAttackTime)
         {
-            float cooldown = 1f / attackRate;
+            float cooldown = attackRate;
             _nextAttackTime = Time.time + cooldown;
             Attack();
         }
@@ -84,6 +96,7 @@ public class Sword : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         swordTrail.emitting = true;
     }
+
     private IEnumerator AttackFailSafe()
     {
         float maxDuration = 1f / attackRate + 0.2f; // небольшой запас
@@ -149,7 +162,7 @@ public class Sword : MonoBehaviour
     {
         bool isCrit = Random.value < chancheCrit;
 
-        float finalDamage = damage;
+        float finalDamage = damage * damageMultiplier;
 
         if (isCrit)
             finalDamage *= critMultiplayer;

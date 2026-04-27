@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization;
@@ -16,6 +16,8 @@ public enum NodeVisualState
 public class SkillTreeUI : UIWindow
 {
     [Header("References")]
+    public SkillTreeTooltip tooltip;
+
     [SerializeField] private Image iconTree;
     [SerializeField] private GameObject nodeButtonFlatPrefab;
     [SerializeField] private GameObject nodeButtonIncreasedPrefab;
@@ -25,16 +27,9 @@ public class SkillTreeUI : UIWindow
     [SerializeField] private Transform lineContainer;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private Button resetButton;
-    [SerializeField] private RectTransform rectTransforms; // 0 - окно, 1 - иконка
-
-    [Header("Tooltip")]
-    [SerializeField] private GameObject tooltip;
-    [SerializeField] private TextMeshProUGUI tooltipText;
+    [SerializeField] private RectTransform rectTransforms;
 
     [Header("Localize")]
-    [SerializeField] private LocalizedString flatText;
-    [SerializeField] private LocalizedString increasedText;
-    [SerializeField] private LocalizedString moreText;
     [SerializeField] private LocalizedString coastText;
     [SerializeField] private LocalizedString talantedText;
 
@@ -44,35 +39,42 @@ public class SkillTreeUI : UIWindow
     [SerializeField] private Color unlockedColor = new Color(0.2f, 0.8f, 0.2f);
 
     [Header("Navigation")]
-    [SerializeField] private RectTransform content; // общий родитель для nodes + lines
-
+    [SerializeField] private RectTransform content;
     [SerializeField] private float zoomSpeed = 0.1f;
     [SerializeField] private float minZoom = 0.5f;
     [SerializeField] private float maxZoom = 2f;
+    [SerializeField] private Vector2 treeBoundsPadding = new Vector2(180f, 140f);
+    [SerializeField] private float viewportPadding = 80f;
 
-    [SerializeField] private float dragSpeed = 1f;
-
-    private Vector2 lastMousePosition;
-    private bool isDragging;
+    private readonly Dictionary<string, Button> nodeButtons = new Dictionary<string, Button>();
+    private readonly Dictionary<string, Image> nodeImages = new Dictionary<string, Image>();
+    private readonly Dictionary<string, Vector2> nodePositions = new Dictionary<string, Vector2>();
+    private readonly HashSet<string> drawnConnections = new HashSet<string>();
 
     private SkillTreeStats skillTree;
-
-    private Dictionary<string, Button> nodeButtons = new();
-    private Dictionary<string, Image> nodeImages = new();
-
-    private Vector2 tooltipOffset = new Vector2(100f, -150f);
-    private Dictionary<string, Vector2> layout;
-    private HashSet<string> drawnConnections = new();
-
+    private TalentPointsCounter talentPoints;
     private AutoPopup treePopup;
     private RectTransform rect;
-    private bool isOpen = false;
+    private bool isOpen;
+    private bool isDragging;
+    private Vector2 lastMousePosition;
 
     public void Initialize(SkillTreeStats skillTreeStats, int size = 0)
     {
+        Unsubscribe();
+
         skillTree = skillTreeStats;
+        if (skillTree == null)
+        {
+            Debug.LogError("[SkillTreeUI] SkillTreeStats is null.");
+            return;
+        }
+
         skillTree.OnNodeUnlocked += OnNodeUnlocked;
-        if (skillTree.iconCharacter != null) iconTree.sprite = skillTree.iconCharacter;
+        skillTree.OnResetTree += RefreshTreeVisuals;
+
+        if (skillTree.iconCharacter != null)
+            iconTree.sprite = skillTree.iconCharacter;
 
         rect = GetComponent<RectTransform>();
         rect.offsetMin = new Vector2(0, rect.offsetMin.y);
@@ -81,46 +83,47 @@ public class SkillTreeUI : UIWindow
         treePopup = GetComponent<AutoPopup>();
         treePopup.Initialize();
 
-        TalentPointsCounter talentPoints = skillTree.GetComponentInChildren<TalentPointsCounter>();
-        talentPoints.OnPointsChanged += UpdatePointsUI;
+        talentPoints = skillTree.GetComponentInChildren<TalentPointsCounter>();
+        if (talentPoints != null)
+        {
+            talentPoints.OnPointsChanged += UpdatePointsUI;
+            UpdatePointsUI(talentPoints.Points);
+        }
+        else
+        {
+            UpdatePointsUI(0);
+        }
 
-        BuildParents(skillTree.allNodes);
-        CreateTreeUI();
-        RefreshTreeVisuals();
-        UpdatePointsUI(talentPoints.Points);
-
+        resetButton.onClick.RemoveListener(ResetTree);
         resetButton.onClick.AddListener(ResetTree);
-        skillTree.OnResetTree += RefreshTreeVisuals;
-        tooltip.SetActive(false);
+
+        RebuildTreeUI();
+        RefreshTreeVisuals();
+        content.localScale = Vector3.one;
+        CenterContentOnTree();
+
+        HideTooltip();
 
         gameObject.SetActive(false);
+
+        ConsoleEvents.OnCommandToggleSkillTree -= TogglePanel;
         ConsoleEvents.OnCommandToggleSkillTree += TogglePanel;
     }
 
     public void TogglePanel()
     {
         if (gameObject.activeSelf)
-        {
             G.UIManager.Close(this);
-        }
         else
-        {
             G.UIManager.OpenOverlay(this);
-        }
     }
 
-    private void ResetTree() //Тут мы будем сбрасывать за деньги
-    {
-        skillTree.ResetTreeProgress();
-        RefreshTreeVisuals();
-    }
-
-    //Нужно отписываться обнавляется в кнопке для тестов
     public void UpdateTree()
     {
-        ClearTreeUI();
-        BuildParents(skillTree.allNodes);
-        CreateTreeUI();
+        if (skillTree == null)
+            return;
+
+        RebuildTreeUI();
         RefreshTreeVisuals();
     }
 
@@ -140,57 +143,50 @@ public class SkillTreeUI : UIWindow
         treePopup.ClosePanel();
     }
 
-    #region  Move on Deck
     private void Update()
     {
         if (isOpen && Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
-
             if (!RectTransformUtility.RectangleContainsScreenPoint(rectTransforms, mousePos))
-            {
                 G.UIManager.CloseTop();
-            }
         }
 
         HandleZoom();
-        //HandleDrag();
-        UpdateTooltipPosition();
+        HandleDrag();
+        ClampContentToTreeBounds();
     }
 
     private void HandleZoom()
     {
+        if (Mouse.current == null)
+            return;
+
         float scroll = Mouse.current.scroll.ReadValue().y;
-        if (Mathf.Abs(scroll) < 0.01f) return;
+        if (Mathf.Abs(scroll) < 0.01f)
+            return;
 
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            content,
-            mousePos,
-            null,
-            out Vector2 localPointBefore
-        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(content, mousePos, null, out Vector2 localPointBefore);
 
         float scale = content.localScale.x;
         scale += scroll * zoomSpeed * 0.01f;
         scale = Mathf.Clamp(scale, minZoom, maxZoom);
-
         content.localScale = Vector3.one * scale;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            content,
-            mousePos,
-            null,
-            out Vector2 localPointAfter
-        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(content, mousePos, null, out Vector2 localPointAfter);
 
         Vector2 delta = localPointAfter - localPointBefore;
         content.anchoredPosition += delta * scale;
+        ClampContentToTreeBounds();
     }
 
     private void HandleDrag()
     {
+        if (Mouse.current == null || content == null)
+            return;
+
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             isDragging = true;
@@ -198,65 +194,72 @@ public class SkillTreeUI : UIWindow
         }
 
         if (Mouse.current.leftButton.wasReleasedThisFrame)
-        {
             isDragging = false;
-        }
 
-        if (!isDragging) return;
+        if (!isDragging)
+            return;
 
-        Vector2 currentMousePos = Mouse.current.position.ReadValue();
-        Vector2 delta = currentMousePos - lastMousePosition;
+        Vector2 currentMousePosition = Mouse.current.position.ReadValue();
+        Vector2 delta = currentMousePosition - lastMousePosition;
+        lastMousePosition = currentMousePosition;
 
-        content.anchoredPosition += delta * dragSpeed;
-
-        lastMousePosition = currentMousePos;
+        content.anchoredPosition += delta;
+        ClampContentToTreeBounds();
     }
 
-    private void UpdateTooltipPosition()
+    private void ResetTree()
     {
-        if (!tooltip.activeSelf) return;
+        if (skillTree == null)
+            return;
 
-        tooltip.transform.position =
-            Mouse.current.position.ReadValue() + tooltipOffset;
-    }
-    #endregion
-
-    private void BuildParents(List<TalentNode> nodes)
-    {
-        var dict = new Dictionary<string, TalentNode>();
-
-        foreach (var n in nodes)
-            dict[n.data.id] = n;
-
-        foreach (var node in nodes)
-        {
-            foreach (var connId in node.data.connections)
-            {
-                if (dict.TryGetValue(connId, out var child))
-                {
-                    child.parents.Add(node.data.id);
-                }
-            }
-        }
+        skillTree.ResetTreeProgress();
+        RefreshTreeVisuals();
     }
 
-    private void CreateTreeUI()
+    private void RebuildTreeUI()
     {
-        layout = GenerateRadialLayout(skillTree.allNodes);
+        ClearTreeUI();
+        CacheNodePositions();
 
-        foreach (var node in skillTree.allNodes)
+        foreach (TalentNode node in skillTree.allNodes)
             CreateNodeUI(node);
 
         DrawConnections();
+        ClampContentToTreeBounds();
+    }
+
+    private void CacheNodePositions()
+    {
+        nodePositions.Clear();
+
+        foreach (TalentNode node in skillTree.allNodes)
+        {
+            if (node == null || node.data == null || string.IsNullOrWhiteSpace(node.data.id))
+                continue;
+
+            nodePositions[node.data.id] = GetNodePosition(node);
+        }
+    }
+
+    private Vector2 GetNodePosition(TalentNode node)
+    {
+        if (node == null || node.data == null)
+            return Vector2.zero;
+
+        return node.data.position;
     }
 
     private void CreateNodeUI(TalentNode node)
     {
-        GameObject prefab = GetPrefab(node);
+        if (node == null || node.data == null)
+            return;
 
+        GameObject prefab = GetPrefab(node);
         GameObject obj = Instantiate(prefab, nodesContainer);
-        RectTransform rect = obj.GetComponent<RectTransform>();
-        rect.anchoredPosition = layout[node.data.id];
+
+        RectTransform nodeRect = obj.GetComponent<RectTransform>();
+        if (nodePositions.TryGetValue(node.data.id, out Vector2 position))
+            nodeRect.anchoredPosition = position;
 
         SetupNodeVisual(obj, node);
         SetupNodeEvents(obj, node);
@@ -274,34 +277,45 @@ public class SkillTreeUI : UIWindow
     private void SetupNodeEvents(GameObject obj, TalentNode node)
     {
         Button btn = obj.GetComponent<Button>();
-
         btn.onClick.AddListener(() => TryUnlockNode(node.data.id));
-
         AddTooltipEvents(obj, node);
     }
 
     private GameObject GetPrefab(TalentNode node)
     {
-        if (IsKeystone(node))
+        if (IsSpecialNode(node))
             return nodeButtonKeystonePrefab;
 
-        return node.data.modifierType switch
+        switch (node.data.modifierType)
         {
-            ModifierType.Flat => nodeButtonFlatPrefab,
-            ModifierType.Increased => nodeButtonIncreasedPrefab,
-            ModifierType.More => nodeButtonMorePrefab,
-            _ => nodeButtonFlatPrefab
-        };
+            case ModifierType.Flat:
+                return nodeButtonFlatPrefab;
+            case ModifierType.Increased:
+                return nodeButtonIncreasedPrefab;
+            case ModifierType.More:
+                return nodeButtonMorePrefab;
+            default:
+                return nodeButtonFlatPrefab;
+        }
     }
 
     private void AddTooltipEvents(GameObject obj, TalentNode node)
     {
         EventTrigger trigger = obj.GetComponent<EventTrigger>();
+        if (trigger == null)
+            trigger = obj.AddComponent<EventTrigger>();
 
-        var enter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        if (trigger.triggers == null)
+            trigger.triggers = new List<EventTrigger.Entry>();
+
+        trigger.triggers.Clear();
+
+        EventTrigger.Entry enter = new EventTrigger.Entry();
+        enter.eventID = EventTriggerType.PointerEnter;
         enter.callback.AddListener(_ => ShowTooltip(node));
 
-        var exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+        EventTrigger.Entry exit = new EventTrigger.Entry();
+        exit.eventID = EventTriggerType.PointerExit;
         exit.callback.AddListener(_ => HideTooltip());
 
         trigger.triggers.Add(enter);
@@ -310,188 +324,67 @@ public class SkillTreeUI : UIWindow
 
     private void ShowTooltip(TalentNode node)
     {
-        tooltip.SetActive(true);
-
-        tooltipText.text = IsKeystone(node)
-            ? GetKeystoneTooltip(node)
-            : GetStatTooltip(node);
-    }
-
-    private string GetKeystoneTooltip(TalentNode node)
-    {
-        var ks = node.data.keystoneEffect;
-
-        return $"<b>{ks.title.GetLocalizedString()}</b>\n{ks.description.GetLocalizedString()}";
-    }
-
-    private string GetStatTooltip(TalentNode node)
-    {
-        string name = node.data.nodeName.GetLocalizedString();
-        string type = GetLocalizedModifier(node.data.modifierType);
-        string value = FormatValue(node);
-
-        return $"<b>{name}</b>\n{type}: {value}";
-    }
-
-    private string GetLocalizedModifier(ModifierType type)
-    {
-        return type switch
-        {
-            ModifierType.Flat => flatText.GetLocalizedString(),
-            ModifierType.Increased => increasedText.GetLocalizedString(),
-            ModifierType.More => moreText.GetLocalizedString(),
-            _ => type.ToString()
-        };
-    }
-    private string FormatValue(TalentNode node)
-    {
-        float value = node.data.statValue;
-
-        return node.data.modifierType switch
-        {
-            ModifierType.Increased => $"+{value}%",
-            ModifierType.More => $"x{1f + value}",
-            _ => $"+{value}"
-        };
+        if (tooltip != null)
+            tooltip.ShowTooltip(node);
     }
 
     private void HideTooltip()
     {
-        tooltip.SetActive(false);
-    }
-
-    public Dictionary<string, Vector2> GenerateRadialLayout(List<TalentNode> nodes)
-    {
-        var result = new Dictionary<string, Vector2>();
-        var nodeDict = new Dictionary<string, TalentNode>();
-
-        // Строим словарь id -> node
-        foreach (var n in nodes)
-        {
-            if (n == null || n.data == null) continue;
-            nodeDict[n.data.id] = n;
-
-            // сразу ставим кастомную позицию для мостовых нод
-            if (n.data.isBridgeNode)
-                result[n.data.id] = n.data.customPosition;
-        }
-
-        if (nodes.Count == 0 || nodes[0] == null || nodes[0].data == null)
-        {
-            Debug.LogError("Root node is missing or has no data assigned!");
-            return result;
-        }
-
-        var root = nodes[0];
-        result[root.data.id] = Vector2.zero;
-
-        int branchCount = root.data.connections.Count;
-        float totalAngle = 360f;
-
-        for (int i = 0; i < branchCount; i++)
-        {
-            var connId = root.data.connections[i];
-            if (!nodeDict.TryGetValue(connId, out var branchNode)) continue;
-
-            float angle = i * (totalAngle / branchCount);
-            BuildRadialBranch(branchNode, nodeDict, result, angle, 25f, 1);
-        }
-
-        return result;
-    }
-
-    private void BuildRadialBranch(
-    TalentNode node,
-    Dictionary<string, TalentNode> nodeDict,
-    Dictionary<string, Vector2> layout,
-    float angle,        // центральный угол для этой ветки
-    float angleSpread,  // разброс для детей
-    int depth)
-    {
-        if (layout.ContainsKey(node.data.id))
-            return;
-
-        if (node.data.isBridgeNode)
-        {
-            layout[node.data.id] = node.data.customPosition;
-            return;
-        }
-
-        float radiusStep = 150f;
-        float rad = angle * Mathf.Deg2Rad;
-        Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-        Vector2 pos = dir * depth * radiusStep;
-
-        float spread = 0.1f;
-        Vector2 offset = new Vector2(Random.Range(-spread, spread), Random.Range(-spread, spread));
-        layout[node.data.id] = pos + offset * radiusStep * 0.3f;
-
-        if (node.data.connections.Count == 0)
-            return;
-
-        float childAngleStep = angleSpread / Mathf.Max(1, node.data.connections.Count - 1);
-
-        // Распределяем детей по углу
-        float startAngle = angle - angleSpread / 2f;
-        for (int i = 0; i < node.data.connections.Count; i++)
-        {
-            var childId = node.data.connections[i];
-            if (nodeDict.TryGetValue(childId, out var child))
-            {
-                float childAngle = startAngle + i * childAngleStep;
-                BuildRadialBranch(child, nodeDict, layout, childAngle, angleSpread * 0.7f, depth + 1);
-            }
-        }
+        if (tooltip != null)
+            tooltip.HideTooltip();
     }
 
     private void TryUnlockNode(string nodeId)
     {
-        var node = skillTree.GetNode(nodeId);
+        TalentNode node = skillTree.GetNode(nodeId);
         if (node != null)
             skillTree.UnlockNode(node);
     }
 
     private void OnNodeUnlocked(TalentNode node)
     {
-        if (node.data.keystoneEffect != null)
-        {
-            Debug.Log($"Keystone activated: {node.data.nodeName}");
-        }
+        if (node != null && node.data != null && node.data.itemEffect != null)
+            Debug.Log("Special talent activated: " + node.data.id);
 
         RefreshTreeVisuals();
     }
 
     private void UpdateNodeState(TalentNode node)
     {
-        if (!nodeButtons.TryGetValue(node.data.id, out var btn)) return;
+        if (node == null || node.data == null)
+            return;
 
-        Image img = nodeImages[node.data.id];
+        if (!nodeButtons.TryGetValue(node.data.id, out Button btn))
+            return;
 
-        if (node == skillTree.allNodes[0])
+        if (!nodeImages.TryGetValue(node.data.id, out Image img))
+            return;
+
+        if (skillTree.allNodes.Count > 0 && node == skillTree.allNodes[0])
         {
             img.enabled = false;
             btn.interactable = false;
             return;
         }
 
-        if (IsKeystone(node))
-        {
-            img.color = GetStateColor(GetNodeState(node));
-            return;
-        }
-
+        img.enabled = true;
         img.color = GetStateColor(GetNodeState(node));
+        btn.interactable = true;
     }
 
     private Color GetStateColor(NodeVisualState state)
     {
-        return state switch
+        switch (state)
         {
-            NodeVisualState.Locked => lockedColor,
-            NodeVisualState.Available => availableColor,
-            NodeVisualState.Unlocked => unlockedColor,
-            _ => lockedColor
-        };
+            case NodeVisualState.Locked:
+                return lockedColor;
+            case NodeVisualState.Available:
+                return availableColor;
+            case NodeVisualState.Unlocked:
+                return unlockedColor;
+            default:
+                return lockedColor;
+        }
     }
 
     private NodeVisualState GetNodeState(TalentNode node)
@@ -507,68 +400,79 @@ public class SkillTreeUI : UIWindow
 
     private void RefreshTreeVisuals()
     {
-        foreach (var node in skillTree.allNodes)
+        if (skillTree == null)
+            return;
+
+        foreach (TalentNode node in skillTree.allNodes)
             UpdateNodeState(node);
     }
 
     private void UpdatePointsUI(int points)
     {
         string localizeSkill = talantedText.GetLocalizedString();
-        pointsText.text = $"{localizeSkill}: {points}";
+        pointsText.text = localizeSkill + ": " + points;
     }
 
     private void DrawConnections()
     {
         drawnConnections.Clear();
 
-        foreach (var node in skillTree.allNodes)
+        foreach (TalentNode node in skillTree.allNodes)
         {
+            if (node == null || node.data == null || node.data.connections == null)
+                continue;
+
+            if (!nodePositions.TryGetValue(node.data.id, out Vector2 start))
+                continue;
+
             foreach (string connId in node.data.connections)
             {
-                string key = node.data.id + "_" + connId;
-                string reverseKey = connId + "_" + node.data.id;
+                if (string.IsNullOrWhiteSpace(connId))
+                    continue;
+
+                string key = node.data.id + "*" + connId;
+                string reverseKey = connId + "*" + node.data.id;
 
                 if (drawnConnections.Contains(key) || drawnConnections.Contains(reverseKey))
                     continue;
 
-                var connected = skillTree.GetNode(connId);
-                if (connected != null)
-                {
-                    DrawLine(
-                        layout[node.data.id],
-                        layout[connected.data.id]
-                    );
+                TalentNode connected = skillTree.GetNode(connId);
+                if (connected == null)
+                    continue;
 
-                    drawnConnections.Add(key);
-                }
+                if (!nodePositions.TryGetValue(connected.data.id, out Vector2 end))
+                    continue;
+
+                DrawLine(start, end);
+                drawnConnections.Add(key);
             }
         }
     }
+
     private void DrawLine(Vector2 start, Vector2 end)
     {
         GameObject line = new GameObject("Line");
-        line.transform.SetParent(lineContainer);
+        line.transform.SetParent(lineContainer, false);
 
-        RectTransform rect = line.AddComponent<RectTransform>();
+        RectTransform lineRect = line.AddComponent<RectTransform>();
         Image image = line.AddComponent<Image>();
         image.color = new Color(1f, 1f, 1f, 0.2f);
 
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0, 0.5f);
+        lineRect.anchorMin = new Vector2(0.5f, 0.5f);
+        lineRect.anchorMax = new Vector2(0.5f, 0.5f);
+        lineRect.pivot = new Vector2(0f, 0.5f);
 
         Vector2 dir = (end - start).normalized;
         float dist = Vector2.Distance(start, end);
 
-        rect.anchoredPosition = start;
-        rect.sizeDelta = new Vector2(dist, 3f);
-
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        rect.rotation = Quaternion.Euler(0, 0, angle);
+        lineRect.anchoredPosition = start;
+        lineRect.sizeDelta = new Vector2(dist, 3f);
+        lineRect.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
     }
 
-    private bool IsKeystone(TalentNode node)
+    private bool IsSpecialNode(TalentNode node)
     {
-        return node.data.keystoneEffect != null;
+        return node != null && node.data != null && node.data.itemEffect != null;
     }
 
     private void ClearTreeUI()
@@ -582,15 +486,98 @@ public class SkillTreeUI : UIWindow
         nodeButtons.Clear();
         nodeImages.Clear();
         drawnConnections.Clear();
+        nodePositions.Clear();
+    }
+
+    private void ClampContentToTreeBounds()
+    {
+        if (content == null || nodePositions.Count == 0)
+            return;
+
+        RectTransform viewport = content.parent as RectTransform;
+        if (viewport == null)
+            return;
+
+        GetTreeBounds(out Vector2 min, out Vector2 max);
+
+        float scale = content.localScale.x;
+        float halfViewportWidth = Mathf.Max(0f, viewport.rect.width * 0.5f - viewportPadding);
+        float halfViewportHeight = Mathf.Max(0f, viewport.rect.height * 0.5f - viewportPadding);
+
+        float minAllowedX = -halfViewportWidth - max.x * scale;
+        float maxAllowedX = halfViewportWidth - min.x * scale;
+        float minAllowedY = -halfViewportHeight - max.y * scale;
+        float maxAllowedY = halfViewportHeight - min.y * scale;
+
+        Vector2 position = content.anchoredPosition;
+        position.x = ClampAxis(position.x, minAllowedX, maxAllowedX);
+        position.y = ClampAxis(position.y, minAllowedY, maxAllowedY);
+        content.anchoredPosition = position;
+    }
+
+    private void CenterContentOnTree()
+    {
+        if (content == null || nodePositions.Count == 0)
+            return;
+
+        GetTreeBounds(out Vector2 min, out Vector2 max);
+        Vector2 center = (min + max) * 0.5f;
+        content.anchoredPosition = -center;
+        ClampContentToTreeBounds();
+    }
+
+    private void GetTreeBounds(out Vector2 min, out Vector2 max)
+    {
+        bool hasValue = false;
+        min = Vector2.zero;
+        max = Vector2.zero;
+
+        foreach (KeyValuePair<string, Vector2> pair in nodePositions)
+        {
+            Vector2 position = pair.Value;
+
+            if (!hasValue)
+            {
+                min = position;
+                max = position;
+                hasValue = true;
+                continue;
+            }
+
+            min = Vector2.Min(min, position);
+            max = Vector2.Max(max, position);
+        }
+
+        min -= treeBoundsPadding;
+        max += treeBoundsPadding;
+    }
+
+    private float ClampAxis(float value, float min, float max)
+    {
+        if (min > max)
+            return (min + max) * 0.5f;
+
+        return Mathf.Clamp(value, min, max);
+    }
+
+    private void Unsubscribe()
+    {
+        if (skillTree != null)
+        {
+            skillTree.OnNodeUnlocked -= OnNodeUnlocked;
+            skillTree.OnResetTree -= RefreshTreeVisuals;
+        }
+
+        if (talentPoints != null)
+            talentPoints.OnPointsChanged -= UpdatePointsUI;
     }
 
     private void OnDestroy()
     {
-        if (skillTree != null)
-        {
-            skillTree.OnResetTree -= RefreshTreeVisuals;
-            if (resetButton != null) resetButton.onClick.RemoveListener(skillTree.ResetTreeProgress);
-        }
+        Unsubscribe();
+
+        if (resetButton != null)
+            resetButton.onClick.RemoveListener(ResetTree);
 
         ConsoleEvents.OnCommandToggleSkillTree -= TogglePanel;
     }

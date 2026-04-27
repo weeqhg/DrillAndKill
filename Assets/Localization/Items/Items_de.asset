@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Items_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 6f5c1daf15bf755418b189629d491d90, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 9235870367744
+    m_Localized: Elixier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670912
+    m_Localized: "Erh\xF6ht die maximale Gesundheit um +{}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670913
+    m_Localized: 'Wegerich
+
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670914
+    m_Localized: "Erh\xF6ht die Regenerationsgeschwindigkeit um +{}% (+{}% pro Stapel)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865216
+    m_Localized: Turnschuhe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865217
+    m_Localized: "Erh\xF6ht die Bewegungsgeschwindigkeit um +{}% (+{}% pro Stapel)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239512190976
+    m_Localized: "Vampirz\xE4hne"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239541551104
+    m_Localized: "Wenn du einen Feind t\xF6test, stelle +{} Gesundheit wieder her."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070359552000
+    m_Localized: Tornado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070397300736
+    m_Localized: "In der Luft erh\xF6ht sich der Schaden um {}% (+{}% pro Stapel)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869376
+    m_Localized: Energy-Drinker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869377
+    m_Localized: ".Erh\xF6ht die Bewegungsgeschwindigkeit um +{}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439352978620416
+    m_Localized: Moos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439353003786240
+    m_Localized: "Heilung \xFCber die maximale Gesundheit hinaus gew\xE4hrt einen
+      tempor\xE4ren Schild, der sich alle {} Sekunden um 1 verringert."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440456021852160
+    m_Localized: Uhrwerk Orange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440546358771712
+    m_Localized: "Erh\xF6ht die Angriffsgeschwindigkeit um {}"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

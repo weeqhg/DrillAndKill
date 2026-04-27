@@ -18,19 +18,7 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 2108548300800
-    m_Localized: Gesundheit
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243840
-    m_Localized: Schaden
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243841
-    m_Localized: Geschwindigkeit
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2108590243842
+  - m_Id: 8315940026826752
     m_Localized: Angriffsgeschwindigkeit
     m_Metadata:
       m_Items: []
@@ -56,6 +44,74 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 377755869896704
     m_Localized: Resetpunkte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598724390912
+    m_Localized: Max.Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528256
+    m_Localized: Regeneration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528257
+    m_Localized: "R\xFCstung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528259
+    m_Localized: Schaden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528260
+    m_Localized: Kritische Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528261
+    m_Localized: Kritischer Treffermultiplikator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316626999296000
+    m_Localized: Spikes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528263
+    m_Localized: Angriffsreichweite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528264
+    m_Localized: Geschwindigkeit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528265
+    m_Localized: Max springt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528266
+    m_Localized: "Gl\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528267
+    m_Localized: Auswahlradius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8313598770528268
+    m_Localized: Schild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8316825649922048
+    m_Localized: Vampirismus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487936
+    m_Localized: Glaskanone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8619865464487937
+    m_Localized: x2 Schaden -50% maximale Gesundheit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8620539254259712
+    m_Localized: Ausweichen
     m_Metadata:
       m_Items: []
   references:

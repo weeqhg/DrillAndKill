@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class LootSystem : MonoBehaviour, IInitializable
 {
-    [SerializeField] private List<ItemData> allItems;
+    private List<ItemData> allItems;
 
 
 
@@ -15,10 +16,22 @@ public class LootSystem : MonoBehaviour, IInitializable
             return;
         }
 
+        LoadAllItems();
+        
         G.LootSystem = this;
         DontDestroyOnLoad(gameObject);
     }
-    
+
+    private void LoadAllItems()
+    {
+        // Основной способ — загружаем только ItemData
+        ItemData[] loadedItems = Resources.LoadAll<ItemData>("Items");
+
+        allItems = new List<ItemData>(loadedItems);
+        
+        Debug.Log($"[ItemDatabase] Загружено {allItems.Count} предметов из Resources/Items/");
+    }
+
     public ItemData GetItem(float luck)
     {
         ItemRarity rarity = RollRarity(luck);
@@ -42,7 +55,7 @@ public class LootSystem : MonoBehaviour, IInitializable
 
         if (Random.value < luck * 0.15f)
         {
-            //best = Upgrade(best);
+            best = Upgrade(best);
         }
 
         return best;
@@ -54,7 +67,7 @@ public class LootSystem : MonoBehaviour, IInitializable
 
         //if (roll < 0.01f) return ItemRarity.Legendary;
         ///if (roll < 0.08f) return ItemRarity.Rare;
-        //if (roll < 0.25f) return ItemRarity.Uncommon;
+        if (roll < 0.25f) return ItemRarity.Uncommon;
         return ItemRarity.Common;
     }
 

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27b3d5739c5b644fae8be3c31f049a3, type: 3}
+  m_Name: Tornado
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  _id: 7f7df89838bcc2b4fa196799e1cb7bbf
+  itemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2131070359552000
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2131070397300736
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  icon: {fileID: 1680434127, guid: 109e5ed1116457a49acade988683a60e, type: 3}
+  rarity: 1
+  statModule:
+    type: 0
+    value: 2
+    modifierType: 1
+  itemEffect: {fileID: 5403175510570505777, guid: ccc280dcc7d08014d920c63717a046fc, type: 3}
+  references:
+    version: 2
+    RefIds: []

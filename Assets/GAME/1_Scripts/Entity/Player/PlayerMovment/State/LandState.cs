@@ -9,6 +9,7 @@ public class LandState : PlayerState
     public override void Enter()
     {
         _timer = 0.1f;
+        player.Jump.LandImpact();
     }
 
     public override void Update()
@@ -17,7 +18,9 @@ public class LandState : PlayerState
 
         if (_timer <= 0f)
         {
-            if (player.MoveInput.sqrMagnitude > 0.01f)
+            if (player.IsSliding)
+                player.SetState(player.SlideState);
+            else if (player.MoveInput.sqrMagnitude > 0.01f)
                 player.SetState(player.RunState);
             else
                 player.SetState(player.IdleState);

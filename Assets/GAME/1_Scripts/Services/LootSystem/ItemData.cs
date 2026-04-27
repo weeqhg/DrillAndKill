@@ -1,7 +1,13 @@
-using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
+using Unity.Collections;
+using UnityEngine.Localization;
+using System;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 public enum ItemRarity
 {
@@ -14,18 +20,33 @@ public enum ItemRarity
 [CreateAssetMenu(menuName = "Items/Item")]
 public class ItemData : ScriptableObject
 {
-    public string ID;
-    public string itemName;
+    [Header("Identification")]
+    [SerializeField, ReadOnly] private string _id;
+    [HideInInspector] public string ID => _id;
+    public LocalizedString itemName;
+    public LocalizedString description;
     public Sprite icon;
     public ItemRarity rarity;
-
     public StatModule statModule;
-
     public GameObject itemEffect;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        string path = AssetDatabase.GetAssetPath(this);
+        string assetGuid = AssetDatabase.AssetPathToGUID(path);
+
+        if (_id != assetGuid)
+        {
+            _id = assetGuid;
+            EditorUtility.SetDirty(this);
+        }
+    }
+#endif
 }
 
-[CreateAssetMenu(menuName = "Items/Modules/Stat")]
-public class StatModule : ScriptableObject
+[Serializable]
+public class StatModule
 {
     public StatType type;
     public float value;

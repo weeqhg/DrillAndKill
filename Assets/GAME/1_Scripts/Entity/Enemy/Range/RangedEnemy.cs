@@ -13,21 +13,34 @@ public class RangedEnemy : EnemyAI
     private float accuracy = 0.85f;
     private Vector3 currentTarget;
 
+    private void Start()
+    {
+        agent.updateRotation = false;
+    }
+
     protected override void EnemyMove()
     {
         if (player == null) return;
         if (IsStoped) return;
 
-        distance = Vector3.Distance(transform.position, posPlayer);
-
         if (distance > attackRange) // подход к игроку
         {
             currentTarget = posPlayer;
+
+            Vector3 target = currentTarget;
+            target.y = transform.position.y;
+
+            transform.LookAt(target);
         }
         else if (distance < retreatRange) // отступ
         {
             Vector3 retreatDir = (transform.position - posPlayer).normalized;
             currentTarget = transform.position + retreatDir * retreatRange;
+
+            Vector3 target = currentTarget;
+            target.y = transform.position.y;
+
+            transform.LookAt(target);
         }
         else
         {
@@ -35,11 +48,10 @@ public class RangedEnemy : EnemyAI
             currentTarget = transform.position;
         }
 
-        // NavMesh проверка
         if (NavMesh.SamplePosition(currentTarget, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
             currentTarget = navHit.position;
 
-        agent.SetDestination(currentTarget);
+        SetDestinationSmart(currentTarget);
 
 
         if (distance >= retreatRange && distance <= attackRange)

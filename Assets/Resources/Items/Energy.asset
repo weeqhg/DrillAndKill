@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27b3d5739c5b644fae8be3c31f049a3, type: 3}
+  m_Name: Energy
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  _id: 5d41fc28c61b3fa41a22a2f14740884a
+  itemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2132950640869376
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2132950640869377
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  icon: {fileID: -1259556965, guid: 024507cd5007f0b4a9893cf8d0384c91, type: 3}
+  rarity: 0
+  statModule:
+    type: 10
+    value: 1
+    modifierType: 0
+  itemEffect: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

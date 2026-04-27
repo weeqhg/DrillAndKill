@@ -6,6 +6,7 @@ public class PlayerManager : MonoBehaviour
     private CameraShake cameraShake;
     private IDamageable damageable;
     private StatsController statsController;
+    private ItemsStatsUI itemsStatsUI;
 
     /// <summary>
     /// Геттеры
@@ -15,12 +16,14 @@ public class PlayerManager : MonoBehaviour
     public IDamageable Damageable => damageable;
     public Vector3 Velocity => rb != null ? rb.linearVelocity : Vector3.zero;
     public StatsController StatsController => statsController;
+    public ItemsStatsUI ItemsUI => itemsStatsUI;
 
 
 
     public void Initialize()
     {
         statsController = GetComponentInChildren<StatsController>(true);
+        itemsStatsUI = GetComponentInChildren<ItemsStatsUI>(true);
         cameraShake = GetComponentInChildren<CameraShake>(true);
         damageable = GetComponent<IDamageable>();
         rb = GetComponent<Rigidbody>();
@@ -96,7 +99,7 @@ public class PlayerManager : MonoBehaviour
 
     private void ImmortalPlayer(bool enable)
     {
-        Health health = gameObject.GetComponentInChildren<Health>();
+        PlayerHealth health = gameObject.GetComponentInChildren<PlayerHealth>();
         if (health != null) health.ToggleImmortal(enable);
         else ConsoleEvents.ConsoleMessage("Helath not found");
     }

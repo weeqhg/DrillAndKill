@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27b3d5739c5b644fae8be3c31f049a3, type: 3}
+  m_Name: Clockwork_orange
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  _id: 22618fe7cf3105a4e96169b6f0eca502
+  itemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2440456021852160
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 2440546358771712
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  icon: {fileID: -1900315040, guid: edf1c51cebd17b146a0f5cb1c95b4cb2, type: 3}
+  rarity: 0
+  statModule:
+    type: 8
+    value: 0.1
+    modifierType: 0
+  itemEffect: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

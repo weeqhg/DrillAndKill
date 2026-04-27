@@ -16,6 +16,7 @@ MonoBehaviour:
   clips:
   - {fileID: 8300000, guid: 9f34b6f0074538e458ec79b0ca8c4e90, type: 3}
   - {fileID: 8300000, guid: 06765ad5605f12b4ebc818d1ea9c29c2, type: 3}
+  playMode: 0
   volume: 1
   randomPitch: 1
   pitchVariation: 0.3
@@ -26,4 +27,5 @@ MonoBehaviour:
   maxDistance: 500
   loop: 0
   minInterval: 0
+  ignorePause: 1
   priority: 128

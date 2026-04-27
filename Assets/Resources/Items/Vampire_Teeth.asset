@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27b3d5739c5b644fae8be3c31f049a3, type: 3}
+  m_Name: Vampire_Teeth
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  _id: 1b156f61f47f4904aa8bd58627f84e04
+  itemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 252239512190976
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  description:
+    m_TableReference:
+      m_TableCollectionName: GUID:6f5c1daf15bf755418b189629d491d90
+    m_TableEntryReference:
+      m_KeyId: 252239541551104
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  icon: {fileID: -758434314, guid: 0025b4c73051bf049b8ec9b89c756089, type: 3}
+  rarity: 1
+  statModule:
+    type: 0
+    value: 0.1
+    modifierType: 0
+  itemEffect: {fileID: 5403175510570505777, guid: 0ce5b0fb0c1e3ce4e8ab731ca8419bc3, type: 3}
+  references:
+    version: 2
+    RefIds: []

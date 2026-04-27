@@ -28,6 +28,9 @@ public class DualGun : MonoBehaviour
 
     private Camera playerCamera;
     private SoundData shootData;
+    private float damageMultiplier = 1f;
+
+
 
     public void Initialize(CameraShake cameraShake, StatsController statsController)
     {
@@ -50,7 +53,15 @@ public class DualGun : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    public void IncreaseDamage(float value)
+    {
+        damageMultiplier = 1 + value / 100f;
+    }
 
+    public void ResetDamage()
+    {
+        damageMultiplier = 1f;
+    }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -59,10 +70,10 @@ public class DualGun : MonoBehaviour
 
     private void UpdateStats()
     {
-        attackRate = stats.GetStat(StatType.AttackRate);
+        attackRate = 1f / stats.GetStat(StatType.AttackRate);
         damage = stats.GetStat(StatType.Damage);
         chancheCrit = stats.GetStat(StatType.CritСhance) / 100f;
-        critMultiplayer = stats.GetStat(StatType.CritMultiplayer);
+        critMultiplayer = 1 + stats.GetStat(StatType.CritMultiplayer) / 100;
     }
 
     private void Update()
@@ -70,7 +81,7 @@ public class DualGun : MonoBehaviour
         if (_isShooting && Time.time >= _nextFireTime)
         {
             Shoot();
-            float cooldown = 1f / attackRate;
+            float cooldown = attackRate;
             _nextFireTime = Time.time + cooldown;
         }
     }
@@ -137,11 +148,12 @@ public class DualGun : MonoBehaviour
             }
         }
     }
+
     private float CalculateHitDamage()
     {
         bool isCrit = Random.value < chancheCrit;
 
-        float finalDamage = damage;
+        float finalDamage = damage * damageMultiplier;
 
         if (isCrit)
             finalDamage *= critMultiplayer;

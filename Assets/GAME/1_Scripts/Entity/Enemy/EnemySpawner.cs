@@ -25,7 +25,7 @@ public class EnemySpawner : MonoBehaviour
     private int currentLevel = 1;
     private int expReward = 0;
     private int coinRewar = 0;
-
+    private int maxEnemies = 500;
     private List<EnemyManager> _bosses = new List<EnemyManager>();
 
     public void Initialize()
@@ -87,8 +87,15 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
+
         for (int i = 0; i < count; i++)
         {
+            if (type != TypeEnemy.Boss)
+            {
+                if (!CanSpawn())
+                    break;
+            }
+
             SpawnEnemy(type, enemyPrefab);
         }
     }
@@ -133,26 +140,28 @@ public class EnemySpawner : MonoBehaviour
 
             if (player != null)
             {
-                Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * distance;
+                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * distance;
                 randomPos = player.Transform.position + offset + Vector3.up * 10f;
             }
             else
             {
-                randomPos = transform.position + Random.insideUnitSphere * radius;
+                Vector2 randomOffset = Random.insideUnitCircle * radius;
+                randomPos = transform.position + new Vector3(randomOffset.x, 200f, randomOffset.y);
             }
 
             if (Physics.Raycast(randomPos + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 30f, groundLayer))
             {
-                // Привязка к NavMesh
-                if (NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 1.5f, NavMesh.AllAreas))
                 {
                     Vector3 candidatePos = navHit.position;
 
-                    if (Physics.CheckCapsule(candidatePos, candidatePos + Vector3.up * enemyHeight, enemyRadius, ~groundLayer, QueryTriggerInteraction.Ignore))
+                    Vector3 bottom = candidatePos + Vector3.up * 0.2f;
+                    Vector3 top = candidatePos + Vector3.up * (enemyHeight - 0.2f);
+
+                    if (Physics.CheckCapsule(bottom, top, enemyRadius, ~groundLayer))
                         continue;
 
-                    // Поднимаем объект на половину высоты (чтобы не проваливался)
-                    spawnPosition = candidatePos + Vector3.up * (enemyHeight / 2f);
+                    spawnPosition = candidatePos;
                     return true;
                 }
             }
@@ -196,6 +205,11 @@ public class EnemySpawner : MonoBehaviour
         }
 
         _allEnemyManagers.Clear();
+    }
+
+    private bool CanSpawn()
+    {
+        return _allEnemyManagers.Count < maxEnemies;
     }
 
     private void OnDestroy()

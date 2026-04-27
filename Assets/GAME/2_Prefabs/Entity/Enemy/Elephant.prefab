@@ -62,24 +62,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2357b6f9949f3614ab1c4ba38589ff6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  _maxHealth: 10
+  _maxHealth: 1
   _regenerationHealth: 0
-  _shield: 0
   _armor: 0
   _evasion: 0
-  _stealingLife: 0
-  _thorns: 0
   _damage: 1
   "_\u0441rit\u0421hance": 0
   "_\u0441ritMultiplayer": 1
   _attackRate: 0.1
-  _moveSpeed: 8
-  _maxJump: 4
-  _jumpHeight: 8
+  _attackRange: 80
+  _moveSpeed: 7
+  _maxJump: 0
   _luck: 0
-  _attackRange: 50
   _pickupRadius: 5
-  _pickingSpeed: 10
+  _shield: 0
+  _thorns: 0
+  _stealingLife: 0
 --- !u!114 &641313044775014993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,11 +304,11 @@ PrefabInstance:
       addedObject: {fileID: 5145444043804989560}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bb43904b94e98f84eb4a3d34036b0aab, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3485896114754778093}
+      insertIndex: 1
+      addedObject: {fileID: 1695381723730223557}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bb43904b94e98f84eb4a3d34036b0aab, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7322460700469550195}
+      addedObject: {fileID: 3485896114754778093}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bb43904b94e98f84eb4a3d34036b0aab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4475776234501168015}
@@ -329,6 +327,19 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bb43904b94e98f84eb4a3d34036b0aab, type: 3}
   m_PrefabInstance: {fileID: 4136560394453790189}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1695381723730223557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3866738383893237948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8426786fac3d1f3499c2ff7aad5d71b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  deathParticles: {fileID: 8905293203305872214, guid: eed424fec6160554780be15d0fe2b720, type: 3}
 --- !u!114 &3485896114754778093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,20 +352,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c469a55254ae1134fb57b4523f009489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyManager
---- !u!114 &7322460700469550195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3866738383893237948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ab513a80ae8f784089f95991b693060, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  healthType: 1
-  deathParticles: {fileID: 8905293203305872214, guid: eed424fec6160554780be15d0fe2b720, type: 3}
 --- !u!114 &4475776234501168015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,6 +382,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExpDropper
   itemPickupPrefab: {fileID: 0}
+  talantedPickupPrefab: {fileID: 0}
   orbCount: 3
   coinCount: 5
   spawnPoint: {fileID: 5145444043804989560}
@@ -409,7 +407,7 @@ NavMeshAgent:
   m_Height: 10
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 1
 --- !u!65 &7042630466863156471
 BoxCollider:
   m_ObjectHideFlags: 0

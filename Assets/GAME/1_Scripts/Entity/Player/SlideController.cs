@@ -11,10 +11,6 @@ public class SlideController
     private float _slideControl = 0.15f;
     private float _slideEnterMinSpeed = 2.5f;
 
-    private bool _isSliding;
-    private bool _slidePressed;
-    private EventSFX _eventSFX;
-
     private SoundData slideData;
     private SoundHandle sliderHandle;
 
@@ -22,33 +18,35 @@ public class SlideController
     {
         _player = player;
         _rb = player.Rb;
-        _eventSFX = player.GetComponent<EventSFX>();
 
         slideData = Resources.Load<SoundData>("Audio/SFX/Slide");
     }
-
-    public void SetSlideInput(bool pressed) => _slidePressed = pressed;
 
     public void UpdateState(bool isGrounded, Vector3 velocity)
     {
         Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
         float horizontalSpeed = horizontalVelocity.magnitude;
 
-        if (!_isSliding && _slidePressed && isGrounded && horizontalSpeed >= _slideEnterMinSpeed)
+        if (isGrounded && horizontalSpeed >= _slideEnterMinSpeed)
         {
-            _player.SetSliding(true);
-            sliderHandle = G.AudioManager?.Play(slideData);
-            _isSliding = true;
+            if (sliderHandle == null) sliderHandle = G.AudioManager?.Play(slideData);
         }
-        else if (_isSliding && (!_slidePressed || !isGrounded))
+        else if (!isGrounded)
+        {
+            StopSlideAudio();
+        }
+        else if (horizontalSpeed < 1f)
+        {
+            StopSlideAudio();
+        }
+    }
+
+    public void StopSlideAudio()
+    {
+        if (sliderHandle != null)
         {
             G.AudioManager?.Stop(sliderHandle);
-            _player.SetSliding(false);
-            _isSliding = false;
-        }
-        else if (_isSliding && horizontalSpeed < 1f)
-        {
-            G.AudioManager?.Stop(sliderHandle);
+            sliderHandle = null;
         }
     }
 

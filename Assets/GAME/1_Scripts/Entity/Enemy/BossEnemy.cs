@@ -83,7 +83,7 @@ public class BossEnemy : EnemyAI
         if (Vector3.Distance(newTarget, lastDestination) > 0.5f)
         {
             lastDestination = newTarget;
-            agent.SetDestination(newTarget);
+            SetDestinationSmart(newTarget);
         }
 
 

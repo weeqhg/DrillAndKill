@@ -11,12 +11,12 @@ public class Thumper : BaseInteractable
     private bool IsStoped => GamePause.IsGameFrozen || GamePause.IsGamePaused;
     private static bool isBossDefeated = false;
     private Sequence loopSeq;
-    
+
     //Sounds
     private SoundData earthquakeSound;
     private SoundData landSound;
     private SoundData upSound;
-
+    private SoundHandle sound;
 
 
     protected override void SetupDerived()
@@ -46,7 +46,7 @@ public class Thumper : BaseInteractable
 
     private IEnumerator SpawnCoroutine()
     {
-        G.AudioManager?.Play(earthquakeSound);
+        sound = G.AudioManager?.Play(earthquakeSound);
 
         if (isBossDefeated) G.WorldManager?.CallBoerNextWorld();
 
@@ -56,6 +56,7 @@ public class Thumper : BaseInteractable
         loopSeq.Kill();
 
         G.WorldManager?.CallBossWorld();
+        G.AudioManager?.Stop(sound);
 
         if (!isBossDefeated)
         {
@@ -101,7 +102,7 @@ public class Thumper : BaseInteractable
             yield return null;
         }
     }
-    
+
     private void OnDestroy()
     {
         thumper.position = Vector3.zero;

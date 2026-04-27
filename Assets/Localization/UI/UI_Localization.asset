@@ -37,7 +37,7 @@ MonoBehaviour:
         - rid: 4878987808700629263
         - rid: 4878987808700629302
         - rid: 4878987808700629319
-        m_RemoveMissingPulledKeys: 0
+        m_RemoveMissingPulledKeys: 1
     - rid: 4878987808700629261
       type: {class: KeyColumn, ns: UnityEditor.Localization.Plugins.Google.Columns, asm: Unity.Localization.Editor}
       data:

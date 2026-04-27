@@ -18,6 +18,7 @@ public class ItemsStats : MonoBehaviour
 
     public event Action OnStatsChanged;
 
+
     // =========================
     // 🔥 ADD ITEM
     // =========================
@@ -64,7 +65,7 @@ public class ItemsStats : MonoBehaviour
     // =========================
     private void AddModifier(ItemData item)
     {
-        if (item.statModule == null) return;
+        if (item.statModule.type == StatType.None) return;
 
         var stat = item.statModule;
 
@@ -76,9 +77,10 @@ public class ItemsStats : MonoBehaviour
 
         list.Add(new StatModifier(stat.value, stat.modifierType));
     }
+
     private void RemoveModifier(ItemData item)
     {
-        if (item.statModule == null) return;
+        if (item.statModule.type == StatType.None) return;
 
         var stat = item.statModule;
 
@@ -170,6 +172,6 @@ public class ItemsStats : MonoBehaviour
             }
         }
 
-        return (baseValue + flat) * (1 + increased) * more;
+        return (baseValue + flat) * (1 + increased / 100) * more;
     }
 }

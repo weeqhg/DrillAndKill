@@ -84,6 +84,8 @@ public class PepelatsController : MonoBehaviour, IInteractable
     // 📌 Вызвать для 100% спавна
     public void ForceLaunchPepelats()
     {
+        SetAvailable(true);
+        
         if (isBusy)
         {
             ConsoleEvents.ConsoleMessage("Bore is busy");
@@ -216,9 +218,10 @@ public class PepelatsController : MonoBehaviour, IInteractable
             OnLoseFocus();
         }
     }
-    
+
     public bool IsUsed()
     {
+        Debug.Log(isAvailable);
         return isBusy || !isAvailable;
     }
     public void OnFocus()

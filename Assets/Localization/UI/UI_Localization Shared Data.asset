@@ -107,26 +107,6 @@ MonoBehaviour:
     m_Key: thanks
     m_Metadata:
       m_Items: []
-  - m_Id: 446519828660224
-    m_Key: stats_health
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020352
-    m_Key: stats_move_speed
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020353
-    m_Key: stats_damage
-    m_Metadata:
-      m_Items: []
-  - m_Id: 446519858020354
-    m_Key: stats_attack_speed
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1223347269525504
-    m_Key: level
-    m_Metadata:
-      m_Items: []
   - m_Id: 5034702310588416
     m_Key: arena
     m_Metadata:
@@ -145,6 +125,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6260194563579904
     m_Key: piramidon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9168965293424640
+    m_Key: level
     m_Metadata:
       m_Items: []
   m_Metadata:

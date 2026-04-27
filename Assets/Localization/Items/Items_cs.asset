@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Items_cs
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: cs
+  m_SharedData: {fileID: 11400000, guid: 6f5c1daf15bf755418b189629d491d90, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 9235870367744
+    m_Localized: "Elix\xEDr"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670912
+    m_Localized: "Zvy\u0161uje maxim\xE1ln\xED zdrav\xED o +{}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670913
+    m_Localized: 'Jitrocel
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235941670914
+    m_Localized: "Zvy\u0161uje rychlost regenerace o +{}% (+{}% za ka\u017Ed\xFD
+      stupe\u0148)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865216
+    m_Localized: Tenisky
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9235945865217
+    m_Localized: "Zvy\u0161uje rychlost pohybu o +{}% (+{}% za ka\u017Ed\xFD stupe\u0148)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239512190976
+    m_Localized: "Up\xED\u0159\xED zuby"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 252239541551104
+    m_Localized: "Kdy\u017E zabijete nep\u0159\xEDtele, obnov\xEDte +{} zdrav\xED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070359552000
+    m_Localized: "Torn\xE1do"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2131070397300736
+    m_Localized: "Ve vzduchu se po\u0161kozen\xED zvy\u0161uje o {}% (+{}% za ka\u017Ed\xFD
+      stupe\u0148)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869376
+    m_Localized: "Energetick\xFD pij\xE1k"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2132950640869377
+    m_Localized: "Zvy\u0161uje rychlost pohybu o +{}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439352978620416
+    m_Localized: Mech
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2439353003786240
+    m_Localized: "L\xE9\u010Den\xED nad maxim\xE1ln\xED zdrav\xED poskytuje do\u010Dasn\xFD
+      \u0161t\xEDt, kter\xFD se ka\u017Ed\xFDch {} sekund sni\u017Euje o 1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440456021852160
+    m_Localized: "Mechanick\xFD pomeran\u010D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2440546358771712
+    m_Localized: "Zvy\u0161uje rychlost \xFAtoku o {}"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

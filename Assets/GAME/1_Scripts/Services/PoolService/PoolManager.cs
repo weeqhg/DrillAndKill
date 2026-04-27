@@ -110,7 +110,6 @@ public class PoolManager : MonoBehaviour, IInitializable
     {
         if (!runtimePools.TryGetValue(id, out var pool))
         {
-            Debug.LogError($"Pool {id} not found!");
             return null;
         }
 
